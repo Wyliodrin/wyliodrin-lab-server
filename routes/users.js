@@ -40,13 +40,14 @@ publicApp.post('/create', async function(req, res) {
     var email = req.body.email;
     var firstName = req.body.firstName;
     var lastName = req.body.lastName;
-    debug('Username', username);
     try {
         let user = await db.user.create(username, password, firstName, lastName, email);
         try {
             await db.workspace.createUserHome(user.userId);
         } catch (err) {
+            // TODO Trimite eroare corecta spre client
             debug('Error creating workspace', err);
+            error.sendError(res, error.serverError());
         }
         // TODO: Create user workspace
         res.status(200).send({});
@@ -111,7 +112,7 @@ async function security(req, res, next) {
         req.user = user;
         next();
     } else {
-        res.send(error.sendError(res, error.unauthorized('Please login first')));
+        error.sendError(res, error.unauthorized('Please login first'));
     }
 }
 

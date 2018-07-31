@@ -9,6 +9,7 @@ var bodyParser = require('body-parser');
 require('./database/database.js');
 var users = require('./routes/users');
 var error = require('./error.js');
+var projectsRouter = require('/routes/projects');
 
 var app = express();
 
@@ -31,6 +32,8 @@ apiv1.use('/user', users.publicRoutes);
 apiv1.use(users.security);
 
 apiv1.use('/user', users.privateRoutes);
+
+apiv1.use('/project', projectsRouter);
 
 // Useful variables to display in ejs templates
 app.use(function(req, res, next) {

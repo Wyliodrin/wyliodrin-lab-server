@@ -9,7 +9,6 @@ debug.log = console.info.bind(console);
 
 mongoose.set('debug', process.env.NODE_ENV !== 'production');
 
-
 mongoose.Promise = global.Promise;
 
 var database_string = process.env.WYLIODRIN_MONGODB_RESOURCE;
