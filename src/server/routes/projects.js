@@ -8,9 +8,10 @@ var error = require('../error.js');
 
 var projectApp = express.Router();
 
-projectApp.post('/new_project', async(res, req, next) => {
+projectApp.post('/new_project', async(req, res, next) => {
     var userId = req.user.userId;
     var projectName = req.body.projectName;
+    console.log(projectName);
     var result = await db.workspace.createProject(userId, projectName);
     if (result.success) {
         res.status(200).send({});
