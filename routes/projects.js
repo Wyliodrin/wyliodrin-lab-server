@@ -2,7 +2,7 @@
 
 var express = require('express');
 var fs = require('fs-extra');
-var debug = require('debug')('development:projects');
+var debug = require('debug')('development:projects-routes');
 var db = require('../database/database.js');
 var error = require('../error.js');
 
@@ -15,6 +15,8 @@ projectApp.post('/new_project', async(res, req, next) => {
     if (result.success) {
         res.status(200).send({});
     } else {
+        debug(result.message);
+        err = error.serverError(err);
         next(err);
     }
 
@@ -26,13 +28,10 @@ projectApp.post('/list_projects', async(req, res, next) => {
         var projects = await db.workspace.listProjects(userId);
     } catch (err) {
         debug('Error router list projects', err);
+        err = error.serverError(err);
         next(err);
     }
     res.status(200).send(projects);
-});
-
-projectApp.use(function internalError(err, req, res, next) {
-    error.sendError(res, error.serverError());
 });
 
 module.exports.projectsRouter = projectApp;

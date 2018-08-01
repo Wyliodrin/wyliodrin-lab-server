@@ -8,7 +8,7 @@ var stream = require('stream');
 
 debug.log = console.info.bind(console);
 
-var HOMES = process.env.USER_HOMES;
+var HOMES = path.join(__dirname, 'homes');
 var PROJECTS = 'projects';
 
 async function init() {
@@ -21,6 +21,19 @@ async function init() {
         }
     }
     debug('Homes exists');
+}
+
+async function hasHome(userId) {
+    var userHome = path.join(HOMES, userId);
+    var userProjects = path.join(userHome, PROJECTS);
+
+    try {
+        var homeExists = await fs.pathExists(userHome);
+    } catch (err) {
+        throw new Error('Got error: \n', err);
+    }
+
+    return homeExists;
 }
 
 async function createUserHome(userId) {
@@ -108,7 +121,8 @@ var workspace = {
     createUserHome,
     createProject,
     saveFile,
-    listProjects
+    listProjects,
+    hasHome
 }
 
 module.exports = workspace;

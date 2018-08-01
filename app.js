@@ -6,10 +6,11 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var session = require('express-session');
 var bodyParser = require('body-parser');
+var statusCodes = require('http-status-codes');
 require('./database/database.js');
 var users = require('./routes/users');
 var error = require('./error.js');
-var projectsRouter = require('/routes/projects');
+var projects = require('./routes/projects');
 
 var app = express();
 
@@ -33,7 +34,7 @@ apiv1.use(users.security);
 
 apiv1.use('/user', users.privateRoutes);
 
-apiv1.use('/project', projectsRouter);
+apiv1.use('/project', projects.projectsRouter);
 
 // Useful variables to display in ejs templates
 app.use(function(req, res, next) {
@@ -43,14 +44,10 @@ app.use(function(req, res, next) {
 
 app.use('/api/v1', apiv1);
 
-// TODO: This will change to UI_INTERFACE
-app.use(express.static(path.join(__dirname, 'public')));
-
-app.set("views", path.join(__dirname, "views"));
-app.set("view engine", "ejs");
+app.use(express.static(path.join(__dirname, 'client')));
 
 app.use('/', function(req, res) {
-    res.render('login');
+    res.sendFile(path.join(__dirname, 'client', 'views', 'index.html'));
 });
 
 app.use(session({
@@ -59,9 +56,12 @@ app.use(session({
     saveUninitialized: true
 }));
 
-// catch 404 and forward to error handler
-app.use(function(req, res, next) {
-    error.sendError(res, error.notFound('Page not found'));
+app.use(function errorMiddleware(err, req, res, next) {
+    if (err.status) {
+        error.sendError(res, err);
+    } else {
+        error.sendError(res, error.notFound('Page not found'));
+    }
 });
 
 module.exports = app;

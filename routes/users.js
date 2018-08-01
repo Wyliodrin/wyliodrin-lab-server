@@ -5,6 +5,7 @@ var debug = require('debug')('development:user_route');
 var uuid = require('uuid');
 var db = require('../database/database.js');
 var error = require('../error.js');
+var fs = require('fs-extra');
 var publicApp = express.Router();
 var privateApp = express.Router();
 
@@ -14,11 +15,11 @@ function createToken() {
     return uuid.v4() + uuid.v4() + uuid.v4() + uuid.v4();
 }
 
-// TODO : Use body parser doar pe router
 
 
 var tokens = {};
 
+//TODO Move this after security
 /**
  * @api {post} /create Create a user
  * @apiName CreateUser
@@ -45,19 +46,20 @@ publicApp.post('/create', async function(req, res) {
         try {
             await db.workspace.createUserHome(user.userId);
         } catch (err) {
-            // TODO Trimite eroare corecta spre client
             debug('Error creating workspace', err);
-            error.sendError(res, error.serverError());
+            err = error.serverError();
+            next(err);
         }
-        // TODO: Create user workspace
         res.status(200).send({});
     } catch (err) {
         if (err.code !== 11000) {
             debug('Creation failed', { requestId: req.requestId, error: err });
-            error.sendError(res, error.serverError());
+            err = error.serverError();
+            next(err);
         } else {
             debug('Creation failed, user exists', { requestId: req.requestId, error: err });
-            error.sendError(res, error.notAcceptable('User already exists'));
+            err = error.notAcceptable('User already exists');
+            next(err);
         }
     }
 });
@@ -69,20 +71,35 @@ publicApp.post('/login', async function(req, res) {
         debug('Searching for ' + username);
         let user = await db.user.findByUsernameAndPassword(username, password);
         if (user) {
-            // TODO: Find out if user is already logged in
             debug('Found user ' + user);
-            //debug(user);
             var token = createToken();
             tokens[token] = user.userId;
             debug('User ' + user.username + ':' + user.userId + ' logged in');
+
+            try {
+                let hasHome = await db.workspace.hasHome(user.userId);
+            } catch (err) {
+                debug(err);
+            }
+            if (!hasHome) {
+                try {
+                    await db.workspace.createUserHome(user.userId);
+                } catch (err) {
+                    debug(err);
+                    err = error.serverError(err);
+                    next(err);
+                }
+            }
+
             res.status(200).send({ err: 0, token: token });
             debug(tokens);
         } else {
-            debug(res, error.serverError());
-            error.sendError(res, error.unauthorized('User or password are not correct'));
+            err = error.unauthorized('User or password are not correct');
+            next(err);
         }
     } else {
-        error.sendError(res, error.badRequest('All fields are required'));
+        err = error.badRequest('All fields are required');
+        next(err);
     }
 });
 
@@ -112,7 +129,8 @@ async function security(req, res, next) {
         req.user = user;
         next();
     } else {
-        error.sendError(res, error.unauthorized('Please login first'));
+        var err = error.unauthorized('Please login first');
+        next(err);
     }
 }
 
@@ -125,9 +143,12 @@ privateApp.post('/edit', async function(req, res) {
             res.status(200).send({ err: 0 });
         } catch (err) {
             debug(err.message);
+            err = error.serverError();
+            next(err);
         }
     } else {
-        error.sendError(res, error.badRequest('At least one field is required'));
+        var err = error.badRequest('At least one field is required')
+        next(err);
     }
 });
 
@@ -149,13 +170,16 @@ privateApp.post('/password/edit', async function(req, res) {
                 res.status(200).send({ err: 0 });
             } else {
                 debug('User ' + req.user.userId + 'password change fail');
-                error.sendError(res, error.badRequest('Wrong password'));
+                var err = error.badRequest('Wrong Password');
+                next(err);
             }
         } else {
-            error.sendError(res, error.badRequest('Please do not use the same password'));
+            var err = error.badRequest('Please do not use the same password');
+            next(err);
         }
     } else {
-        error.sendError(res, error.badRequest('Wrong input'));
+        var err = error.badRequest('Wrong input');
+        next(err);
     }
 });
 
@@ -164,7 +188,8 @@ privateApp.get('/list/:partOfName', async function(req, res) {
         var userList = await db.user.findUsers(req.params.partOfName);
         res.status(200).send(userList);
     } else {
-        error.sendError(res, error.badRequest('Name is required'));
+        var err = error.badRequest('Name is required');
+        next(err);
     }
 });
 
