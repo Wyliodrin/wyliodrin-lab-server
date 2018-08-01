@@ -34,7 +34,7 @@ apiv1.use(users.security);
 
 apiv1.use('/user', users.privateRoutes);
 
-apiv1.use('/project', projects.projectsRouter);
+apiv1.use('/projects', projects.projectsRouter);
 
 app.use('/api/v1', apiv1);
 

@@ -77,7 +77,7 @@ publicApp.post('/login', async function(req, res) {
             debug('User ' + user.username + ':' + user.userId + ' logged in');
 
             try {
-                let hasHome = await db.workspace.hasHome(user.userId);
+                var hasHome = await db.workspace.hasHome(user.userId);
             } catch (err) {
                 debug(err);
             }
@@ -124,9 +124,9 @@ async function security(req, res, next) {
         var userId = tokens[token];
         user = await db.user.findByUserId(userId);
     }
-    debug('token non existent');
     if (user) {
         req.user = user;
+        debug('Appended user to request', req.user);
         next();
     } else {
         var err = error.unauthorized('Please login first');

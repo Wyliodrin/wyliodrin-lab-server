@@ -66,11 +66,14 @@ async function createProject(userId, projectName) {
     var projectName = path.join(userProjects, projectName);
 
     try {
-        await fs.mkdir(projectName);
+        debug(projectName);
+        await fs.ensureDir(projectName);
+        debug('Project created')
     } catch (err) {
         debug('Error creating project', err);
         return { success: false, message: 'File System Error: \n' + err };
     }
+    debug('This should be after created');
     return { success: true };
 }
 
@@ -100,6 +103,7 @@ async function saveFile(file) {
 async function listProjects(userId) {
     var userHome = path.join(HOMES, userId)
     var userProjects = path.join(userHome, PROJECTS);
+    debug(userProjects);
     var projectList = [];
 
     try {
@@ -109,9 +113,10 @@ async function listProjects(userId) {
         throw new Error('File System Error: \n', err);
     }
 
-    projectList.forEach((projectName) => {
+    projects.forEach((projectName) => {
         projectList.push({ name: projectName });
     });
+    debug('Projects: ', projectList);
 
     return projectList;
 }
