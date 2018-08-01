@@ -36,18 +36,12 @@ apiv1.use('/user', users.privateRoutes);
 
 apiv1.use('/project', projects.projectsRouter);
 
-// Useful variables to display in ejs templates
-app.use(function(req, res, next) {
-    res.locals.currentUser = req.user;
-    next();
-});
-
 app.use('/api/v1', apiv1);
 
-app.use(express.static(path.join(__dirname, 'client')));
+app.use(express.static(path.join(path.dirname(__dirname), 'client')));
 
 app.use('/', function(req, res) {
-    res.sendFile(path.join(__dirname, 'client', 'views', 'index.html'));
+    res.sendFile(path.join(path.dirname(__dirname), 'client', 'views', 'index.html'));
 });
 
 app.use(session({
