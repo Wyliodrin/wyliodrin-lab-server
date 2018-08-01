@@ -143,7 +143,7 @@ privateApp.post('/edit', async function(req, res) {
             res.status(200).send({ err: 0 });
         } catch (err) {
             debug(err.message);
-            err = error.serverError();
+            err = error.serverError(err.message);
             next(err);
         }
     } else {
