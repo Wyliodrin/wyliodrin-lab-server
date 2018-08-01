@@ -61,3 +61,4 @@ typings/
 .next
 testFile.js
 todo
+database/homes/
