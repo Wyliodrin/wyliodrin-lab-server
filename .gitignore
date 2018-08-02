@@ -61,6 +61,8 @@ typings/
 .next
 testFile.js
 todo
+
+# The homes for users
 database/homes/
 
 # the build folder
