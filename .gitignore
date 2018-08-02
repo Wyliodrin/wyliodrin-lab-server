@@ -62,3 +62,6 @@ typings/
 testFile.js
 todo
 database/homes/
+
+# the build folder
+build/
