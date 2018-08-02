@@ -1,41 +1,43 @@
 <template>
 	<div>
-		<div>
-			Name: <input v-model="name" type="text">
-		</div>
-		<div>
-			<div class="greeting">Hello {{name}}{{exclamationMarks}}</div>
-			<button @click="decrement">-</button>
-			<button @click="increment">+</button>
+		<div class="login-page">
+			<div class="form">
+				<!-- <form class="login-form"> -->
+					<input type="text" placeholder="username" v-model="username"/>
+					<input type="password" placeholder="password" v-model="password"/>
+					<button @click="login">login</button>
+					<p class="message">Not registered? <a href="#">Create an account</a></p>
+				<!-- </form> -->
+			</div>
 		</div>
 	</div>
 </template>
 
 <script>
 
+var mapGetters = require('vuex').mapGetters;
+
 module.exports = {
-	name: 'Hello component',
+	name: 'Login',
 	data() {
 		return {
-			name: 'World',
-			enthusiasm: 5
+			username: '',
+			password: ''
 		};
 	},
 	methods: {
-		increment() { 
-			this.enthusiasm++; 
-		},
-		decrement() {
-			if (this.enthusiasm > 1) {
-				this.enthusiasm--;
-			}
-		},
-	},
-	computed: {
-		exclamationMarks() {
-			return Array(this.enthusiasm + 1).join('!');
+		async login () {
+			await this.$store.dispatch ('user/login', {
+				username: this.username,
+				password: this.password
+			});
+
+			// console.log(this.role);
 		}
-	}
+	},
+	computed: mapGetters ({
+		role: 'user/role'
+	})
 };
 
 </script>

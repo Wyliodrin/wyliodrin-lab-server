@@ -91,7 +91,7 @@ publicApp.post('/login', async function(req, res) {
                 }
             }
 
-            res.status(200).send({ err: 0, token: token });
+            res.status(200).send({ err: 0, token: token, role: user.role });
             debug(tokens);
         } else {
             err = error.unauthorized('User or password are not correct');
@@ -118,6 +118,7 @@ async function security(req, res, next) {
         token = req.body.token;
     }
     req.token = token;
+
     let user;
     if (token) {
         debug('got token', token);

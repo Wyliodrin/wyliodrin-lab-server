@@ -5,6 +5,7 @@ var fs = require('fs-extra');
 var debug = require('debug')('development:db-workspace');
 var user = require('./user.js');
 var stream = require('stream');
+var statusCodes = require('http-status-codes');
 
 debug.log = console.info.bind(console);
 
@@ -22,6 +23,21 @@ async function init() {
     }
     debug('Homes exists');
 }
+/**
+ * 
+ * @param {String} filePath - path relative to project for file
+ * @param {String} userId - id of the user
+ * @param {String} project - the project containing the file
+ */
+function verifyPath(filePath, userId, project) {
+    var absPath = path.join(HOMES, userId, project, filePath);
+    var normalizedPath = path.normalize(absPath);
+    var verifyPath = path.join(HOMES, userID, project);
+    if (normalizedPath.startsWith(verifyPath)) {
+        return { valid: true, absPath: absPath, normalizedPath: normalizedPath };
+    }
+    return { valid: false, absPath: absPath, normalizedPath: normalizedPath };
+}
 
 async function hasHome(userId) {
     var userHome = path.join(HOMES, userId);
@@ -30,11 +46,37 @@ async function hasHome(userId) {
     try {
         var homeExists = await fs.pathExists(userHome);
     } catch (err) {
-        throw new Error('Got error: \n', err);
+        throw new Error('Got error checking home', err);
     }
-
     return homeExists;
 }
+
+async function projectExists(userId, project) {
+    var userHome = path.join(HOMES, userId);
+    var projPath = path.join(userHome, PROJECTS, project);
+
+    try {
+        var exists = await fs.pathExists(projPath);
+    } catch (err) {
+        throw new Error('Got error checking project', err);
+    }
+
+    return exists;
+}
+
+async function fileExists(userId, project, filePath) {
+    var userHome = path.join(HOMES, userId);
+    var filePath = path.join(userHome, PROJECTS, project, filePath);
+    try {
+        var exists = await fs.pathExists(filePath);
+    } catch (err) {
+        throw new Error('Got error checking project', err);
+    }
+
+    return exists;
+}
+
+
 
 async function createUserHome(userId) {
     var userHome = path.join(HOMES, userId);
@@ -54,42 +96,104 @@ async function createUserHome(userId) {
     }
 }
 
-async function createProject(userId, projectName) {
-
+function isValidName(name) {
     var regex = new RegExp(/^[\w\-. ]+$/);
-    if (!regex.test(projectName)) {
-        return { success: false, message: 'Invalid project name' };
+    if (regex.test(name) && name !== '.' && name !== '..') {
+        return true;
     }
+    return false;
+
+}
+
+async function createProject(userId, projectName) {
 
     var userHome = path.join(HOMES, userId);
     var userProjects = path.join(userHome, PROJECTS);
     var projectName = path.join(userProjects, projectName);
+    if (!isValidName) {
+        return { success: false, message: 'Invalid project name' };
+    }
 
     try {
-        await fs.mkdir(projectName);
+        debug(projectName);
+        await fs.ensureDir(projectName);
+        debug('Project created')
     } catch (err) {
         debug('Error creating project', err);
         return { success: false, message: 'File System Error: \n' + err };
     }
+    debug('This should be after created');
     return { success: true };
 }
 
-/**
- * Save a file from the user
- * @param {String} userId 
- * @param {Object} file - file object containing path, name and content
- */
-async function saveFile(file) {
 
-    // TODO: Finnish writing content to project folder
+/**
+ * 
+ * @param {String} filePath - the file path relative to the project
+ * @param {String} userId - id of the user
+ * @param {String} project - name of the project 
+ * @param {Object} data - object containing name of file and data from file 
+ */
+async function setFile(filePath, userId, project, data) {
     try {
-        await fs.writeFile(file.name, file.content);
+        var projectExists = await projectExists(userId, project);
+    } catch (err) {
+        throw new Error('File System Error', err);
+    }
+
+    if (!projectExists) {
+        return { success: false, message: 'Project not found', err: statusCodes.BAD_REQUEST };
+    }
+
+    var pathIsValid = verifyPath(filePath, userId, project);
+    if (!pathIsValid.valid) {
+        return { success: false, message: 'Invalid path', err: statusCodes.BAD_REQUEST };
+    }
+
+    var fileData = new Buffer(data.data, 'base64');
+    var normalized_path = pathIsValid.normalizedPath;
+    try {
+        await fs.outputFile(normalized_path, fileData);
+    } catch (err) {
+        throw new Error('Got error writing file: ', err);
+        return { success: false, message: 'File system error', err: statusCodes.INTERNAL_SERVER_ERROR };
+    }
+
+    return { success: true, err: 0 };
+}
+
+/**
+ * 
+ * @param {String} filePath - the file path relative to the project
+ * @param {String} userId - id of the user
+ * @param {String} project - name of the project 
+ */
+async function getFile(filePath, userId, project, data) {
+    var pathIsValid = verifyPath(filePath, userId, project);
+    if (!pathIsValid.valid) {
+        return { success: false, message: 'Invalid path', err: statusCodes.BAD_REQUEST };
+    }
+
+    try {
+        var projectExists = await projectExists(userId, project);
     } catch (err) {
         debug(err);
-        return { success: false, message: 'File System Error: \n', err };
+        return { success: false, message: 'File system error', err: statusCodes.INTERNAL_SERVER_ERROR };
     }
-    return { success: true };
+    if (!projectExists) {
+        return { success: false, message: 'Project not found', err: statusCodes.BAD_REQUEST };
+    }
 
+    var normalized_path = pathIsValid.normalizedPath;
+
+    try {
+        const data = (await fs.readFile(normalized_path)).toString('base64');
+    } catch (err) {
+        debug(err)
+        return { success: false, message: 'File system error', err: statusCodes.INTERNAL_SERVER_ERROR };
+    }
+
+    return { success: true, data, err: 0 };
 }
 
 
@@ -100,6 +204,7 @@ async function saveFile(file) {
 async function listProjects(userId) {
     var userHome = path.join(HOMES, userId)
     var userProjects = path.join(userHome, PROJECTS);
+    debug(userProjects);
     var projectList = [];
 
     try {
@@ -109,9 +214,10 @@ async function listProjects(userId) {
         throw new Error('File System Error: \n', err);
     }
 
-    projectList.forEach((projectName) => {
+    projects.forEach((projectName) => {
         projectList.push({ name: projectName });
     });
+    debug('Projects: ', projectList);
 
     return projectList;
 }
@@ -120,9 +226,10 @@ init();
 var workspace = {
     createUserHome,
     createProject,
-    saveFile,
     listProjects,
-    hasHome
+    hasHome,
+    setFile,
+    getFile
 }
 
 module.exports = workspace;

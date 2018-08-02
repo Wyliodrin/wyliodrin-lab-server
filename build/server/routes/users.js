@@ -77,7 +77,7 @@ publicApp.post('/login', async function(req, res) {
             debug('User ' + user.username + ':' + user.userId + ' logged in');
 
             try {
-                let hasHome = await db.workspace.hasHome(user.userId);
+                var hasHome = await db.workspace.hasHome(user.userId);
             } catch (err) {
                 debug(err);
             }
@@ -91,7 +91,7 @@ publicApp.post('/login', async function(req, res) {
                 }
             }
 
-            res.status(200).send({ err: 0, token: token });
+            res.status(200).send({ err: 0, token: token, role: user.role });
             debug(tokens);
         } else {
             err = error.unauthorized('User or password are not correct');
@@ -118,15 +118,16 @@ async function security(req, res, next) {
         token = req.body.token;
     }
     req.token = token;
+
     let user;
     if (token) {
         debug('got token', token);
         var userId = tokens[token];
         user = await db.user.findByUserId(userId);
     }
-    debug('token non existent');
     if (user) {
         req.user = user;
+        debug('Appended user to request', req.user);
         next();
     } else {
         var err = error.unauthorized('Please login first');
@@ -143,7 +144,7 @@ privateApp.post('/edit', async function(req, res) {
             res.status(200).send({ err: 0 });
         } catch (err) {
             debug(err.message);
-            err = error.serverError();
+            err = error.serverError(err.message);
             next(err);
         }
     } else {

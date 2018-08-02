@@ -7,7 +7,7 @@ module.exports = function(grunt){
 		browserify: {
 			ui: {
 				files: {
-					'build/ui/js/login.js': ['source/ui/js/login.js']
+					'build/ui/js/login.js': ['src/ui/js/login.js']
 				},
 				options: {
 					transform: ['vueify']
@@ -81,6 +81,12 @@ module.exports = function(grunt){
 				]
 			}
 		},
+	    //clean the build folder
+	    clean:{
+	        all: 'build',
+	        client:'build/client',
+	        server:'build/server',
+	    },
 		less:
 		{
 			files: {
@@ -99,6 +105,7 @@ module.exports = function(grunt){
 	grunt.loadNpmTasks('grunt-browserify');
 	grunt.loadNpmTasks('grunt-contrib-less');
 	grunt.loadNpmTasks('grunt-contrib-copy');
+	grunt.loadNpmTasks('grunt-contrib-clean');
 	grunt.loadNpmTasks('grunt-eslint');
 
 	grunt.registerTask('default',['eslint:ui','browserify', 'copy', 'less']);
