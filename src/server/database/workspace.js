@@ -221,6 +221,7 @@ async function listProjects(userId) {
 
     return projectList;
 }
+
 init();
 
 var workspace = {
