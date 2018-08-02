@@ -88,7 +88,7 @@ module.exports = function(grunt) {
 		},
 		eslint: {
 			gruntfile: 'Gruntfile.js',
-			server: ['src/server/**/*.js'],
+			server: ['src/server/**/*.js', '!src/server/database/courses.js'],
 			ui: ['src/ui/**/*.js', 'src/ui/**/*.vue']
 		}
 	};
@@ -100,5 +100,5 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-contrib-clean');
 	grunt.loadNpmTasks('grunt-eslint');
 
-	grunt.registerTask('default', ['eslint:ui', 'browserify', 'copy', 'less']);
+	grunt.registerTask('default', ['eslint', 'browserify', 'copy', 'less']);
 };
