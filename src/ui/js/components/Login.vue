@@ -6,7 +6,6 @@
 					<input type="text" placeholder="username" v-model="username"/>
 					<input type="password" placeholder="password" v-model="password"/>
 					<button @click="login">login</button>
-					<p class="message">Not registered? <a href="#">Create an account</a></p>
 				<!-- </form> -->
 			</div>
 		</div>
@@ -27,12 +26,17 @@ module.exports = {
 	},
 	methods: {
 		async login () {
-			await this.$store.dispatch ('user/login', {
+			let login = await this.$store.dispatch ('user/login', {
 				username: this.username,
 				password: this.password
 			});
 
-			// console.log(this.role);
+			if (login && (this.role === 'admin'))
+				this.$store.dispatch ('settings/redirect', 'ADMIN');
+			else {
+				this.username = '';
+				this.password = '';
+			}
 		}
 	},
 	computed: mapGetters ({

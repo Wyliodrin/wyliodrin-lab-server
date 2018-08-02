@@ -16,6 +16,7 @@ module.exports ={
 		token: window.localStorage.getItem (KEY_TOKEN),
 		role: null,
 		user: null,
+		users: null,
 		sessions: null,
 		storage: null,
 	},
@@ -35,6 +36,10 @@ module.exports ={
 		user (state)
 		{
 			return state.user;
+		},
+		users (state)
+		{
+			return state.users;
 		},
 		sessions (state)
 		{
@@ -122,6 +127,29 @@ module.exports ={
 				return false;
 			}
 		},
+		async getAllUsers (store)
+		{
+			try
+			{
+				let response = await Vue.http.get (setup.API+'/admin/list_users');
+				if (response.data.err === 0)
+				{
+					console.log(response.data.users);
+					store.commit ('users', response.data.users);
+					return true;
+				}
+				else 
+				{
+					return false;
+				}
+			}
+			catch (e)
+			{
+				console.log('Getting all users fail '+e);
+				console.log(e);
+				return false;
+			}
+		},
 		async editUser (store, user)
 		{
 			try
@@ -183,6 +211,10 @@ module.exports ={
 		user (state, value)
 		{
 			state.user = value;
+		},
+		users (state, value)
+		{
+			state.users = value;
 		},
 		sessions (state, value)
 		{

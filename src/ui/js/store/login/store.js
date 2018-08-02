@@ -6,10 +6,12 @@ Vue.use (VueResource);
 var Vuex = require ('vuex');
 Vue.use (Vuex);
 
+var settings = require ('../modules/settings');
 var user = require ('../modules/user');
 
 module.exports = new Vuex.Store ({
 	modules: {
+		settings, 
 		user
 	}
 });
