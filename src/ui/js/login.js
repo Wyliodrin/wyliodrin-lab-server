@@ -8,6 +8,7 @@ Vue.mixin({
 });
 
 var Login = require ('./components/Login.vue');
+// var EditUserModal = require ('./components/EditUserModal.vue');
 
 new Vue({
 	el: '#login',

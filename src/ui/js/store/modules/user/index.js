@@ -131,7 +131,7 @@ module.exports ={
 		{
 			try
 			{
-				let response = await Vue.http.post (setup.API+'/admin/list_users');
+				let response = await Vue.http.get (setup.API+'/admin/list_users');
 				if (response.data.err === 0)
 				{
 					console.log(response.data.users);
@@ -164,6 +164,24 @@ module.exports ={
 			catch (e)
 			{
 				// TODO toast network error
+				return false;
+			}
+		},
+		async adminUserEdit (store, user)
+		{
+			try 
+			{
+				let response = await Vue.http.post (setup.API+'/admin/update_user', user);
+				if (response.data.err === 0)
+				{
+					await store.dispatch ('getAllUsers');
+					return true;
+				} else 
+					return false;
+			}
+			catch (e)
+			{
+
 				return false;
 			}
 		},

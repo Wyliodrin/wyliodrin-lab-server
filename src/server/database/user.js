@@ -150,7 +150,7 @@ function listUsers() {
  * @param {String} lastName - new last name (optional)
  */
 
-async function edit(userId, username, password, email, firstName, lastName) {
+async function edit(userId, username, password, email, firstName, lastName, role) {
 	var editUser = {};
 	if (username) {
 		editUser.username = username;
