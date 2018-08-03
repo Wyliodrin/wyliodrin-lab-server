@@ -167,6 +167,24 @@ module.exports ={
 				return false;
 			}
 		},
+		async addUser (store, user)
+		{
+			console.log(user);
+			try
+			{
+				let response = await Vue.http.post (setup.API+'/admin/create_user', user);
+				if (response.data.err === 0)
+				{
+					await store.dispatch ('getAllUsers');
+					return true;
+				} else 
+					return false;
+			} 
+			catch (e) 
+			{
+				return false;
+			}
+		},
 		async adminUserEdit (store, user)
 		{
 			try 

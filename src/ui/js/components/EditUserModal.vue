@@ -78,14 +78,29 @@ module.exports = {
 				if (this.inputPassword != this.inputRetypePassword)
 					window.alert('Passwords do not match');
 				else {
-					let toBeModifiedUser = {
-						username: this.inputUsername,
-						firstName: this.inputFirstName,
-						lastName: this.inputLastName,
-						email: this.inputEmail,
-						role: this.inputRole,
-						password: this.inputPassword
-					};
+					let toBeModifiedUser;
+
+					if (this.inputPassword) {
+						toBeModifiedUser = {
+							username: this.inputUsername,
+							firstName: this.inputFirstName,
+							lastName: this.inputLastName,
+							email: this.inputEmail,
+							role: this.inputRole,
+							password: this.inputPassword,
+							userId: this.userId
+						};
+					} else {
+						toBeModifiedUser = {
+							username: this.inputUsername,
+							firstName: this.inputFirstName,
+							lastName: this.inputLastName,
+							email: this.inputEmail,
+							role: this.inputRole,
+							userId: this.userId
+						};
+					}
+
 					let newUser = Object.assign({}, toBeModifiedUser);
 					console.log(newUser);
 					// console.log(this);
