@@ -32,7 +32,7 @@ module.exports ={
 		}
 	},
 	actions: {
-		async list_courses (store, credentials)
+		async list_courses (store)
 		{
 			try
 			{

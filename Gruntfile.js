@@ -63,12 +63,6 @@ module.exports = function(grunt) {
 				},
 				{
 					expand: true,
-					cwd: 'src/ui/style',
-					src: ['*'],
-					dest: 'build/ui/style/'
-				},
-				{
-					expand: true,
 					cwd: 'src/ui/views',
 					src: ['*'],
 					dest: 'build/ui/views/'
@@ -82,8 +76,11 @@ module.exports = function(grunt) {
 			server: 'build/server',
 		},
 		less: {
-			files: {
-				// 'build/ui/css/login.css': 'source/ui/css/login.less'
+			vendor: {
+				files: {
+					// 'build/ui/css/login.css': 'source/ui/css/login.less'
+					'build/ui/style/vendor.css': 'src/ui/style/vendor.less'
+				}
 			}
 		},
 		eslint: {

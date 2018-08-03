@@ -35,17 +35,18 @@
 			<div>
 				<h2>Lista de cursuri</h2>
 				
-				<p>Select a course: </p>
+				<p>Selecteaza un curs: </p>
 				<div class="dropdown">
-					<button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Dropdown Example
-					<span class="caret"></span></button>
-					<ul class="dropdown-menu">
-						<li><a href="#">HTML</a></li>
-						<li><a href="#">CSS</a></li>
-						<li><a href="#">JavaScript</a></li>
-					</ul>
+					<button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+						Niciun curs selectat
+					</button>
+					<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+						<a class="dropdown-item" href="#">Action</a>
+						<a class="dropdown-item" href="#">Another action</a>
+						<a class="dropdown-item" href="#">Something else here</a>
+					</div>
 				</div>
-				
+
 				<table style="width:100%">
 					<tr>
 						<th>Name</th>
@@ -62,7 +63,6 @@
 </template>
 
 <script>
-
 var Vue = require ('vue');
 var EditUserModal = require ('./EditUserModal.vue');
 var AddUserModal = require ('./AddUserModal.vue');
@@ -124,9 +124,11 @@ module.exports = {
 	},
 	created() {
 		this.getAllUsers();
+		console.log(this.courses);
 	},
 	computed: mapGetters ({
-		users: 'user/users'
+		users: 'user/users',
+		courses: 'course/courses'
 	})
 };
 
