@@ -7,7 +7,8 @@ module.exports = function(grunt) {
 		browserify: {
 			ui: {
 				files: {
-					'build/ui/js/login.js': ['src/ui/js/login.js']
+					'build/ui/js/login.js': ['src/ui/js/login.js'],
+					'build/ui/js/admin.js': ['src/ui/js/admin.js']
 				},
 				options: {
 					transform: ['vueify']
@@ -29,51 +30,49 @@ module.exports = function(grunt) {
 		copy: {
 			server: {
 				files: [{
-						expand: true,
-						cwd: 'src/server',
-						src: ['*'],
-						dest: 'build/server/'
-					},
-					{
-						expand: true,
-						cwd: 'src/server/bin',
-						src: ['*'],
-						dest: 'build/server/bin/'
-					},
-					{
-						expand: true,
-						cwd: 'src/server/database',
-						src: ['*'],
-						dest: 'build/server/database/'
-					},
-					{
-						expand: true,
-						cwd: 'src/server/routes',
-						src: ['*'],
-						dest: 'build/server/routes/'
-					}
-				]
+					expand: true,
+					cwd: 'src/server',
+					src: ['*'],
+					dest: 'build/server/'
+				},
+				{
+					expand: true,
+					cwd: 'src/server/bin',
+					src: ['*'],
+					dest: 'build/server/bin/'
+				},
+				{
+					expand: true,
+					cwd: 'src/server/database',
+					src: ['*'],
+					dest: 'build/server/database/'
+				},
+				{
+					expand: true,
+					cwd: 'src/server/routes',
+					src: ['*'],
+					dest: 'build/server/routes/'
+				}]
 			},
 			ui: {
 				files: [{
-						expand: true,
-						cwd: 'src/ui/img',
-						src: ['*'],
-						dest: 'build/ui/img/'
-					},
-					{
-						expand: true,
-						cwd: 'src/ui/style',
-						src: ['*'],
-						dest: 'build/ui/style/'
-					},
-					{
-						expand: true,
-						cwd: 'src/ui/views',
-						src: ['*'],
-						dest: 'build/ui/views/'
-					},
-				]
+					expand: true,
+					cwd: 'src/ui/img',
+					src: ['*'],
+					dest: 'build/ui/img/'
+				},
+				{
+					expand: true,
+					cwd: 'src/ui/style',
+					src: ['*'],
+					dest: 'build/ui/style/'
+				},
+				{
+					expand: true,
+					cwd: 'src/ui/views',
+					src: ['*'],
+					dest: 'build/ui/views/'
+				}]
 			}
 		},
 		//clean the build folder
@@ -88,7 +87,7 @@ module.exports = function(grunt) {
 			}
 		},
 		eslint: {
-			gruntfile: 'gruntfile.js',
+			gruntfile: 'Gruntfile.js',
 			server: ['src/server/**/*.js', '!src/server/database/courses.js'],
 			ui: ['src/ui/**/*.js', 'src/ui/**/*.vue']
 		}
