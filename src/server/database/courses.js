@@ -44,10 +44,45 @@ var courseSchema = mongoose.Schema({
 
 var Course = mongoose.model('Course', courseSchema);
 
+function contains(array, obj) {
+	var i = array.length;
+	while (i--) {
+		if (array[i] === obj) {
+			return true;
+		}
+	}
+	return false;
+}
+
 function findByCourseId(courseId) {
 	return Course.findOne({ courseId: courseId }).lean();
 }
 
 function findByName(courseName) {
 	return Course.findOne({ name: courseName });
+}
+
+function addStudent(courseId, studentId) {
+	return Course.findOneAndUpdate({ courseId: courseId, $not: { teachers: studentId } }, { $addToSet: { students: studentId } });
+}
+
+function addTeacher(courseId, teacherId) {
+	return Course.findOneAndUpdate({ courseId: courseId, $not: { students: teacherId } }, { $addToSet: { teachers: teacherId } });
+}
+
+async function getUserRole(courseId, userId) {
+	try {
+		var course = await findByCourseId(courseId);
+	} catch (err) {
+		debug(err);
+		throw new Error('Problem querying database', err);
+	}
+	if (course.)
+}
+
+var course = {
+	findByCourseId,
+	addStudent,
+	addTeacher,
+	findByName
 }
