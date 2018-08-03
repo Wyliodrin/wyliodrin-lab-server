@@ -150,8 +150,14 @@ function listUsers() {
  * @param {String} lastName - new last name (optional)
  */
 
-async function edit(userId, email, firstName, lastName) {
+async function edit(userId, username, password, email, firstName, lastName) {
 	var editUser = {};
+	if (username) {
+		editUser.username = username;
+	}
+	if (password) {
+		editUser.password = encryptPassword(password);
+	}
 	if (email) {
 		editUser.email = email;
 	}

@@ -81,7 +81,6 @@ async function security(req, res, next) {
 	}
 	if (user) {
 		req.user = user;
-		debug('Appended user to request', req.user);
 		next();
 	} else {
 		e = error.unauthorized('Please login first');

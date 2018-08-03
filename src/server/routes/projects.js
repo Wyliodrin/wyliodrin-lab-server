@@ -6,6 +6,8 @@ var db = require('../database/database.js');
 var error = require('../error.js');
 var projectApp = express.Router();
 
+debug.log = console.info.bind(console);
+
 projectApp.post('/new_project', async(req, res, next) => {
 	var userId = req.user.userId;
 	var projectName = req.body.projectName;

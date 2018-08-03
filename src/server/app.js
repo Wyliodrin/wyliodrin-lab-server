@@ -4,12 +4,14 @@ var express = require('express');
 var path = require('path');
 var logger = require('morgan');
 var bodyParser = require('body-parser');
+var debug = require('debug')('development:app');
 require('./database/database.js');
 var users = require('./routes/users');
 var error = require('./error.js');
 var projects = require('./routes/projects');
 var admin = require('./routes/admin');
 
+debug.log = console.info.bind(console);
 var app = express();
 
 if (process.env.NODE_ENV !== 'production') app.use(logger('dev'));
@@ -39,7 +41,8 @@ app.get('/', function(req, res) {
 	res.redirect('/views/login.html');
 });
 
-app.use(function errorMiddleware(err, req, res) {
+app.use(function(err, res) {
+	debug(err);
 	if (err.status) {
 		error.sendError(res, err);
 	} else {

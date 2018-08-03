@@ -78,10 +78,10 @@ adminApp.post('/delete_user', async function(req, res, next) {
 		e = error.serverError();
 		next(e);
 	}
-	return { err: 0 };
+	res.status(200).send({ err: 0 });
 });
 
-adminApp.post('/list_users', async function(req, res, next) {
+adminApp.get('/list_users', async function(req, res, next) {
 	var e;
 	try {
 		var users = await db.user.listUsers();
@@ -93,18 +93,23 @@ adminApp.post('/list_users', async function(req, res, next) {
 	res.status(200).send({ err: 0, users });
 });
 
-adminApp.post('/set_password', async function(req, res, next) {
+adminApp.post('/update_user', async function(req, res, next) {
 	var e;
 	var userId = req.body.userId;
-	var newPassword = req.body.newPassword;
+	var username = req.body.username;
+	var password = req.body.password;
+	var email = req.body.email;
+	var firstName = req.body.firstName;
+	var lastName = req.body.lastName;
+
 	try {
-		await db.user.setPassword(userId, newPassword);
+		await db.user.edit(userId, username, password, email, firstName, lastName);
 	} catch (err) {
 		debug(err);
 		e = error.serverError(err);
 		next(e);
 	}
-	return { err: 0 };
+	res.status(200).send({ err: 0 });
 });
 
 module.exports.adminSecurity = adminSecurity;
