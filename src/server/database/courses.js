@@ -83,7 +83,7 @@ async function deleteStudent(courseId, studentId) {
 		var course = await Course.findOne({ courseId });
 	} catch (err) {
 		debug(err);
-		throw new Error()
+		throw new Error('Got error querying database', err);
 	}
 
 	if (!course) {
@@ -96,6 +96,30 @@ async function deleteStudent(courseId, studentId) {
 	}
 	course.students.splice(index, 1);
 	return course.save();
+}
+
+async function deleteTeacher(courseId, teacherId) {
+	try {
+		var course = await Course.findOne({ courseId });
+	} catch (err) {
+		debug(err);
+		throw new Error('Got error querying database', err);
+	}
+
+	if (!course) {
+		return { err: 400 };
+	}
+
+	var index = course.teachers.indexOf(teacherId);
+	if (index === -1) {
+		return { err: 400 };
+	}
+	course.teachers.splice(index, 1);
+	return course.save();
+}
+
+function deleteByCourseId(courseId) {
+	return Course.remove({ courseId });
 }
 
 function listAllCourses() {
@@ -124,7 +148,9 @@ var course = {
 	findByName,
 	getUserRole,
 	listAllCourses,
-	deleteStudent
+	deleteStudent,
+	deleteTeacher,
+	deleteByCourseId
 }
 
 module.exports = course;

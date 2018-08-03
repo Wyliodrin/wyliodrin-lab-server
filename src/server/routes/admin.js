@@ -176,6 +176,81 @@ adminApp.post('/add_course', async function(req, res, next) {
 	res.status(200).send({ err: 0 });
 });
 
+adminApp.post('/remove_student', async function(req, res, next) {
+	var e;
+	var studentId = req.body.studentId;
+	var courseId = req.body.courseId;
+	try {
+		var out = await db.course.deleteStudent(courseId, studentId);
+	} catch (err) {
+		debug(err);
+		e = error.serverError(err);
+		next(e);
+	}
+	if (out.err) {
+		e = error.badRequest('Invalid course or student');
+		next(e);
+	}
+	res.status(200).send({ err: 0 });
+});
+
+adminApp.post('/remove_teacher', async function(req, res, next) {
+	var e;
+	var teacherId = req.body.studentId;
+	var courseId = req.body.courseId;
+	try {
+		var out = await db.course.deleteTeacher(courseId, teacherId);
+	} catch (err) {
+		debug(err);
+		e = error.serverError(err);
+		next(e);
+	}
+	if (out.err) {
+		e = error.badRequest('Invalid course or student');
+		next(e);
+	}
+	res.status(200).send({ err: 0 });
+});
+
+adminApp.post('/remove_course', async function(req, res, next) {
+	var e;
+	var courseId = req.body.courseId;
+	try {
+		await db.course.deleteByCourseId(courseId);
+	} catch (err) {
+		debug(err);
+		e = error.serverError();
+		next(e);
+	}
+	res.status(200).send({ err: 0 });
+});
+
+adminApp.get('/get_user/:userId', async function(req, res, next) {
+	var e;
+	var userId = req.params.userId;
+	try {
+		var user = await db.user.findByUserId(userId);
+	} catch (err) {
+		debug(err);
+		e = error.serverError(err);
+		next(e);
+	}
+	res.status(200).send({ err: 0, user });
+});
+
+adminApp.get('/get_user_by_id', async function(req, res, next) {
+	var e;
+	var userId = req.body.userId;
+	try {
+		var user = await db.user.findByUserId(userId);
+	} catch (err) {
+		debug(err);
+		e = error.serverError(err);
+		next(e);
+	}
+	delete user.password;
+	res.status(200).send({ err: 0, user });
+});
 
 module.exports.adminSecurity = adminSecurity;
 module.exports.adminRoute = adminApp;

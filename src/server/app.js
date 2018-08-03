@@ -42,7 +42,6 @@ app.get('/', function(req, res) {
 });
 
 app.use(function(err, res) {
-	// debug(err);
 	if (err.status) {
 		error.sendError(res, err);
 	} else {
