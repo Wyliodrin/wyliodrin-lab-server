@@ -33,8 +33,18 @@
 			</div>
 
 			<div>
-				<h2>Tabela de cursuri</h2>
-
+				<h2>Lista de cursuri</h2>
+				
+				<p>Select a course: </p>
+				<table style="width:100%">
+						<tr>
+							<th>Name</th>
+							<th>First Name</th> 
+							<th>Last Name</th>
+							<th>Email</th>
+							<th>Role</th>
+							<th>Edit user</th>
+						</tr>
 			</div>
 		</div>
 	</div>

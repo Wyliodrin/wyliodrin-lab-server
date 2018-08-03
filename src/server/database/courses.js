@@ -75,14 +75,10 @@ function addStudent(courseId, studentId) {
 function addTeacher(courseId, teacherId) {
 	return Course.findOneAndUpdate({ courseId: courseId, students: { $ne: teacherId } }, { $addToSet: { teachers: teacherId } });
 }
-}
 
 function listAllCourses() {
 	return Course.find();
 }
-
-
-
 
 async function getUserRole(courseId, userId) {
 	try {
