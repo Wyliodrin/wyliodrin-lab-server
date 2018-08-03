@@ -16,9 +16,7 @@ module.exports ={
 		token: window.localStorage.getItem (KEY_TOKEN),
 		role: null,
 		user: null,
-		users: null,
-		sessions: null,
-		storage: null,
+		users: null
 	},
 	getters: {
 		token (state)
@@ -40,14 +38,6 @@ module.exports ={
 		users (state)
 		{
 			return state.users;
-		},
-		sessions (state)
-		{
-			return state.sessions;
-		},
-		storage (state)
-		{
-			return state.storage;
 		}
 	},
 	actions: {
@@ -102,28 +92,6 @@ module.exports ={
 			catch (e)
 			{
 				console.log ('Logout fail '+e);
-				return false;
-			}
-		},
-		async logoutTokenId (store, tokenId)
-		{
-			try
-			{
-				store.commit ('sessions', null);
-				let response = await Vue.http.get (setup.API+'/user/logout/'+tokenId);
-				if (response.data.err === 0)
-				{
-					store.dispatch ('sessions');
-					return true;
-				}
-				else
-				{
-					return false;
-				}
-			}
-			catch (e)
-			{
-				console.log ('Logout for ' + tokenId + ' fail '+e);
 				return false;
 			}
 		},
@@ -251,14 +219,6 @@ module.exports ={
 		users (state, value)
 		{
 			state.users = value;
-		},
-		sessions (state, value)
-		{
-			state.sessions = value;
-		},
-		storage (state, value)
-		{
-			state.storage = value;
-		},
+		}
 	}
 };
