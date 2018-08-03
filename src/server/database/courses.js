@@ -102,9 +102,6 @@ function listAllCourses() {
 	return Course.find();
 }
 
-
-
-
 async function getUserRole(courseId, userId) {
 	try {
 		var course = await findByCourseId(courseId);
