@@ -18,7 +18,6 @@ function unauthorized(err) {
 
 function sendError(res, e) {
 	e.data.requestId = res.requestId;
-	debug(res);
 	res.status(e.status).send(e.data);
 }
 
