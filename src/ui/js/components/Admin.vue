@@ -74,9 +74,12 @@
 						</td>
 						<td>
 							<button>Edit</button>
+							<button @click="deleteCourse(courses[courseIndex].courseId)">Delete</button>
 						</td>
 					</tr>
 				</table>
+
+				<button @click="addCourse">Add new course</button>
 			</div>
 		</div>
 	</div>
@@ -86,14 +89,15 @@
 var Vue = require ('vue');
 var EditUserModal = require ('./EditUserModal.vue');
 var AddUserModal = require ('./AddUserModal.vue');
-
+var AddCourseModal = require ('./AddCourseModal.vue');
 var mapGetters = require('vuex').mapGetters;
 
 module.exports = {
-	name: 'Login',
+	name: 'Admin',
 	data() {
 		return {
-			courseIndex: null
+			courseIndex: null,
+			course: null
 		};
 	},
 	methods: {
@@ -113,6 +117,34 @@ module.exports = {
 
 		selectCourse (index) {
 			this.courseIndex = index;
+			
+		},
+
+		addCourse () {
+			Vue.bootbox.dialog (AddCourseModal, {}, {
+				title: 'Add course',
+				buttons: {
+					add: {
+						label: 'Done',
+						className: 'wyliodrin-active'
+					},
+					back: {
+						label: 'Cancel',
+						className: 'wyliodrin-back'
+					}
+				}
+			});
+		},
+
+		async deleteCourse (courseId) {
+			console.log(courseId);
+			this.courseIndex = null;
+			let recvDelete = await this.$store.dispatch ('course/deleteCourse',{
+				courseId: courseId
+			});
+
+			if (!recvDelete)
+				console.log('Could not delete course...');
 		},
 
 		editUser (index) {

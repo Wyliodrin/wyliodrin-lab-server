@@ -1,10 +1,5 @@
 <template>
 	<div>
-		<div class="d-flex h-100 justify-content-center align-items-center" v-if="working === null">
-			<div>
-				<img src="/img/loading.gif">
-			</div>
-		</div>
 		<div class="input-group mb-3">
 			<div class="input-group-prepend">
 				<span class="input-group-text" id="inputGroup-sizing-default">Username</span>
@@ -65,34 +60,29 @@ module.exports = {
 			email: '',
 			role: '',
 			password: '',
-			retypePassword: '',
-			working: false
+			retypePassword: ''
 		};
 	},
 	methods: {
 		async add ()
 		{
-			if (!this.working)
-			{
-				console.log (this);
-				if (this.inputPassword != this.inputRetypePassword)
-					window.alert('Passwords do not match');
-				else {
-					let res = await this.$store.dispatch ('user/addUser', {
-						username: this.username,
-						firstName: this.firstName,
-						lastName: this.lastName,
-						password: this.password,
-						email: this.email,
-						role: this.role
-					});
-					if (res)
-						return true;
-					else
-						return false;
-				}
+			console.log (this);
+			if (this.inputPassword != this.inputRetypePassword)
+				window.alert('Passwords do not match');
+			else {
+				let res = await this.$store.dispatch ('user/addUser', {
+					username: this.username,
+					firstName: this.firstName,
+					lastName: this.lastName,
+					password: this.password,
+					email: this.email,
+					role: this.role
+				});
+				if (res)
+					return true;
+				else
+					return false;
 			}
-			return false;
 		}
 	}
 };

@@ -49,6 +49,43 @@ module.exports ={
 				return false;
 			}
 		},
+
+		async createCourse (store, courseName)
+		{
+			try
+			{
+				let response = await Vue.http.post (setup.API + '/admin/add_course', courseName);
+				if (response.data.err === 0) {
+					await store.dispatch ('listCourses');
+					return true;
+				}
+				else 
+					return false;
+			}
+			catch (e)
+			{
+				return false;
+			}
+		},
+
+		async deleteCourse (store, courseId)
+		{
+			try 
+			{
+				let response = await Vue.http.post (setup.API + '/admin/remove_course', courseId);
+				if (response.data.err === 0) {
+					await store.dispatch ('listCourses');
+					return true;
+				}
+				else 
+					return false;
+			}
+			catch (e)
+			{
+				return false;
+			}
+		},
+
 		async deleteStudentFromCourse (store, courseUserQuery)
 		{
 			try

@@ -1,10 +1,5 @@
 <template>
 	<div>
-		<div class="d-flex h-100 justify-content-center align-items-center" v-if="working === null">
-			<div>
-				<img src="/img/loading.gif">
-			</div>
-		</div>
 		<div class="input-group mb-3">
 			<div class="input-group-prepend">
 				<span class="input-group-text" id="inputGroup-sizing-default">Username</span>
@@ -65,53 +60,48 @@ module.exports = {
 			inputEmail: this.email,
 			inputRole: this.role,
 			inputPassword: '',
-			inputRetypePassword: '',
-			working: false
+			inputRetypePassword: ''
 		};
 	},
 	methods: {
 		async edit ()
 		{
-			if (!this.working)
-			{
-				console.log (this);
-				if (this.inputPassword != this.inputRetypePassword)
-					window.alert('Passwords do not match');
-				else {
-					let toBeModifiedUser;
+			console.log (this);
+			if (this.inputPassword != this.inputRetypePassword)
+				window.alert('Passwords do not match');
+			else {
+				let toBeModifiedUser;
 
-					if (this.inputPassword) {
-						toBeModifiedUser = {
-							username: this.inputUsername,
-							firstName: this.inputFirstName,
-							lastName: this.inputLastName,
-							email: this.inputEmail,
-							role: this.inputRole,
-							password: this.inputPassword,
-							userId: this.userId
-						};
-					} else {
-						toBeModifiedUser = {
-							username: this.inputUsername,
-							firstName: this.inputFirstName,
-							lastName: this.inputLastName,
-							email: this.inputEmail,
-							role: this.inputRole,
-							userId: this.userId
-						};
-					}
-
-					let newUser = Object.assign({}, toBeModifiedUser);
-					console.log(newUser);
-					// console.log(this);
-					let res = await this.$store.dispatch ('user/adminUserEdit', newUser);
-					if (res)
-						return true;
-					else
-						return false;
+				if (this.inputPassword) {
+					toBeModifiedUser = {
+						username: this.inputUsername,
+						firstName: this.inputFirstName,
+						lastName: this.inputLastName,
+						email: this.inputEmail,
+						role: this.inputRole,
+						password: this.inputPassword,
+						userId: this.userId
+					};
+				} else {
+					toBeModifiedUser = {
+						username: this.inputUsername,
+						firstName: this.inputFirstName,
+						lastName: this.inputLastName,
+						email: this.inputEmail,
+						role: this.inputRole,
+						userId: this.userId
+					};
 				}
+
+				let newUser = Object.assign({}, toBeModifiedUser);
+				console.log(newUser);
+				// console.log(this);
+				let res = await this.$store.dispatch ('user/adminUserEdit', newUser);
+				if (res)
+					return true;
+				else
+					return false;
 			}
-			return false;
 		}
 	}
 };
