@@ -87,8 +87,15 @@ async function deleteStudent(courseId, studentId) {
 	}
 
 	if (!course) {
-
+		return { err: 400 };
 	}
+
+	var index = course.students.indexOf(studentId);
+	if (index === -1) {
+		return { err: 400 };
+	}
+	course.students.splice(index, 1);
+	return course.save();
 }
 
 function listAllCourses() {
@@ -119,7 +126,8 @@ var course = {
 	addTeacher,
 	findByName,
 	getUserRole,
-	listAllCourses
+	listAllCourses,
+	deleteStudent
 }
 
 module.exports = course;

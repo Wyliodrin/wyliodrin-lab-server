@@ -125,6 +125,57 @@ adminApp.get('/list_courses', async function(req, res, next) {
 	res.status(200).send({ err: 0, courses });
 });
 
+adminApp.post('/add_student', async function(req, res, next) {
+	var e;
+	var studentId = req.body.studentId;
+	var courseId = req.body.courseId;
+	try {
+		var out = await db.course.addStudent(courseId, studentId);
+	} catch (err) {
+		debug(err);
+		e = error.serverError(err);
+		next(e);
+	}
+	if (!out) {
+		e = error.badRequest();
+		next(e);
+	}
+	res.status(200).send({ err: 0 });
+});
+
+adminApp.post('/add_teacher', async function(req, res, next) {
+	var e;
+	var teacherId = req.body.teacherId;
+	var courseId = req.body.courseId;
+	try {
+		var out = await db.course.addTeacher(courseId, teacherId);
+	} catch (err) {
+		debug(err);
+		e = error.serverError(err);
+		next(e);
+	}
+	if (!out) {
+		e = error.badRequest();
+		next(e);
+	}
+	res.status(200).send({ err: 0 });
+});
+
+adminApp.post('/add_course', async function(req, res, ext) {
+	var e;
+	var students = req.body.students;
+	var teachers = req.body.teachers;
+	var courseName = req.body.name;
+	try {
+		await db.course.createCourse(name, students, teachers);
+	} catch (err) {
+		debug(err);
+		e = error.serverError(err);
+		next(e);
+	}
+	res.status(200).send({ err: 0 });
+});
+
 
 module.exports.adminSecurity = adminSecurity;
 module.exports.adminRoute = adminApp;
