@@ -165,7 +165,7 @@ adminApp.post('/add_course', async function(req, res, ext) {
 	var e;
 	var students = req.body.students;
 	var teachers = req.body.teachers;
-	var courseName = req.body.name;
+	var name = req.body.name;
 	try {
 		await db.course.createCourse(name, students, teachers);
 	} catch (err) {
