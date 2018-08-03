@@ -1,3 +1,4 @@
+require('bootstrap');
 var Vue = require ('vue');
 
 var store = require ('./store/login/store.js');

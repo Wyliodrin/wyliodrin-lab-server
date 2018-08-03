@@ -55,7 +55,14 @@ module.exports = {
 		},
 
 		editUser (index) {
-			Vue.bootbox.dialog (EditUserModal, {}, {
+			Vue.bootbox.dialog (EditUserModal, {
+				'userId': this.users[index].userId,
+				'username': this.users[index].username,
+				'firstName': this.users[index].firstName,
+				'lastName': this.users[index].lastName,
+				'email': this.users[index].email,
+				'role': this.users[index].role
+			}, {
 				title: 'Edit user '+this.users[index].username,
 				buttons: {
 					edit: {
@@ -74,7 +81,7 @@ module.exports = {
 		this.getAllUsers();
 	},
 	computed: mapGetters ({
-		users: 'users'
+		users: 'user/users'
 	})
 };
 

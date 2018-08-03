@@ -1,3 +1,4 @@
+require('bootstrap');
 var Vue = require ('vue');
 
 var bootbox = require ('./vue-bootbox.js');

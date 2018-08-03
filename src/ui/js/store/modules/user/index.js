@@ -131,7 +131,7 @@ module.exports ={
 		{
 			try
 			{
-				let response = await Vue.http.get (setup.API+'/admin/list_users');
+				let response = await Vue.http.post (setup.API+'/admin/list_users');
 				if (response.data.err === 0)
 				{
 					console.log(response.data.users);

@@ -9,31 +9,43 @@
 			<div class="input-group-prepend">
 				<span class="input-group-text" id="inputGroup-sizing-default">Username</span>
 			</div>
-			<input type="text" class="form-control" aria-label="Name" v-model="username">
+			<input type="text" class="form-control" aria-label="Name" v-model="inputUsername">
+		</div>
+		<div class="input-group mb-3">
+			<div class="input-group-prepend">
+				<span class="input-group-text" id="inputGroup-sizing-default">First Name</span>
+			</div>
+			<input type="text" class="form-control" aria-label="Name" v-model="inputFirstName">
+		</div>
+		<div class="input-group mb-3">
+			<div class="input-group-prepend">
+				<span class="input-group-text" id="inputGroup-sizing-default">Last Name</span>
+			</div>
+			<input type="text" class="form-control" aria-label="Name" v-model="inputLastName">
 		</div>
 		<div class="input-group mb-3">
 			<div class="input-group-prepend">
 				<span class="input-group-text" id="inputGroup-sizing-default">Email</span>
 			</div>
-			<input type="text" class="form-control" aria-label="Name" v-model="email">
+			<input type="text" class="form-control" aria-label="Name" v-model="inputEmail">
 		</div>
 		<div class="input-group mb-3">
 			<div class="input-group-prepend">
-				<span class="input-group-text" id="inputGroup-sizing-default">Name</span>
+				<span class="input-group-text" id="inputGroup-sizing-default">Role</span>
 			</div>
-			<input type="text" class="form-control" aria-label="Name" v-model="name">
+			<input type="text" class="form-control" aria-label="Name" v-model="inputRole">
 		</div>
 		<div class="input-group mb-3">
 			<div class="input-group-prepend">
 				<span class="input-group-text" id="inputGroup-sizing-default">Password</span>
 			</div>
-			<input type="password" class="form-control" aria-label="Name" v-model="password">
+			<input type="password" class="form-control" aria-label="Name" v-model="inputPassword">
 		</div>
 		<div class="input-group mb-3">
 			<div class="input-group-prepend">
 				<span class="input-group-text" id="inputGroup-sizing-default">Retype password</span>
 			</div>
-			<input type="password" class="form-control" aria-label="Name" v-model="retypePassword">
+			<input type="password" class="form-control" aria-label="Name" v-model="inputRetypePassword">
 		</div>
 	</div>
 </template>
@@ -41,14 +53,16 @@
 <script>
 module.exports = {
 	name: 'EditUserModal',
-	props: ['dialog'],
+	props: ['dialog', 'userId', 'username', 'firstName', 'lastName', 'email', 'role'],
 	data () {
 		return {
-			username: '',
-			name: '',
-			email: '',
-			password: '',
-			retypePassword: '',
+			inputUsername: this.username,
+			inputFirstName: this.firstName,
+			inputLastName: this.lastName,
+			inputEmail: this.email,
+			inputRole: this.role,
+			inputPassword: '',
+			inputRetypePassword: '',
 			working: false
 		};
 	},
@@ -57,24 +71,27 @@ module.exports = {
 		{
 			if (!this.working)
 			{
-				// console.log (this);
-				// let res = await this.$store.dispatch ('user/signup', {
-				// 	username: this.username,
-				// 	name: this.name,
-				// 	email: this.email,
-				// 	password: this.password
-				// });
-				// if (res)
-				// {
-				// 	return true;
-				// }
-				// else
-				// {
-				// 	this.working = false;
-				// 	return false;
-				// }
-				console.log('yes');
-				return true;
+				console.log (this);
+				if (this.inputPassword != this.inputRetypePassword)
+					window.alert('Passwords do not match');
+				else {
+					// let res = await this.$store.dispatch ('user/signup', {
+					// 	username: this.username,
+					// 	name: this.name,
+					// 	email: this.email,
+					// 	password: this.password
+					// });
+					// if (res)
+					// {
+					// 	return true;
+					// }
+					// else
+					// {
+					// 	this.working = false;
+					// 	return false;
+					// }
+					return true;
+				}
 			}
 			return false;
 		}
