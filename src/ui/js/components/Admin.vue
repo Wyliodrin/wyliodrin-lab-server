@@ -41,20 +41,40 @@
 						Niciun curs selectat
 					</button>
 					<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-						<a class="dropdown-item" href="#">Action</a>
-						<a class="dropdown-item" href="#">Another action</a>
-						<a class="dropdown-item" href="#">Something else here</a>
+						<a class="dropdown-item" v-for="(item, index) in courses" :key="item.courseId" 
+							@click="selectCourse(index)" href="#">{{item.name}}</a>
 					</div>
 				</div>
 
 				<table style="width:100%">
 					<tr>
 						<th>Name</th>
-						<th>First Name</th> 
-						<th>Last Name</th>
-						<th>Email</th>
-						<th>Role</th>
-						<th>Edit user</th>
+						<th>Students</th> 
+						<th>Teachers</th>
+						<th>Edit course</th>
+					</tr>
+
+					<tr v-if="courseIndex !== null">
+						<td>{{courses[courseIndex].name}}</td>
+						<td>
+							<ul class="list-group">
+								<li class="list-group-item" v-for="(student, index) in courses[courseIndex].students" :key="index">
+										{{student}}
+										<button @click="deleteStudentFromCourse(student)">X</button>
+								</li>
+							</ul>
+						</td>
+						<td>
+							<ul class="list-group">
+								<li class="list-group-item" v-for="(teacher, index) in courses[courseIndex].teachers" :key="index">
+										{{teacher}}
+										<button @click="deleteTeacherFromCourse(teacher)">X</button>
+								</li>
+							</ul>
+						</td>
+						<td>
+							<button>Edit</button>
+						</td>
 					</tr>
 				</table>
 			</div>
@@ -73,6 +93,7 @@ module.exports = {
 	name: 'Login',
 	data() {
 		return {
+			courseIndex: null
 		};
 	},
 	methods: {
@@ -81,6 +102,17 @@ module.exports = {
 
 			if (!recvUsers)
 				console.log('Could not get users...');
+		},
+
+		async getAllCourses () {
+			let recvCourses = await this.$store.dispatch ('course/listCourses');
+
+			if (!recvCourses)
+				console.log('Could not get courses...');
+		},
+
+		selectCourse (index) {
+			this.courseIndex = index;
 		},
 
 		editUser (index) {
@@ -121,10 +153,48 @@ module.exports = {
 				}
 			});
 		},
+
+		async getUserById(userId) {
+			let recvUser = await this.$store.dispatch ('user/getUser', userId);
+
+			console.log(recvUser.firstName);
+
+			if (recvUser)
+				return recvUser.firstName;
+			else
+				return null;
+		},
+
+		async deleteStudentFromCourse(studentId){
+			let courseId = this.courses[this.courseIndex].courseId;
+
+			console.log(studentId);
+			console.log(courseId);
+
+			let recvDelStudent = await this.$store.dispatch ('course/deleteStudentFromCourse', {
+				courseId: courseId,
+				studentId: studentId
+			});
+
+			if (!recvDelStudent)
+				console.log('Could not delete student from course..');
+		},
+
+		async deleteTeacherFromCourse(teacherId){
+			let courseId = this.courses[this.courseIndex].courseId;
+
+			let recvDelTeacher = await this.$store.dispatch ('course/deleteTeacherFromCourse', {
+				courseId: courseId,
+				teacherId: teacherId
+			});
+
+			if (!recvDelTeacher)
+				console.log('Could not delete teacher from course..');
+		}
 	},
 	created() {
 		this.getAllUsers();
-		console.log(this.courses);
+		this.getAllCourses();
 	},
 	computed: mapGetters ({
 		users: 'user/users',

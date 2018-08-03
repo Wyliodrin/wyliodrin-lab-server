@@ -16,6 +16,7 @@ module.exports ={
 		token: window.localStorage.getItem (KEY_TOKEN),
 		role: null,
 		user: null,
+		userById: null,
 		users: null
 	},
 	getters: {
@@ -34,6 +35,10 @@ module.exports ={
 		user (state)
 		{
 			return state.user;
+		},
+		userById (state)
+		{
+			return state.userById;
 		},
 		users (state)
 		{
@@ -57,21 +62,6 @@ module.exports ={
 			{
 				console.log ('Login fail '+e);
 				return false;
-			}
-		},
-		async signup (store, user)
-		{
-			try
-			{
-				let response = await Vue.http.post (setup.API+'/user/create', user);
-				if (response.data.err === 0) return true;
-				else return false;
-			}
-			catch (e)
-			{
-				console.log ('Error signup '+e);
-				return false;
-				// TODO show toast
 			}
 		},
 		async logout (store)
@@ -118,23 +108,23 @@ module.exports ={
 				return false;
 			}
 		},
-		async editUser (store, user)
-		{
-			try
-			{
-				let response = await Vue.http.post (setup.API+'/user/edit', user);
-				if (response.data.err === 0)
-				{
-					await store.dispatch ('updateUser');
-					return true;
-				}
-			}
-			catch (e)
-			{
-				// TODO toast network error
-				return false;
-			}
-		},
+		// async editUser (store, user)
+		// {
+		// 	try
+		// 	{
+		// 		let response = await Vue.http.post (setup.API+'/user/edit', user);
+		// 		if (response.data.err === 0)
+		// 		{
+		// 			await store.dispatch ('updateUser');
+		// 			return true;
+		// 		}
+		// 	}
+		// 	catch (e)
+		// 	{
+		// 		// TODO toast network error
+		// 		return false;
+		// 	}
+		// },
 		async addUser (store, user)
 		{
 			console.log(user);
@@ -167,31 +157,46 @@ module.exports ={
 			}
 			catch (e)
 			{
-
 				return false;
 			}
 		},
-		async changePassword (store, passwordsData)
+		async getUser (store, userId)
 		{
 			try
 			{
-				let response = await Vue.http.post (setup.API+'/user/password/edit', passwordsData);
-				if (response.data.err === 0)
-				{
-					// await store.dispatch ('updateUser');
-					return true;
+				let response = await Vue.http.get (setup.API +'/admin/get_user/' + userId);
+				if (response.data.err === 0) {
+					console.log(response.data.user);
+					return response.data.user;
 				}
-				else
-				{
-					return false;
-				}
+				return false;
 			}
 			catch (e)
 			{
-				// TODO toast network error
 				return false;
 			}
 		}
+		// async changePassword (store, passwordsData)
+		// {
+		// 	try
+		// 	{
+		// 		let response = await Vue.http.post (setup.API+'/user/password/edit', passwordsData);
+		// 		if (response.data.err === 0)
+		// 		{
+		// 			// await store.dispatch ('updateUser');
+		// 			return true;
+		// 		}
+		// 		else
+		// 		{
+		// 			return false;
+		// 		}
+		// 	}
+		// 	catch (e)
+		// 	{
+		// 		// TODO toast network error
+		// 		return false;
+		// 	}
+		// }
 	},
 	mutations: 
 	{
@@ -215,6 +220,10 @@ module.exports ={
 		user (state, value)
 		{
 			state.user = value;
+		},
+		userById (state, value)
+		{
+			state.userById = value;
 		},
 		users (state, value)
 		{

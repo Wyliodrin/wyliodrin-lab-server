@@ -32,11 +32,11 @@ module.exports ={
 		}
 	},
 	actions: {
-		async list_courses (store)
+		async listCourses (store)
 		{
 			try
 			{
-				let response = await Vue.http.get (setup.API+'/courses/list_courses');
+				let response = await Vue.http.get (setup.API+'/admin/list_courses');
 				if (response.data.err === 0) {
 					console.log (response.data.courses);
 					store.commit ('courses', response.data.courses);
@@ -46,7 +46,42 @@ module.exports ={
 			}
 			catch (e)
 			{
-				console.log ('Login fail '+e);
+				return false;
+			}
+		},
+		async deleteStudentFromCourse (store, courseUserQuery)
+		{
+			try
+			{
+				console.log(courseUserQuery);
+				let response = await Vue.http.post (setup.API+'/admin/remove_student', courseUserQuery);
+				if (response.data.err === 0) {
+					await store.dispatch ('listCourses');
+					return true;
+				} else {
+					console.log(response);
+					return false;
+				}
+			}
+			catch (e)
+			{
+				return false;
+			}
+		},
+		async deleteTeacherFromCourse (store, courseTeacherQuery)
+		{
+			try
+			{
+				console.log(courseTeacherQuery);
+				let response = await Vue.http.post (setup.API+'/admin/remove_teacher', courseTeacherQuery);
+				if (response.data.err === 0) {
+					await store.dispatch ('listCourses');
+					return true;
+				} else 
+					return false;
+			}
+			catch (e)
+			{
 				return false;
 			}
 		}

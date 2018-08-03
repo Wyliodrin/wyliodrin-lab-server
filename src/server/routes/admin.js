@@ -178,6 +178,7 @@ adminApp.post('/add_course', async function(req, res, next) {
 
 adminApp.post('/remove_student', async function(req, res, next) {
 	var e;
+	console.log(req.body);
 	var studentId = req.body.studentId;
 	var courseId = req.body.courseId;
 	try {
@@ -196,7 +197,7 @@ adminApp.post('/remove_student', async function(req, res, next) {
 
 adminApp.post('/remove_teacher', async function(req, res, next) {
 	var e;
-	var teacherId = req.body.studentId;
+	var teacherId = req.body.teacherId;
 	var courseId = req.body.courseId;
 	try {
 		var out = await db.course.deleteTeacher(courseId, teacherId);
