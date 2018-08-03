@@ -161,7 +161,7 @@ adminApp.post('/add_teacher', async function(req, res, next) {
 	res.status(200).send({ err: 0 });
 });
 
-adminApp.post('/add_course', async function(req, res, ext) {
+adminApp.post('/add_course', async function(req, res, next) {
 	var e;
 	var students = req.body.students;
 	var teachers = req.body.teachers;
