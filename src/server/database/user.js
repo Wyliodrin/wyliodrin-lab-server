@@ -167,6 +167,9 @@ async function edit(userId, username, password, email, firstName, lastName) {
 	if (lastName) {
 		editUser.lastName = lastName;
 	}
+	if (role) {
+		editUser.role = role;
+	}
 	let ret = await User.updateOne({ userId: userId }, { $set: editUser }).lean();
 	return ret;
 }

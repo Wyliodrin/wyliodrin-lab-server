@@ -5,7 +5,7 @@ var validator = require('validator');
 var db = require('./database');
 
 var courseSchema = mongoose.Schema({
-	Name: {
+	name: {
 		type: String,
 		required: true,
 		unique: true,
@@ -41,3 +41,13 @@ var courseSchema = mongoose.Schema({
 		}
 	}
 });
+
+var Course = mongoose.model('Course', courseSchema);
+
+function findByCourseId(courseId) {
+	return Course.findOne({ courseId: courseId }).lean();
+}
+
+function findByName(courseName) {
+	return Course.findOne({ name: courseName });
+}

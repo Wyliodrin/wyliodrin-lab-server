@@ -101,9 +101,10 @@ adminApp.post('/update_user', async function(req, res, next) {
 	var email = req.body.email;
 	var firstName = req.body.firstName;
 	var lastName = req.body.lastName;
+	var role = req.body.role;
 
 	try {
-		await db.user.edit(userId, username, password, email, firstName, lastName);
+		await db.user.edit(userId, username, password, email, firstName, lastName, role);
 	} catch (err) {
 		debug(err);
 		e = error.serverError(err);
