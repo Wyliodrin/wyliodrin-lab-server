@@ -51,6 +51,9 @@
 </template>
 
 <script>
+
+// var mapGetters = require('vuex').mapGetters;
+
 module.exports = {
 	name: 'EditUserModal',
 	props: ['dialog', 'userId', 'username', 'firstName', 'lastName', 'email', 'role'],
@@ -67,7 +70,7 @@ module.exports = {
 		};
 	},
 	methods: {
-		edit ()
+		async edit ()
 		{
 			if (!this.working)
 			{
@@ -75,22 +78,37 @@ module.exports = {
 				if (this.inputPassword != this.inputRetypePassword)
 					window.alert('Passwords do not match');
 				else {
-					// let res = await this.$store.dispatch ('user/signup', {
-					// 	username: this.username,
-					// 	name: this.name,
-					// 	email: this.email,
-					// 	password: this.password
-					// });
-					// if (res)
-					// {
-					// 	return true;
-					// }
-					// else
-					// {
-					// 	this.working = false;
-					// 	return false;
-					// }
-					return true;
+					let toBeModifiedUser;
+
+					if (this.inputPassword) {
+						toBeModifiedUser = {
+							username: this.inputUsername,
+							firstName: this.inputFirstName,
+							lastName: this.inputLastName,
+							email: this.inputEmail,
+							role: this.inputRole,
+							password: this.inputPassword,
+							userId: this.userId
+						};
+					} else {
+						toBeModifiedUser = {
+							username: this.inputUsername,
+							firstName: this.inputFirstName,
+							lastName: this.inputLastName,
+							email: this.inputEmail,
+							role: this.inputRole,
+							userId: this.userId
+						};
+					}
+
+					let newUser = Object.assign({}, toBeModifiedUser);
+					console.log(newUser);
+					// console.log(this);
+					let res = await this.$store.dispatch ('user/adminUserEdit', newUser);
+					if (res)
+						return true;
+					else
+						return false;
 				}
 			}
 			return false;

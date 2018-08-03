@@ -13,5 +13,6 @@ module.exports = new Vuex.Store ({
 	modules: {
 		settings, 
 		user
-	}
+	},
+	strict: process.env.NODE_ENV !== 'production'
 });

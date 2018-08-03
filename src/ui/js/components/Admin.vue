@@ -28,6 +28,13 @@
 						</tr>
 
 					</table>
+					<p> Adauga un user in baza de date: </p>
+					<button @click="addUser">Add</button>
+			</div>
+
+			<div>
+				<h2>Tabela de cursuri</h2>
+
 			</div>
 		</div>
 	</div>
@@ -37,6 +44,7 @@
 
 var Vue = require ('vue');
 var EditUserModal = require ('./EditUserModal.vue');
+var AddUserModal = require ('./AddUserModal.vue');
 
 var mapGetters = require('vuex').mapGetters;
 
@@ -75,7 +83,23 @@ module.exports = {
 					}
 				}
 			});
-		}
+		},
+
+		addUser () {
+			Vue.bootbox.dialog (AddUserModal, {}, {
+				title: 'Add user ',
+				buttons: {
+					add: {
+						label: 'Done',
+						className: 'wyliodrin-active'
+					},
+					back: {
+						label: 'Cancel',
+						className: 'wyliodrin-back'
+					}
+				}
+			});
+		},
 	},
 	created() {
 		this.getAllUsers();
