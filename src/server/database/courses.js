@@ -2,6 +2,8 @@ var mongoose = require('mongoose');
 var uuid = require('uuid');
 var validator = require('validator');
 var _ = require('lodash');
+var debug = require('debug')('development:course-database');
+debug.log = console.info.bind(console);
 
 var courseSchema = mongoose.Schema({
 	name: {
@@ -75,6 +77,18 @@ function addStudent(courseId, studentId) {
 function addTeacher(courseId, teacherId) {
 	return Course.findOneAndUpdate({ courseId: courseId, students: { $ne: teacherId } }, { $addToSet: { teachers: teacherId } });
 }
+
+async function deleteStudent(courseId, studentId) {
+	try {
+		var course = await Course.findOne({ courseId });
+	} catch (err) {
+		debug(err);
+		throw new Error()
+	}
+
+	if (!course) {
+
+	}
 }
 
 function listAllCourses() {
@@ -104,7 +118,8 @@ var course = {
 	addStudent,
 	addTeacher,
 	findByName,
-	getUserRole
+	getUserRole,
+	listAllCourses
 }
 
 module.exports = course;

@@ -113,5 +113,18 @@ adminApp.post('/update_user', async function(req, res, next) {
 	res.status(200).send({ err: 0 });
 });
 
+adminApp.get('/list_courses', async function(req, res, next) {
+	var e;
+	try {
+		var courses = await db.course.listAllCourses();
+	} catch (err) {
+		debug('Error listing courses');
+		e = error.serverError(err);
+		next(e);
+	}
+	res.status(200).send({ err: 0, courses });
+});
+
+
 module.exports.adminSecurity = adminSecurity;
 module.exports.adminRoute = adminApp;
