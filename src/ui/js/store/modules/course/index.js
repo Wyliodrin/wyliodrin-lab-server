@@ -49,27 +49,31 @@ module.exports ={
 				return false;
 			}
 		},
-		async deleteStudentFromCourse (store, studentId, courseId)
+		async deleteStudentFromCourse (store, courseUserQuery)
 		{
 			try
 			{
-				let response = await Vue.http.post (setup.API+'/admin/remove_student', studentId, courseId);
+				console.log(courseUserQuery);
+				let response = await Vue.http.post (setup.API+'/admin/remove_student', courseUserQuery);
 				if (response.data.err === 0) {
 					await store.dispatch ('listCourses');
 					return true;
-				} else 
+				} else {
+					console.log(response);
 					return false;
+				}
 			}
 			catch (e)
 			{
 				return false;
 			}
 		},
-		async deleteTeacherFromCourse (store, teacherId, courseId)
+		async deleteTeacherFromCourse (store, courseTeacherQuery)
 		{
 			try
 			{
-				let response = await Vue.http.post (setup.API+'/admin/remove_student', teacherId, courseId);
+				console.log(courseTeacherQuery);
+				let response = await Vue.http.post (setup.API+'/admin/remove_teacher', courseTeacherQuery);
 				if (response.data.err === 0) {
 					await store.dispatch ('listCourses');
 					return true;

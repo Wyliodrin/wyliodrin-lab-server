@@ -167,8 +167,7 @@ module.exports ={
 				let response = await Vue.http.get (setup.API +'/admin/get_user/' + userId);
 				if (response.data.err === 0) {
 					console.log(response.data.user);
-					store.commit ('userById', response.data.user);
-					return true;
+					return response.data.user;
 				}
 				return false;
 			}

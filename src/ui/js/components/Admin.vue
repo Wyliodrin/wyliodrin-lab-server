@@ -59,12 +59,19 @@
 						<td>
 							<ul class="list-group">
 								<li class="list-group-item" v-for="(student, index) in courses[courseIndex].students" :key="index">
-										{{getUserById(student)}}
-										<button @click="deleteStudentFromCourse(student,index)">X</button>
+										{{student}}
+										<button @click="deleteStudentFromCourse(student)">X</button>
 								</li>
 							</ul>
 						</td>
-						<td>{{courses[courseIndex].teachers}}</td>
+						<td>
+							<ul class="list-group">
+								<li class="list-group-item" v-for="(teacher, index) in courses[courseIndex].teachers" :key="index">
+										{{teacher}}
+										<button @click="deleteTeacherFromCourse(teacher)">X</button>
+								</li>
+							</ul>
+						</td>
 						<td>
 							<button>Edit</button>
 						</td>
@@ -150,19 +157,39 @@ module.exports = {
 		async getUserById(userId) {
 			let recvUser = await this.$store.dispatch ('user/getUser', userId);
 
+			console.log(recvUser.firstName);
+
 			if (recvUser)
-				return this.userById;
+				return recvUser.firstName;
 			else
 				return null;
 		},
 
-		async deleteStudentFromCourse(studentId, index){
-			let courseId = this.courses[index].courseId;
+		async deleteStudentFromCourse(studentId){
+			let courseId = this.courses[this.courseIndex].courseId;
 
-			let recvDelStudent = await this.$store.dispatch ('course/deleteStudentFromCourse', studentId, courseId);
+			console.log(studentId);
+			console.log(courseId);
+
+			let recvDelStudent = await this.$store.dispatch ('course/deleteStudentFromCourse', {
+				courseId: courseId,
+				studentId: studentId
+			});
 
 			if (!recvDelStudent)
 				console.log('Could not delete student from course..');
+		},
+
+		async deleteTeacherFromCourse(teacherId){
+			let courseId = this.courses[this.courseIndex].courseId;
+
+			let recvDelTeacher = await this.$store.dispatch ('course/deleteTeacherFromCourse', {
+				courseId: courseId,
+				teacherId: teacherId
+			});
+
+			if (!recvDelTeacher)
+				console.log('Could not delete teacher from course..');
 		}
 	},
 	created() {
@@ -171,8 +198,7 @@ module.exports = {
 	},
 	computed: mapGetters ({
 		users: 'user/users',
-		courses: 'course/courses',
-		userById: 'user/userById'
+		courses: 'course/courses'
 	})
 };
 
