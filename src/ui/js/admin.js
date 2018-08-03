@@ -9,7 +9,7 @@ Vue.mixin({
 	store
 });
 
-var Admin = require ('./components/Admin.vue');
+var Admin = require ('./components/admin/Admin.vue');
 
 new Vue({
 	el: '#admin',

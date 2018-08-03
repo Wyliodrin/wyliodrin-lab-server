@@ -50,6 +50,24 @@ module.exports ={
 			}
 		},
 
+		async getCourse (store, courseId)
+		{
+			try 
+			{
+				let response = await Vue.http.get (setup.API+'/admin/get_course/' + courseId);
+				if (response.data.err === 0) {
+					console.log (response.data.course);
+					store.commit ('course', response.data.course);
+					return true;
+				}
+				return false;
+			}
+			catch (e)
+			{
+				return false;
+			}
+		},
+
 		async createCourse (store, courseName)
 		{
 			try
@@ -57,6 +75,25 @@ module.exports ={
 				let response = await Vue.http.post (setup.API + '/admin/add_course', courseName);
 				if (response.data.err === 0) {
 					await store.dispatch ('listCourses');
+					return true;
+				}
+				else 
+					return false;
+			}
+			catch (e)
+			{
+				return false;
+			}
+		},
+
+		async editCourseName (store, courseUpdateQuery)
+		{
+			try
+			{
+				let response = await Vue.http.post (setup.API + '/admin/update_course', courseUpdateQuery);
+				if (response.data.err === 0) {
+					await store.dispatch ('listCourses');
+					await store.dispatch ('getCourse', courseUpdateQuery.courseId);
 					return true;
 				}
 				else 
@@ -94,6 +131,7 @@ module.exports ={
 				let response = await Vue.http.post (setup.API+'/admin/remove_student', courseUserQuery);
 				if (response.data.err === 0) {
 					await store.dispatch ('listCourses');
+					await store.dispatch ('getCourse', courseUserQuery.courseId);
 					return true;
 				} else {
 					console.log(response);
@@ -105,6 +143,28 @@ module.exports ={
 				return false;
 			}
 		},
+
+		async addStudentToCourse (store, courseUserQuery)
+		{
+			try
+			{
+				console.log(courseUserQuery);
+				let response = await Vue.http.post (setup.API+'/admin/add_student', courseUserQuery);
+				if (response.data.err === 0) {
+					await store.dispatch ('listCourses');
+					await store.dispatch ('getCourse', courseUserQuery.courseId);
+					return true;
+				} else {
+					console.log(response);
+					return false;
+				}
+			}
+			catch (e)
+			{
+				return false;
+			}
+		},
+
 		async deleteTeacherFromCourse (store, courseTeacherQuery)
 		{
 			try
@@ -113,9 +173,31 @@ module.exports ={
 				let response = await Vue.http.post (setup.API+'/admin/remove_teacher', courseTeacherQuery);
 				if (response.data.err === 0) {
 					await store.dispatch ('listCourses');
+					await store.dispatch ('getCourse', courseTeacherQuery.courseId);
 					return true;
 				} else 
 					return false;
+			}
+			catch (e)
+			{
+				return false;
+			}
+		},
+
+		async addTeacherToCourse (store, courseTeacherQuery)
+		{
+			try
+			{
+				console.log(courseTeacherQuery);
+				let response = await Vue.http.post (setup.API+'/admin/add_teacher', courseTeacherQuery);
+				if (response.data.err === 0) {
+					await store.dispatch ('listCourses');
+					await store.dispatch ('getCourse', courseTeacherQuery.courseId);
+					return true;
+				} else {
+					console.log(response);
+					return false;
+				}
 			}
 			catch (e)
 			{

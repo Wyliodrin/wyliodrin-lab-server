@@ -7,7 +7,7 @@ Vue.mixin({
 	store
 });
 
-var Login = require ('./components/Login.vue');
+var Login = require ('./components/login/Login.vue');
 // var EditUserModal = require ('./components/EditUserModal.vue');
 
 new Vue({
