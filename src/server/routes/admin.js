@@ -253,5 +253,40 @@ adminApp.get('/get_user_by_id', async function(req, res, next) {
 	res.status(200).send({ err: 0, user });
 });
 
+adminApp.get('/get_course/:courseId', async function(req, res, next) {
+	var e;
+	var courseId = req.params.courseId;
+	try {
+		var course = await db.course.findByCourseId(courseId);
+	} catch (err) {
+		debug(err);
+		e = error.serverError(err);
+		next(e);
+	}
+	if (!course) {
+		e = error.badRequest('Course not found');
+		next(e);
+	}
+
+	var finalCourse = {};
+	var students = [];
+	var teachers = [];
+
+	for (var studentId of course.students) {
+		var student = await db.user.findByUserId(studentId);
+		students.push(student);
+	}
+
+	for (var teacherId of course.teachers) {
+		var teacher = await db.user.findByUserId(teacherId);
+		teachers.push(teacher);
+	}
+	finalCourse.name = course.name;
+	finalCourse.students = students;
+	finalCourse.teachers = teachers;
+	finalCourse.courseId = courseId;
+	res.status(200).send({ err: 0, course: finalCourse });
+});
+
 module.exports.adminSecurity = adminSecurity;
 module.exports.adminRoute = adminApp;
