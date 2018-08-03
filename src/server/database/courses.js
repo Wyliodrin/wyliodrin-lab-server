@@ -1,8 +1,7 @@
 var mongoose = require('mongoose');
 var uuid = require('uuid');
 var validator = require('validator');
-//var _ = require('lodash');
-var db = require('./database');
+var _ = require('lodash');
 
 var courseSchema = mongoose.Schema({
 	name: {
@@ -44,15 +43,22 @@ var courseSchema = mongoose.Schema({
 
 var Course = mongoose.model('Course', courseSchema);
 
-function contains(array, obj) {
-	var i = array.length;
-	while (i--) {
-		if (array[i] === obj) {
-			return true;
-		}
-	}
-	return false;
+/**
+ * Create a new user
+ * @param {String} name - name of the course
+ * @param {[String]} students - ID's of students enrolled
+ * @param {[String]} teachers = ID's of teachers managing course
+ */
+function createCourse(name, students, teachers) {
+	var course = new Course(_.assign({}, {
+		name: name,
+		students: students,
+		teachers: teachers
+	}));
+
+	return course.save();
 }
+
 
 function findByCourseId(courseId) {
 	return Course.findOne({ courseId: courseId }).lean();
@@ -63,12 +69,20 @@ function findByName(courseName) {
 }
 
 function addStudent(courseId, studentId) {
-	return Course.findOneAndUpdate({ courseId: courseId, $not: { teachers: studentId } }, { $addToSet: { students: studentId } });
+	return Course.findOneAndUpdate({ courseId: courseId, teachers: { $ne: studentId } }, { $addToSet: { students: studentId } });
 }
 
 function addTeacher(courseId, teacherId) {
-	return Course.findOneAndUpdate({ courseId: courseId, $not: { students: teacherId } }, { $addToSet: { teachers: teacherId } });
+	return Course.findOneAndUpdate({ courseId: courseId, students: { $ne: teacherId } }, { $addToSet: { teachers: teacherId } });
 }
+}
+
+function listAllCourses() {
+	return Course.find();
+}
+
+
+
 
 async function getUserRole(courseId, userId) {
 	try {
@@ -77,12 +91,20 @@ async function getUserRole(courseId, userId) {
 		debug(err);
 		throw new Error('Problem querying database', err);
 	}
-	if (course.)
+
+	if (course.students.indexOf(userId) >= 0) return 'student';
+	else if (course.teachers.indexOf(userId) >= 0) return 'teacher';
+	else return 'none';
+
 }
 
 var course = {
+	createCourse,
 	findByCourseId,
 	addStudent,
 	addTeacher,
-	findByName
+	findByName,
+	getUserRole
 }
+
+module.exports = course;

@@ -51,7 +51,7 @@ var userSchema = mongoose.Schema({
 	role: {
 		type: String,
 		required: true,
-		default: 'student'
+		default: 'user'
 	},
 }, {
 	toObject: {
@@ -139,7 +139,7 @@ function findUsers(partOfName) {
 }
 
 function listUsers() {
-	return User.find();
+	return User.find().lean();
 }
 
 /**
