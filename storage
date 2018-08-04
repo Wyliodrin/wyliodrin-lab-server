@@ -1,0 +1,52 @@
+storage
+	images
+		-> raspberrypi.img -> id1 - download
+		-> raspberrypi2.img -> id2
+	filesystem (layers)
+		server (only with wyliodrin-device) 
+			id1  - ana
+			id2
+			...
+		course
+			courseId1 (server/idN:images/idN) - profu
+			courseId2
+			.......
+		user
+			courseId1
+				user1 (filesystem/courseId1:imageIdN) - student - rootnfs
+				user2
+			courseId2
+				user1 
+				user2
+	home (nfs)
+		user1
+			projects
+		user2
+			projects
+		...
+	mount
+		boot
+			id1 (boot partition from image id1)
+			id2
+			...
+		rootfs
+			default: (filesystem/server/defaultId : image/defaultId)
+			serial1 (filesystem/courseIdN/userN : filesystem/courseIdN : filesystem/server/idN : image/idN)
+			serial2
+			...
+		
+
+Devices
+serial | userId | courseId
+
+
+Courses
+courseId | imageId | configTxt | cmdLine
+
+
+Images
+imageId | imageFile 
+
+
+Settings
+DefaultImageId (or first image)
