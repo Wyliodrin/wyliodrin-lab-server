@@ -38,7 +38,7 @@ app.use('/api/v1', apiv1);
 app.use(express.static(path.join(__dirname, '../ui')));
 
 app.get('/', function(req, res) {
-	res.redirect('/views/login.html');
+	res.redirect('/login.html');
 });
 
 app.use(function(err, res) {

@@ -58,14 +58,14 @@ module.exports = function(grunt) {
 				files: [{
 					expand: true,
 					cwd: 'src/ui/img',
-					src: ['*'],
+					src: ['**/*'],
 					dest: 'build/ui/img/'
 				},
 				{
 					expand: true,
-					cwd: 'src/ui/views',
-					src: ['*'],
-					dest: 'build/ui/views/'
+					cwd: 'src/ui',
+					src: ['*.html'],
+					dest: 'build/ui'
 				}]
 			}
 		},
@@ -78,7 +78,8 @@ module.exports = function(grunt) {
 		less: {
 			vendor: {
 				files: {
-					// 'build/ui/css/login.css': 'source/ui/css/login.less'
+					'build/ui/style/login.css': 'src/ui/style/login.less',
+					'build/ui/style/admin.css': 'src/ui/style/admin.less',
 					'build/ui/style/vendor.css': 'src/ui/style/vendor.less'
 				}
 			}
