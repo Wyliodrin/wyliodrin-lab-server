@@ -1,6 +1,7 @@
 <template>
 	<div>
 		<div class="input-group mb-3">
+			<!--  Editare nume curs in tabul de cursuri -->
 			<div class="input-group-prepend">
 				<span class="input-group-text" id="inputGroup-sizing-default">Course name</span>
 			</div>
