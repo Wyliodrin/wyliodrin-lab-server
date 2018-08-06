@@ -1,7 +1,7 @@
 var mongoose = require('mongoose');
 var uuid = require('uuid');
 var validator = require('validator');
-//var _ = require('lodash');
+var _ = require('lodash');
 var debug = require('debug')('development:board-database');
 debug.log = console.info.bind(console);
 
@@ -57,4 +57,43 @@ var boardSchema = mongoose.Schema({
 });
 
 var Board = mongoose.model('Board', boardSchema);
-debug(Board);
+
+/**
+ * Create a new board
+ * @param {String} serial - serial number of the board
+ * @param {String} userId - ID of user assigned to the board
+ * @param {String} course - the course for which the board is used
+ * @param {String} status - current status of the board
+ */
+function createBoard(serial, user, course, status) {
+	var board = new Board(_.assign({}, {
+		serial: serial,
+		user: userId,
+		status: status,
+		course: course
+	}));
+
+	return board.save();
+}
+
+
+function findByBoardId(boardId) {
+	return Board.findOne({ boardId: boardId }).lean();
+}
+
+function findBySerial(boardSerial) {
+	return Course.findOne({ serial: boardSerial });
+}
+
+function findByUser(userId) {
+	return Course.findOne({ user: userId });
+}
+
+var board = {
+	createBoard,
+	findByBoardId,
+	findBySerial,
+	findByUser
+};
+
+module.exports = board;

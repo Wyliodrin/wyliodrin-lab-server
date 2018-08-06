@@ -1,0 +1,17 @@
+# Username for the server hosting the database
+WYLIODRIN_MONGODB_USER=
+
+# Password for the server hosting the database 
+WYLIODRIN_MONGODB_PASSWORD=
+
+# address and port of the server hosting the database
+WYLIODRIN_MONGODB_SERVER=
+
+# Name of the database in use
+WYLIODRIN_MONGODB_DATABASE=
+
+# Debug 
+DEBUG=
+
+# Port in use. Default is 3000
+PORT=
