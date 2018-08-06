@@ -1,5 +1,6 @@
 <template>
 	<div>
+		<!-- Modal pentru adaugare profesor la un curs in tabul de editare curs -->
 		<p>Selecteaza un user pentru a-l adauga: </p>
 		<div class="dropdown">
 			<button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">

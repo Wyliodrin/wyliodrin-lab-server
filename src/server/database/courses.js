@@ -151,6 +151,6 @@ var course = {
 	deleteStudent,
 	deleteTeacher,
 	deleteByCourseId
-}
+};
 
 module.exports = course;
