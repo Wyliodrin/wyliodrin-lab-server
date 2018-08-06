@@ -98,5 +98,7 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-contrib-clean');
 	grunt.loadNpmTasks('grunt-eslint');
 
-	grunt.registerTask('default', ['eslint', 'browserify', 'copy', 'less']);
+	grunt.registerTask('server', ['eslint:server', 'copy:server']);
+
+	grunt.registerTask('default', ['server', 'eslint', 'browserify', 'copy', 'less']);
 };

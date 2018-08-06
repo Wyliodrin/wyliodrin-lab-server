@@ -29,11 +29,19 @@ storage
 			id1 (boot partition from image id1)
 			id2
 			...
+		fs
+			id1 (ext3 partition from image id1)
+			id2
+			...
 		rootfs
 			default: (filesystem/server/defaultId : image/defaultId)
 			serial1 (filesystem/courseIdN/userN : filesystem/courseIdN : filesystem/server/idN : image/idN)
 			serial2
 			...
+	setup
+		id1
+		id2
+		...
 		
 
 Devices
