@@ -1,7 +1,7 @@
 'use strict';
 
 var mongoose = require('mongoose');
-var debug = require('debug')('development:database');
+var debug = require('debug')('wyliodrin-lab-server:database');
 
 
 debug.log = console.info.bind(console);

@@ -1,7 +1,7 @@
 'use strict';
 
 var express = require('express');
-var debug = require('debug')('development:admin-route');
+var debug = require('debug')('wyliodrin-lab-server:admin-route');
 var db = require('../database/database.js');
 var error = require('../error.js');
 
