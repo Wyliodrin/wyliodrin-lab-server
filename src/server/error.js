@@ -1,5 +1,5 @@
 var statusCodes = require('http-status-codes');
-var debug = require('debug')('development:error');
+var debug = require('debug')('wyliodrin-lab-server:error');
 debug.log = console.info.bind(console);
 
 function error(status, err) {

@@ -1,7 +1,7 @@
 'use strict';
 
 var express = require('express');
-var debug = require('debug')('development:user_route');
+var debug = require('debug')('wyliodrin-lab-server:user-routes');
 var uuid = require('uuid');
 var db = require('../database/database.js');
 var error = require('../error.js');

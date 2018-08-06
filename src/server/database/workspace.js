@@ -2,7 +2,7 @@
 
 var path = require('path');
 var fs = require('fs-extra');
-var debug = require('debug')('development:db-workspace');
+var debug = require('debug')('wyliodrin-lab-server:workspace-database');
 var statusCodes = require('http-status-codes');
 
 debug.log = console.info.bind(console);

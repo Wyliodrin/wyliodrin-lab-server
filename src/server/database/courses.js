@@ -2,7 +2,7 @@ var mongoose = require('mongoose');
 var uuid = require('uuid');
 var validator = require('validator');
 var _ = require('lodash');
-var debug = require('debug')('development:course-database');
+var debug = require('debug')('wyliodrin-lab-server:course-database');
 debug.log = console.info.bind(console);
 
 var courseSchema = mongoose.Schema({

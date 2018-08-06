@@ -6,7 +6,7 @@
 
 require('dotenv').config();
 var app = require('../app');
-var debug = require('debug')('wyliodrin-pi-server:server');
+var debug = require('debug')('wyliodrin-lab-server:server');
 var http = require('http');
 
 debug.log = console.info.bind(console);
