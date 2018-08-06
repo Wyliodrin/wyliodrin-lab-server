@@ -65,7 +65,7 @@ var Board = mongoose.model('Board', boardSchema);
  * @param {String} course - the course for which the board is used
  * @param {String} status - current status of the board
  */
-function createBoard(serial, user, course, status) {
+function createBoard(serial, userId, course, status) {
 	var board = new Board(_.assign({}, {
 		serial: serial,
 		user: userId,
@@ -82,11 +82,11 @@ function findByBoardId(boardId) {
 }
 
 function findBySerial(boardSerial) {
-	return Course.findOne({ serial: boardSerial });
+	return Board.findOne({ serial: boardSerial });
 }
 
 function findByUser(userId) {
-	return Course.findOne({ user: userId });
+	return Board.findOne({ user: userId });
 }
 
 var board = {
