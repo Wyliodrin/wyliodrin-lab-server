@@ -3,6 +3,7 @@
 		<div class="admin-page">
 			<p> Bun venit in pagina de admin </p>
 
+			<!-- Aici e tabul cu editat useri -->
 			<div>
 				<h2>Tabela de useri</h2>
 
@@ -32,6 +33,7 @@
 					<button @click="addUser">Add</button>
 			</div>
 
+			<!-- Asta e tabul de cursuri, in care sunt editate cursuri -->
 			<div>
 				<h2>Lista de cursuri</h2>
 				
