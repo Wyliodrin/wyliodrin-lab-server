@@ -1,11 +1,11 @@
 #!/bin/bash
 
 install_node () {
-	cd /opt
+	cd 
 	wget https://nodejs.org/dist/$NODE_VERSION/node-$NODE_VERSION-linux-armv7l.tar.xz -O node.xz
-	tar xvfJ /opt/node.xz
+	tar xvfJ node.xz
 	cd node-$NODE_VERSION-linux-armv7l
-	cp -R * /usr
+	sudo cp -R * /usr
 	cd ..
 	rm -rf node*
 }
@@ -29,6 +29,8 @@ NODE_VERSION=v8.11.3
 
 # install nodejs
 
+set
+
 echo 'Install NodeJS'
 
 if (! node -v &> /dev/null) || (! dpkg --compare-versions `node -v` 'ge' '8.0.0' &> /dev/null)
@@ -42,11 +44,16 @@ fi
 
 echo "Install supervisord"
 
-sudo apt-get update
-sudo apt-get install -y supervisor
+if ! supervisorctl status &> /dev/null;
+then
+	sudo apt-get update
+	sudo apt-get install -y supervisor
+else
+	echo "supervisor is already installed"
+fi
 
 # install wylio
 
 echo "Install Raspberry Pi Server"
 
-sudo npm install -g wylio
+sudo npm install -g wylio --unsafe-perm

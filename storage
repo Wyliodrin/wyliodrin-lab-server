@@ -38,10 +38,14 @@ storage
 			serial1 (filesystem/courseIdN/userN : filesystem/courseIdN : filesystem/server/idN : image/idN)
 			serial2
 			...
-	setup
-		id1
-		id2
-		...
+		server
+			id1
+			id2
+			...
+		course
+			courseId1
+			courseId2
+			...
 		
 
 Devices

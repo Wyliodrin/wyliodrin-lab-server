@@ -3,6 +3,7 @@ var debug = require ('debug')('wyliodrin-lab-server:raspberrypi');
 var path = require ('path');
 var fs = require ('fs-extra');
 var crypto = require ('crypto');
+var pty = require ('pty.js');
 
 function spawnPrivileged ()
 {
@@ -21,12 +22,18 @@ let STORAGE = path.resolve (__dirname, process.env.WYLIODRIN_LAB_STORAGE || 'sto
 let MOUNT = path.join (STORAGE, 'mount');
 let BOOT = path.join (MOUNT, 'boot');
 let FS = path.join (MOUNT, 'fs');
-// let ROOT_FS = path.join (MOUNT, 'rootfs');
+let ROOT_FS = path.join (MOUNT, 'rootfs');
 
 let FILE_SYSTEM = path.join (STORAGE, 'filesystem');
 let SERVER = path.join (FILE_SYSTEM, 'server');
+let COURSE = path.join (FILE_SYSTEM, 'course');
+let USER = path.join (FILE_SYSTEM, 'user');
 
-let SETUP = path.join (STORAGE, 'setup');
+let SETUP_SERVER = path.join (MOUNT, 'server');
+
+let SETUP_COURSE = path.join (MOUNT, 'course');
+
+var SCRIPT = process.env.WYLIODRIN_LAB_SCRIPT || path.join (__dirname, 'script');
 
 // async function mountBoot (imageInfo, folder, unmountIfMounted = true)
 // {
@@ -72,13 +79,15 @@ async function unmount (folder)
 		let res = await spawnPrivileged ('umount', [folder]);
 		// console.log (res.stdout.toString());
 		// console.log (res.stderr.toString());
+		// console.log (res);
 		if (res.exitCode !== 0)
 		{
-			console.error ('ERROR: '+res.stderr.toString ());
+			console.error ('ERROR: '+res.exitCode+' '+res.stderr.toString ());
 		}
 		else 
 		{
 			umount = true;
+			// TODO remove mount folder
 		}
 	}
 	catch (e)
@@ -317,15 +326,166 @@ async function serverStack (imageInfo)
 async function setupServer (imageInfo)
 {
 	let folderStack = await serverStack (imageInfo);
-	let folderSetup = path.join (SETUP, imageInfo.id);
-	await fs.mkdirs (folderSetup);
+	let folderSetup = path.join (SETUP_SERVER, imageInfo.id);
+	// await fs.mkdirs (folderSetup);
+	// TODO if is mounted
+	// await unmount (folderSetup);
+	try
+	{
+		if (await mountAufs (folderStack, folderSetup, ['suid']))
+		{
+			let setup = await spawnPrivileged ('bash', [path.join (SCRIPT, 'setup.sh'), folderSetup]);
+			// mount /proc
+			await spawnPrivileged ('mount', ['-t', 'proc', '/proc', path.join (folderSetup, 'proc')]);
+			if (setup.exitCode === 0)
+			{
+				let install = spawnPrivileged ('chroot', ['--userspec', 'pi:pi',  folderSetup, '/bin/bash', 'install.sh'], {
+					env: {
+						HOME: '/home/pi',
+						USER: 'pi',
+						USERNAME: 'pi',
+						HOSTNAME: 'raspberrypi'
+					}
+				});
+				install.stdout.on ('data', function (data)
+				{
+					process.stdout.write (data);
+				});
+				install.stderr.on ('data', function (data)
+				{
+					process.stderr.write (data);
+				});
+				await install;
+			}
+			else
+			{
+				throw new Error ('setup: '+setup.stderr.toString());
+			}
+		}
+		else
+		{
+			console.error ('ERROR: setup server for '+imageInfo.id+' failed (unable to mount setup folder)');
+		}
+
+	}
+	catch (e)
+	{
+		console.error ('ERROR: setup server for '+imageInfo.id+' failed ('+e.message+')');
+	}
+	await spawnPrivileged ('umount', [ path.join (folderSetup, 'proc')]);
 	await unmount (folderSetup);
-	await mountAufs (folderStack, folderSetup, ['suid']);
+}
+
+async function mountSetupCourse (courseId, imageInfo)
+{
+	let mount = false;
+	// TODO get image info
+	let folderCourse= path.join (COURSE, courseId);
+	let folderStack = [folderCourse, ...await serverStack (imageInfo)];
+	let folderSetupCourse = path.join (SETUP_COURSE, courseId);
+	if (await mountAufs (folderStack, folderSetupCourse, ['suid']))
+	{
+		// mount /proc
+		await spawnPrivileged ('mount', ['-t', 'proc', '/proc', path.join (folderSetupCourse, 'proc')]);
+		mount = true;
+	}
+	else
+	{
+		console.error ('mount setup course for '+imageInfo.id+':'+courseId+' faliled (unable to mount course file system)')
+	}
+	return mount;
+}
+
+async function unmountSetupCourse (courseId)
+{
+	let folderSetupCourse = path.join (SETUP_COURSE, courseId);
+	// umount /proc
+	await spawnPrivileged ('mount', [path.join (folderSetupCourse, 'proc')]);
+	return await unmount (folderSetupCourse);
+}
+
+async function setupCourse (courseId, imageInfo, cmd = 'bash', tty = true, cols = 80, rows = 24)
+{
+	// TODO get image info
+	if (await mountSetupCourse (courseId, imageInfo))
+	{
+		let folderSetupCourse = path.join (SETUP_COURSE, courseId);
+		let command = 'chroot';
+		let params = ['--userspec', 'pi:pi', folderSetupCourse, cmd];
+		if (process.geteuid () !== 0)
+		{
+			params.splice (0, 0, command);
+			command = 'sudo';
+		}
+		let run = pty.spawn (command, params, {
+			rows,
+			cols,
+			HOME: '/home/pi',
+			USER: 'pi',
+			USERNAME: 'pi'
+		});
+		run.on ('exit', async function (exitCode)
+		{
+			debug ('setup course '+exitCode);
+			await unmount (folderSetupCourse);
+		});
+		return run;
+	}
+	else
+	{
+		console.error ('ERROR: setup course mount fs failed');
+		return null;
+	}
+}
+
+async function mountRootFs (boardId, userId, courseId, imageInfo)
+{
+	// TODO get userId, courseId, image info
+	let folderRoot= path.join (USER, userId, courseId);
+	let folderCourse= path.join (COURSE, courseId);
+	let folderStack = [folderRoot, folderCourse, ...await serverStack (imageInfo)];
+	let folderRootFs = path.join (ROOT_FS, boardId);
+	if (await mountAufs (folderStack, folderRootFs, ['suid']))
+	{
+		// export nfs
+	}
+	else
+	{
+		console.error ('mount root fs for '+imageInfo.id+':'+courseId+':'+userId+' faliled (unable to mount course file system)')
+	}
+}
+
+async function unmountRootFs (boardId)
+{
+	// unexport fs
+	let folderRootFs = path.join (ROOT_FS, boardId);
+	// umount /proc
+	return await unmount (folderRootFs);
+}
+
+function exportFs (path, options)
+{
+	let params = ['*:'+path];
+	if (options) params.push ('-o', options.join (','));
+	// TODO verify errors
+	return spawnPrivileged ('exportfs', params);
+}
+
+function unexportFs (path)
+{
+	// TODO verify errors
+	return spawnPrivileged ('exportfs', ['-u', '*:'+path]);
+}
+
+async function listExportFs ()
+{
+	
 }
 
 async function run ()
 {
-	let imageInfo = await mountImage ('../../../../../Downloads/2018-04-18-raspbian-stretch-lite.img');
+	// let imageInfo = await mountImage ('../../../../../Downloads/2018-04-18-raspbian-stretch-lite.img');
+	let imageInfo = await mountImage ('../../../../Downloads/2018-06-27-raspbian-stretch-lite.img');
 	console.log (imageInfo);
 	// await mountPartition (imageInfo, 'fat', 'fat');
 	// await mountPartition (imageInfo, 'ext3', 'ext3');
