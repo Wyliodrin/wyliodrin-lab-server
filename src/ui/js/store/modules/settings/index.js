@@ -1,9 +1,9 @@
 module.exports = {
 	namespaced: true,
 	state: {
-		DASHBOARD: '/views/dashboard.html',
-		ADMIN: '/views/admin.html',
-		LOGIN: '/views/login.html'
+		DASHBOARD: '/dashboard.html',
+		ADMIN: '/admin.html',
+		LOGIN: '/login.html'
 	},
 	getters: {
 	},
