@@ -10,6 +10,7 @@ var users = require('./routes/users');
 var error = require('./error.js');
 var projects = require('./routes/projects');
 var admin = require('./routes/admin');
+var boards = require('./routes/boards');
 var statusCodes = require('http-status-codes');
 
 debug.log = console.info.bind(console);
@@ -22,9 +23,14 @@ var apiv1 = express.Router();
 apiv1.use(bodyParser.urlencoded({ extended: false }));
 apiv1.use(bodyParser.json());
 
+
 apiv1.use('/user', users.publicRoutes);
 
+apiv1.use('/remote', boards.remoteRoute);
+
 apiv1.use(users.security);
+
+apiv1.use('/boards', boards.boardRoute);
 
 apiv1.use('/user', users.privateRoutes);
 

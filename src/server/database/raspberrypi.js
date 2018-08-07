@@ -4,6 +4,8 @@ var path = require('path');
 var fs = require('fs-extra');
 var crypto = require('crypto');
 var pty = require('pty.js');
+var _ = require('lodash');
+var ip = require('ip');
 
 function spawnPrivileged() {
 	if (process.geteuid() !== 0) {
@@ -15,7 +17,7 @@ function spawnPrivileged() {
 }
 
 let STORAGE = path.resolve(__dirname, process.env.WYLIODRIN_LAB_STORAGE || 'storage');
-// let IMAGES = path.join (STORAGE, 'images');
+let IMAGES = path.join(STORAGE, 'images');
 
 let MOUNT = path.join(STORAGE, 'mount');
 let BOOT = path.join(MOUNT, 'boot');
@@ -30,6 +32,8 @@ let USER = path.join(FILE_SYSTEM, 'user');
 let SETUP_SERVER = path.join(MOUNT, 'server');
 
 let SETUP_COURSE = path.join(MOUNT, 'course');
+
+let imagesList = {};
 
 var SCRIPT = process.env.WYLIODRIN_LAB_SCRIPT || path.join(__dirname, 'script');
 
@@ -226,10 +230,8 @@ async function mountAufs(stack, folder, options, unmountIfMounted = false) {
 	return mount;
 }
 
-async function mountImage(filename) {
-	debug('read image ' + filename);
+async function mountImage(imageInfo) {
 	let mount = false;
-	let imageInfo = await readImageInfo(filename);
 	// console.log (imageInfo);
 	if (imageInfo) {
 		let folderBoot = path.join(BOOT, imageInfo.id);
@@ -303,7 +305,7 @@ async function mountSetupCourse(courseId, imageInfo) {
 		await spawnPrivileged('mount', ['-t', 'proc', '/proc', path.join(folderSetupCourse, 'proc')]);
 		mount = true;
 	} else {
-		console.error('mount setup course for ' + imageInfo.id + ':' + courseId + ' faliled (unable to mount course file system)')
+		console.error('mount setup course for ' + imageInfo.id + ':' + courseId + ' failed (unable to mount course file system)');
 	}
 	return mount;
 }
@@ -315,7 +317,7 @@ async function unmountSetupCourse(courseId) {
 	return await unmount(folderSetupCourse);
 }
 
-async function setupCourse(courseId, imageInfo, cmd = 'bash', tty = true, cols = 80, rows = 24) {
+async function setupCourse(courseId, imageInfo, cmd = 'bash', cols = 80, rows = 24) {
 	// TODO get image info
 	if (await mountSetupCourse(courseId, imageInfo)) {
 		let folderSetupCourse = path.join(SETUP_COURSE, courseId);
@@ -334,7 +336,7 @@ async function setupCourse(courseId, imageInfo, cmd = 'bash', tty = true, cols =
 		});
 		run.on('exit', async function(exitCode) {
 			debug('setup course ' + exitCode);
-			await unmount(folderSetupCourse);
+			await unmountSetupCourse(courseId);
 		});
 		return run;
 	} else {
@@ -349,11 +351,16 @@ async function mountRootFs(boardId, userId, courseId, imageInfo) {
 	let folderCourse = path.join(COURSE, courseId);
 	let folderStack = [folderRoot, folderCourse, ...await serverStack(imageInfo)];
 	let folderRootFs = path.join(ROOT_FS, boardId);
+	await fs.mkdirs(folderRoot);
+	await fs.mkdirs(folderCourse);
+	await fs.mkdirs(folderRootFs);
 	if (await mountAufs(folderStack, folderRootFs, ['suid'])) {
 		// export nfs
+		return true;
 	} else {
-		console.error('mount root fs for ' + imageInfo.id + ':' + courseId + ':' + userId + ' faliled (unable to mount course file system)')
+		console.error('mount root fs for ' + imageInfo.id + ':' + courseId + ':' + userId + ' faliled (unable to mount course file system)');
 	}
+	return false;
 }
 
 async function unmountRootFs(boardId) {
@@ -376,20 +383,161 @@ function unexportFs(path) {
 }
 
 async function listExportFs() {
+	let list = [];
+	try {
+		let run = await spawnPrivileged('exportfs', ['-s']);
+		if (run.exitCode === 0) {
+			let data = run.stdout.toString().split('\n');
+			for (let item of data) {
+				if (item.length > 0) {
+					let dataItem = item.split(/\s+/);
+					// console.log (dataItem[1]);
+					let optionsItem = [];
+					let matchOptions = dataItem[1].match(/\*\(([^)]+)\)/);
+					if (matchOptions) optionsItem = matchOptions[1].split(',');
+					let exportItem = {
+						folder: dataItem[0],
+						options: optionsItem
+					};
+					list.push(exportItem);
+				}
+			}
+		} else {
+			throw new Error('list export ' + run.stderr.toString());
+		}
+	} catch (e) {
+		console.error('ERROR: list export unable to list exports (' + e.message + ')');
+	}
+	return list;
+}
 
+async function readImages() {
+	imagesList = {};
+	try {
+		await fs.mkdirs(IMAGES);
+		let list = await fs.readdir(IMAGES);
+		for (let file of list) {
+			if (path.extname(file) === '.img') {
+				debug('Found image ' + path.join(IMAGES, file));
+				try {
+					let imageInfo = await readImageInfo(path.join(IMAGES, file));
+					imagesList[imageInfo.id] = imageInfo;
+					mountImage(imageInfo);
+				} catch (e) {
+					console.error('ERROR: read image (' + e.message + ')');
+				}
+			}
+		}
+	} catch (e) {
+		console.error('ERROR: read images (' + e.message + ')');
+	}
+}
+
+function listImages() {
+	return _.cloneDeep(imagesList);
+}
+
+function listImagesAsArray() {
+	let list = [];
+	for (let image in imagesList) {
+		list.push(_.cloneDeep(imagesList[image]));
+	}
+	return list;
+}
+
+async function isExported(folder) {
+	let exportList = await listExportFs();
+	for (let exportItem of exportList) {
+		if (exportItem.folder === folder) return true;
+	}
+	return false;
+}
+
+async function setup(boardId, userId, courseId, imageId) {
+	if (imagesList[imageId]) {
+		let folder = path.join(ROOT_FS, boardId);
+		if (!await isExported(folder)) {
+			let mount = await mountRootFs(boardId, userId, courseId, imagesList[imageId]);
+			// console.log (mount);
+			if (mount) {
+				let exp = await exportFs(folder, ['rw']);
+				if (!exp) {
+					await unmountRootFs(boardId);
+					throw new Error('Failed to export rootfs for image ' + imageId);
+				} else {
+					return true;
+				}
+			} else {
+				throw new Error('Failed to mount rootfs for image ' + imageId);
+			}
+		} else {
+			throw new Error('Board ' + boardId + ' is already setup');
+		}
+	} else throw new Error('Image ' + imageId + ' does not exist');
+}
+
+async function unsetup(boardId) {
+	let folder = path.join(ROOT_FS, boardId);
+	if (await isExported(folder)) {
+		await unexportFs(folder);
+		await unmountRootFs(boardId);
+		return true;
+	} else {
+		throw new Error('Board ' + boardId + ' is not setup');
+	}
 }
 
 async function run() {
+	await readImages();
+	console.log(imagesList);
+	console.log(listImagesAsArray());
+	// await unsetup ('board1');
+	await setup('board1', 'user1', 'course1', '212b3209ec67bf6728d14a16d4ad47e4acabac4c');
+	// console.log (await listExportFs ());
 	// let imageInfo = await mountImage ('../../../../../Downloads/2018-04-18-raspbian-stretch-lite.img');
-	let imageInfo = await mountImage('../../../../Downloads/2018-06-27-raspbian-stretch-lite.img');
-	console.log(imageInfo);
+	// let imageInfo = await mountImage ('../../../../Downloads/2018-06-27-raspbian-stretch-lite.img');
+	// console.log (imageInfo);
 	// await mountPartition (imageInfo, 'fat', 'fat');
 	// await mountPartition (imageInfo, 'ext3', 'ext3');
-	setupServer(imageInfo);
+	// setupServer (imagesList[0]);
 	// await unmount (imageInfo.bootFolder);
 	// await unmount (imageInfo.fsFolder);
 }
 
+/*
+parameters
+{
+	serverIp: server_ip // null for autodetect
+}
+*/
+async function cmdline(courseId, imageId, boardId, parameters) {
+	if (!parameters) parameters = {};
+	if (!parameters.serverIp) parameters.serverIp = ip.address();
+	let str = 'root=/dev/nfs nfsroot=' + parameters.serverIp + ':' + path.join(ROOT_FS, boardId) + ',vers=3 rw ip=dhcp rootwait elevator=deadline';
+	let folderBoot = path.join(BOOT, imageId);
+	let cmdline = await fs.readFile(path.join(folderBoot, 'cmdline.txt')).toString();
+	let pos = cmdline.indexOf('root=');
+	if (pos >= 0) {
+		cmdline = cmdline.substr(0, pos) + ' ' + str;
+	} else {
+		cmdline = cmdline + ' ' + str;
+	}
+	return cmdline;
+}
+
 run();
 
-module.exports.readImageInfo = readImageInfo;
+process.on('exit', function() {
+	// TODO unexport all images
+});
+
+// TODO export install image instead of this
+module.exports.setupServer = setupServer;
+
+module.exports.listImages = listImages;
+module.exports.listImagesAsArray = listImagesAsArray;
+module.exports.setup = setup;
+module.exports.unsetup = unsetup;
+module.exports.setupCourse = setupCourse;
+
+module.exports.cmdline = cmdline;
