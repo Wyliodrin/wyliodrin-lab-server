@@ -5,7 +5,6 @@
 				<!-- <form class="login-form"> -->
 					<input type="text" placeholder="username" v-model="username"/>
 					<input type="password" placeholder="password" v-model="password"/>
-					<button @click="login">login</button>
 				<!-- </form> -->
 			</div>
 		</div>
@@ -31,8 +30,17 @@ module.exports = {
 				password: this.password
 			});
 
-			if (login && (this.role === 'admin'))
-				this.$store.dispatch ('settings/redirect', 'ADMIN');
+			if (login)
+			{
+				if (this.role === 'admin')
+				{
+					this.$store.dispatch ('settings/redirect', 'ADMIN');
+				}
+				else
+				{
+					this.$store.dispatch ('settings/redirect', 'LAB');
+				}
+			}
 			else {
 				this.username = '';
 				this.password = '';

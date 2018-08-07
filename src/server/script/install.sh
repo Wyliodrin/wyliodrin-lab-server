@@ -15,6 +15,8 @@ FS=`pwd`
 NODE_VERSION=v8.11.3
 
 
+
+
 # $QEMU_ARM_STATIC=`which qemu-arm-static`
 
 # echo 'Install QEMU'
@@ -57,3 +59,6 @@ fi
 echo "Install Raspberry Pi Server"
 
 sudo npm install -g wylio --unsafe-perm
+
+# Writing fstab
+echo "proc            /proc           proc    defaults          0       0" | sudo tee /etc/fstab

@@ -22,6 +22,7 @@
         "morgan": "~1.9.0",
         "nodemailer": "^4.6.7",
         "pty.js": "^0.3.1",
+        "tftp": "^0.1.2",
         "uuid": "^3.3.2",
         "validator": "^10.4.0",
         "vueify": "^9.4.1"

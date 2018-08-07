@@ -12,7 +12,6 @@ var PutStream = require("./streams/server/put-stream");
 var Helper = require("./protocol/request").Helper;
 var errors = require("./protocol/errors");
 var opcodes = require("./protocol/opcodes");
-var copydir = require("copy-dir");
 var mount = require('./mount-module');
 var stream = require('stream');
 
@@ -227,9 +226,6 @@ Server.prototype.requestListener = function(req, res) {
         this._put(filename, req);
     }
 };
-
-//TODO
-function parseCmdLine();
 
 Server.prototype._get = function(filename, req, res) {
 

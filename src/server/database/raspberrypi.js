@@ -12,7 +12,7 @@ function spawnPrivileged ()
 	if (process.geteuid () !== 0)
 	{
 		if (!arguments[1]) arguments[1] = [];
-		arguments[1].splice (0, 0, arguments[0]);
+		arguments[1].splice (0, 0, '-E', arguments[0]);
 		arguments[0] = 'sudo';
 	}
 	return spawn.apply (this, arguments);
@@ -22,9 +22,12 @@ let STORAGE = path.resolve (__dirname, process.env.WYLIODRIN_LAB_STORAGE || 'sto
 let IMAGES = path.join (STORAGE, 'images');
 
 let MOUNT = path.join (STORAGE, 'mount');
+let RAM_FS = path.join (MOUNT, 'ramfs');
 let BOOT = path.join (MOUNT, 'boot');
 let FS = path.join (MOUNT, 'fs');
 let ROOT_FS = path.join (MOUNT, 'rootfs');
+
+let RAM_FS_SIZE = process.env.WYLIDORIN_LAB_RAM_FS_SIZE || '100M';
 
 let FILE_SYSTEM = path.join (STORAGE, 'filesystem');
 let SERVER = path.join (FILE_SYSTEM, 'server');
@@ -36,8 +39,9 @@ let SETUP_SERVER = path.join (MOUNT, 'server');
 let SETUP_COURSE = path.join (MOUNT, 'course');
 
 let imagesList = {};
+let defaultImage = null;
 
-var SCRIPT = process.env.WYLIODRIN_LAB_SCRIPT || path.join (__dirname, 'script');
+var SCRIPT = process.env.WYLIODRIN_LAB_SCRIPT || path.join (__dirname, '../script');
 
 // async function mountBoot (imageInfo, folder, unmountIfMounted = true)
 // {
@@ -101,6 +105,13 @@ async function unmount (folder)
 	return umount;
 }
 
+async function mountRamFs (boardId)
+{
+	let folder = path.join (RAM_FS, boardId);
+	await fs.mkdirs (folder); 
+	await spawnPrivileged ('mount', ['-t', 'tmpfs', '-o', 'size='+RAM_FS_SIZE, 'none', folder]);
+}
+
 async function mountPartition (imageInfo, partition, folder, unmountIfMounted = false)
 {
 	let mount = false;
@@ -110,32 +121,29 @@ async function mountPartition (imageInfo, partition, folder, unmountIfMounted = 
 		debug ('mount '+partition+' '+imageInfo.filename+' to '+folder);
 		try
 		{
-			await fs.mkdirs (folder);
-			let res = await spawnPrivileged ('mount', ['--read-only', '-o', 'loop,offset='+(imageInfo[partition].offset*512)+',sizelimit='+(imageInfo[partition].sectors*512), imageInfo.filename, folder]);
-			// console.log (['mount', '-o', 'loop,offset='+(imageInfo.fat.offset*512)+',sizelimit='+(imageInfo.fat.sectors*512), imageInfo.filename, folder]);
-			if (res.exitCode !== 0)
+			let mounted = await isMounted (folder);
+			if (mounted && unmountIfMounted)
 			{
-				if (res.stderr.indexOf ('already mounted') >= 0)
-				{
-					if (unmountIfMounted)
-					{
-						debug ('mount: '+folder+' is already mounted, trying to umount');
-						await unmount (folder);
-						mount = await mountPartition (imageInfo, partition, folder, false);
-					}
-					else
-					{
-						mount = true;
-					}
-				}
-				else
+				await unmount (folder);
+				mounted = false;
+			}
+			if (!mounted)
+			{
+				await fs.mkdirs (folder);
+				let res = await spawnPrivileged ('mount', ['--read-only', '-o', 'loop,offset='+(imageInfo[partition].offset*512)+',sizelimit='+(imageInfo[partition].sectors*512), imageInfo.filename, folder]);
+				// console.log (['mount', '-o', 'loop,offset='+(imageInfo.fat.offset*512)+',sizelimit='+(imageInfo.fat.sectors*512), imageInfo.filename, folder]);
+				if (res.exitCode !== 0)
 				{
 					console.error ('ERROR: mount '+partition+' for '+imageInfo.filename+' failed ('+res.stderr.toString()+')');
 				}
+				else 
+				{
+					imageInfo[partition+'Folder'] = folder;
+					mount = true;
+				}
 			}
-			else 
+			else
 			{
-				imageInfo[partition+'Folder'] = folder;
 				mount = true;
 			}
 		}
@@ -256,6 +264,16 @@ async function readImageInfo (filename)
 	return imageInfo;
 }
 
+async function isMounted (folder)
+{
+	let mount = await spawn ('bash', ['-c', 'mount | cut -d \' \' -f 3']);
+	let folders = mount.stdout.toString().split ('\n');
+	// console.log (mount.stdout.toString());
+	// console.log (folders);
+	if (_.indexOf (folders, folder)>=0) return true;
+	else return false;
+}
+
 async function mountAufs (stack, folder, options, unmountIfMounted = false)
 {
 	folder = path.normalize (path.resolve(__dirname, folder));
@@ -263,27 +281,28 @@ async function mountAufs (stack, folder, options, unmountIfMounted = false)
 	debug ('mount aufs '+stack+' '+folder);
 	try
 	{
-		await fs.mkdirs (folder);
-		let mnt = await spawnPrivileged ('mount', ['-t', 'aufs', '-o', 'br='+stack.join(':')+(options?','+options.join(','):''), 'none', folder]);
-		// console.log (mnt.stderr.toString  ());
-		if (mnt.exitCode !== 0)
+		let mounted = await isMounted (folder);
+		if (mounted && unmountIfMounted)
 		{
-			if (mnt.stderr.indexOf ('already mounted') >= 0)
+			await unmount (folder);
+			mounted = false;
+		}
+		if (!mounted)
+		{
+			await fs.mkdirs (folder);
+			console.log (stack);
+			let mnt = await spawnPrivileged ('mount', ['-t', 'aufs', '-o', 'br='+stack.join(':')+(options?','+options.join(','):''), 'none', folder]);
+			console.log ('mount '+['-t', 'aufs', '-o', 'br='+stack.join(':')+(options?','+options.join(','):''), 'none', folder].join(' '));
+			// console.log (mnt.stdout.toString  ());
+			// console.log (mnt.stderr.toString  ());
+			// console.log (mnt.exitCode);
+			if (mnt.exitCode !== 0)
 			{
-				if (unmountIfMounted)
-				{
-					debug ('mount aufs '+folder+' is already mounted, trying to umount');
-					await unmount (folder);
-					mount = await mountAufs (stack, folder, options, false);
-				}
-				else
-				{
-					mount = true;
-				}
+				console.error ('ERROR: mount aufs '+stack+' to '+folder+' failed ('+mnt.stderr.toString()+')');
 			}
 			else
 			{
-				console.error ('ERROR: mount aufs '+stack+' to '+folder+' failed ('+mnt.stderr.toString()+')');
+				mount = true;
 			}
 		}
 		else
@@ -341,13 +360,15 @@ async function setupServer (imageInfo)
 			await spawnPrivileged ('mount', ['-t', 'proc', '/proc', path.join (folderSetup, 'proc')]);
 			if (setup.exitCode === 0)
 			{
+				// process.exit (0);
+				console.log (process.env);
 				let install = spawnPrivileged ('chroot', ['--userspec', 'pi:pi',  folderSetup, '/bin/bash', 'install.sh'], {
-					env: {
+					env: _.assign ({}, process.env, {
 						HOME: '/home/pi',
 						USER: 'pi',
 						USERNAME: 'pi',
 						HOSTNAME: 'raspberrypi'
-					}
+					})
 				});
 				install.stdout.on ('data', function (data)
 				{
@@ -372,6 +393,7 @@ async function setupServer (imageInfo)
 	}
 	catch (e)
 	{
+		console.log (e);
 		console.error ('ERROR: setup server for '+imageInfo.id+' failed ('+e.message+')');
 	}
 	await spawnPrivileged ('umount', [ path.join (folderSetup, 'proc')]);
@@ -443,21 +465,46 @@ async function setupCourse (courseId, imageInfo, cmd = 'bash', cols = 80, rows =
 async function mountRootFs (boardId, userId, courseId, imageInfo)
 {
 	// TODO get userId, courseId, image info
-	let folderRoot= path.join (USER, userId, courseId);
-	let folderCourse= path.join (COURSE, courseId);
-	let folderStack = [folderRoot, folderCourse, ...await serverStack (imageInfo)];
-	let folderRootFs = path.join (ROOT_FS, boardId);
-	await fs.mkdirs (folderRoot);
-	await fs.mkdirs (folderCourse);
-	await fs.mkdirs (folderRootFs);
-	if (await mountAufs (folderStack, folderRootFs, ['suid']))
+	if (!imageInfo)
 	{
-		// export nfs
-		return true;
+		debug ('mount root fs using default image id '+defaultImage.id);
+		imageInfo = defaultImage;
+	}
+	if (userId && courseId)
+	{
+		let folderRoot= path.join (USER, userId, courseId);
+		let folderCourse= path.join (COURSE, courseId);
+		let folderStack = [folderRoot, folderCourse, ...await serverStack (imageInfo)];
+		let folderRootFs = path.join (ROOT_FS, boardId);
+		await fs.mkdirs (folderRoot);
+		await fs.mkdirs (folderCourse);
+		await fs.mkdirs (folderRootFs);
+		if (await mountAufs (folderStack, folderRootFs, ['rw,suid']))
+		{
+			// export nfs
+			return true;
+		}
+		else
+		{
+			console.error ('mount root fs for '+imageInfo.id+':'+courseId+':'+userId+' faliled (unable to mount course file system)');
+		}
 	}
 	else
 	{
-		console.error ('mount root fs for '+imageInfo.id+':'+courseId+':'+userId+' faliled (unable to mount course file system)');
+		let folderRamFs = path.join (RAM_FS, boardId);
+		await mountRamFs (boardId);
+		let folderStack = [folderRamFs, ...await serverStack (imageInfo)];
+		let folderRootFs = path.join (ROOT_FS, boardId);
+		await fs.mkdirs (folderRootFs);
+		if (await mountAufs (folderStack, folderRootFs, ['rw']))
+		{
+			// export nfs
+			return true;
+		}
+		else
+		{
+			console.error ('mount root fs for '+imageInfo.id+':'+courseId+':'+userId+' faliled (unable to mount course file system)');
+		}
 	}
 	return false;
 }
@@ -465,9 +512,13 @@ async function mountRootFs (boardId, userId, courseId, imageInfo)
 async function unmountRootFs (boardId)
 {
 	// unexport fs
+	let folderRamFs = path.join (RAM_FS, boardId);
 	let folderRootFs = path.join (ROOT_FS, boardId);
 	// umount /proc
-	return await unmount (folderRootFs);
+	await unmount (folderRamFs);
+	await unmount (folderRootFs);
+	// TODO modify this
+	return true;
 }
 
 function exportFs (path, options)
@@ -538,6 +589,8 @@ async function readImages ()
 				{
 					let imageInfo = await readImageInfo (path.join (IMAGES, file));
 					imagesList[imageInfo.id] = imageInfo;
+					if (!defaultImage) defaultImage = imageInfo;
+					if (file.indexOf ('default')>=0) defaultImage = imageInfo;
 					mountImage (imageInfo);
 				}
 				catch (e)
@@ -551,6 +604,7 @@ async function readImages ()
 	{
 		console.error ('ERROR: read images ('+e.message+')');
 	}
+	if (!defaultImage) console.error ('ERROR: load images there is no default image');
 }
 
 function listImages ()
@@ -578,8 +632,14 @@ async function isExported (folder)
 	return false;
 }
 
+function hasRootFsMounted (boardId)
+{
+	return isExported (pathRootFs (boardId));
+}
+
 async function setup (boardId, userId, courseId, imageId)
 {
+	if (!imageId) imageId = defaultImageId ();
 	if (imagesList[imageId])
 	{
 		let folder = path.join (ROOT_FS, boardId);
@@ -589,7 +649,9 @@ async function setup (boardId, userId, courseId, imageId)
 			// console.log (mount);
 			if (mount)
 			{
-				let exp = await exportFs (folder, ['rw']);
+				let read = 'rw';
+				// if (!userId || !courseId) read = 'ro';
+				let exp = await exportFs (folder, ['fsid=0', read, 'no_root_squash']);
 				if (!exp)
 				{
 					await unmountRootFs (boardId);
@@ -628,20 +690,26 @@ async function unsetup (boardId)
 	}
 }
 
+
+function hasSetup (boardId)
+{
+	return hasRootFsMounted (boardId);
+}
+
 async function run ()
 {
 	await readImages ();
-	console.log (imagesList);
-	console.log (listImagesAsArray());
+	// console.log (imagesList);
+	// console.log (listImagesAsArray());
 	// await unsetup ('board1');
-	await setup ('board1', 'user1', 'course1', '212b3209ec67bf6728d14a16d4ad47e4acabac4c');
+	// await setup ('board1', 'user1', 'course1', '212b3209ec67bf6728d14a16d4ad47e4acabac4c');
 	// console.log (await listExportFs ());
 	// let imageInfo = await mountImage ('../../../../../Downloads/2018-04-18-raspbian-stretch-lite.img');
 	// let imageInfo = await mountImage ('../../../../Downloads/2018-06-27-raspbian-stretch-lite.img');
 	// console.log (imageInfo);
 	// await mountPartition (imageInfo, 'fat', 'fat');
 	// await mountPartition (imageInfo, 'ext3', 'ext3');
-	// setupServer (imagesList[0]);
+	// await setupServer (defaultImage);
 	// await unmount (imageInfo.bootFolder);
 	// await unmount (imageInfo.fsFolder);
 }
@@ -654,21 +722,50 @@ parameters
 */
 async function cmdline (courseId, imageId, boardId, parameters)
 {
+	// TODO debug using default image
+	if (!imageId) imageId = defaultImageId ();
 	if (!parameters) parameters = {};
 	if (!parameters.serverIp) parameters.serverIp = ip.address ();
 	let str = 'root=/dev/nfs nfsroot='+parameters.serverIp+':'+path.join (ROOT_FS, boardId)+',vers=3 rw ip=dhcp rootwait elevator=deadline';
 	let folderBoot = path.join (BOOT, imageId);
-	let cmdline = await fs.readFile (path.join (folderBoot, 'cmdline.txt')).toString ();
+	let cmdline = (await fs.readFile (path.join (folderBoot, 'cmdline.txt'))).toString ();
 	let pos = cmdline.indexOf ('root=');
 	if (pos>=0)
 	{
-		cmdline = cmdline.substr (0, pos) + ' ' + str;
+		cmdline = cmdline.substr (0, pos) + str;
 	}
 	else
 	{
 		cmdline = cmdline + ' ' + str;
 	}
 	return cmdline;
+}
+
+function defaultImageId ()
+{
+	if (!defaultImage) 
+	{
+		console.error ('ERROR: there is no default image');
+		return null;
+	}
+	else
+	{
+		return defaultImage.id;
+	}
+}
+
+function pathBoot (id)
+{
+	// TODO debug using default image
+	if (!id) id = defaultImage.id;
+	return path.join (BOOT, id);
+}
+
+function pathRootFs (id)
+{
+	// TODO debug using default image
+	if (!id) id = defaultImage.id;
+	return path.join (ROOT_FS, id);
 }
 
 run ();
@@ -688,3 +785,10 @@ module.exports.unsetup = unsetup;
 module.exports.setupCourse = setupCourse;
 
 module.exports.cmdline = cmdline;
+
+module.exports.defaultImageId = defaultImageId;
+module.exports.pathBoot = pathBoot;
+module.exports.pathRootFs = pathRootFs;
+
+module.exports.hasSetup = hasSetup;
+

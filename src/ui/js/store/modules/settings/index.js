@@ -3,7 +3,8 @@ module.exports = {
 	state: {
 		DASHBOARD: '/dashboard.html',
 		ADMIN: '/admin.html',
-		LOGIN: '/login.html'
+		LOGIN: '/login.html',
+		LAB: '/lab.html'
 	},
 	getters: {
 	},
