@@ -13,6 +13,31 @@ function readBoardId (filename)
 	return path.dirname (filename);
 }
 
+async function imageData (boardId, status)
+{
+	let data = {
+	};
+	let board = null;
+	if (status)
+	{
+		board = await db.board.boardStatus (boardId, status);
+	}
+	else
+	{
+		board = await db.board.findByBoardId (boardId);
+	}
+	data.userId = board.userId;
+	data.courseId = board.courseId;
+	if (board.courseId) 
+	{
+		let course = await db.course.findByCourseId (board.courseId);
+		if (course) data.id = course.imageId;
+	}
+	return data;
+}
+
+console.log (IP_ADDRESS);
+
 var server = tftp.createServer ({
 	host: IP_ADDRESS,
 	port: 69,
@@ -27,10 +52,15 @@ var server = tftp.createServer ({
 		try
 		{
 			let pathBoot = db.image.pathBoot ();
-			if (!await db.image.hasSetup (boardId))
+			if (filename === 'start.elf')
 			{
+				if (await db.image.hasSetup (boardId))
+				{
+					await db.image.unsetup (boardId);
+				}
 				console.log ('setting up image for '+boardId);
-				await db.image.setup (boardId);
+				let data = await imageData (boardId, 'bootup');
+				await db.image.setup (boardId, data.userId, data.courseId, data.id);
 			}
 			// console.log (pathBoot);
 			console.log ('boardId: '+boardId+' filename: '+filename);
@@ -38,7 +68,8 @@ var server = tftp.createServer ({
 			let data = null;
 			if (filename === 'cmdline.txt')
 			{
-				data = await db.image.cmdline (null, null, boardId, null);
+				let params = await imageData (boardId);
+				data = await db.image.cmdline (params.courseId, params.id, boardId);
 				console.log ('cmdline '+data);
 			}
 			else

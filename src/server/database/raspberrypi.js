@@ -412,8 +412,8 @@ async function unmountRootFs(boardId) {
 	let folderRamFs = path.join(RAM_FS, boardId);
 	let folderRootFs = path.join(ROOT_FS, boardId);
 	// umount /proc
-	await unmount(folderRamFs);
 	await unmount(folderRootFs);
+	await unmount(folderRamFs);
 	// TODO modify this
 	return true;
 }
@@ -433,9 +433,22 @@ function unexportFs(path) {
 async function listExportFs() {
 	let list = [];
 	try {
-		let run = await spawnPrivileged('exportfs', ['-s']);
+		let run = await spawnPrivileged('exportfs', ['-v']);
 		if (run.exitCode === 0) {
-			let data = run.stdout.toString().split('\n');
+			let rawData = run.stdout.toString().split('\n');
+			let data = [];
+			for (let index = 0; index < rawData.length; index ++)
+			{
+				let rawItem = rawData[index];
+				if (rawItem[0] === '\t' || rawItem[0]===' ' && data.length>0)
+				{
+					data[data.length-1] = data[data.length-1]+' '+rawItem;
+				}
+				else
+				{
+					data.push (rawItem);
+				}
+			}
 			for (let item of data) {
 				if (item.length > 0) {
 					let dataItem = item.split(/\s+/);

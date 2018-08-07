@@ -23,31 +23,46 @@ boardApp.post('/get_id/:board_serial', async function(res, req, next) {
 });
 
 
-remoteApp.post('/exchange', async function(req, res, next) {
-	var e;
+remoteApp.post('/exchange', async function(req, res/*, next*/) {
+	// var e;
 	// var id = req.body.id;
 	// var ip = req.body.ip;
 
-	var courseId = req.body.courseId;
-	var userId = req.body.userId;
+	var boardId = req.body.boardId;
 
-	if (!courseId || !userId) {
-		res.status(200).send({ command: 'reboot' });
+	if (boardId)
+	{
+		var courseId = req.body.courseId;
+		var userId = req.body.userId;
+		var status = req.body.status;
+
+		let board = await db.board.boardStatus (boardId, status);
+
+		if (board)
+		{
+			if (board.courseId !== courseId || board.userId !== userId)
+			{
+				await db.board.boardStatus (boardId, 'desync');
+				res.send ({err:0, command: 'reboot'});
+			}
+			else
+			{
+				if (board.command)
+				{
+					// TODO reset command
+				}
+				res.status(200).send({command: board.command});
+			}
+		}
+		else
+		{
+			error.sendError (res, error.unauthorized ('The board should boot from this server'));
+		}
 	}
-
-	try {
-		var user = await db.user.findByUserId(userId);
-		var course = await db.course.findByStudentId(userId);
-	} catch (err) {
-		e = error.serverError(err);
-		next(e);
+	else
+	{
+		error.sendError (res, error.badRequest ('Wrong boardId'));
 	}
-
-	if (!course || !user) {
-		res.status(200).send({ command: 'reboot' });
-	}
-
-	res.status(200).send({});
 
 });
 

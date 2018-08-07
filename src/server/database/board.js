@@ -20,6 +20,7 @@ var boardSchema = mongoose.Schema({
 		type: String,
 		required: false,
 		unique: true,
+		sparse: true
 	},
 	status: {
 		type: String,
@@ -50,6 +51,7 @@ var boardSchema = mongoose.Schema({
 	}
 });
 
+
 var Board = mongoose.model('Board', boardSchema);
 
 /**
@@ -72,7 +74,7 @@ function createBoard(boardId, userId, courseId, command) {
 
 function boardStatus (boardId, status)
 {
-	return Board.findByIdAndUpdate ({boardId}, {$set: {status: status}, lastInfo: Date.now ()}, {upsert: true, new: true}).lean();
+	return Board.findOneAndUpdate ({boardId}, {$set: {status: status}, lastInfo: Date.now ()}, {upsert: true, new: true}).lean();
 }
 
 
