@@ -35,8 +35,8 @@ db.on('close', function() {
 	debug('[MONGODB]: Connection closed');
 });
 
-db.on('error', function() {
-	debug('[MONGODB]: Error while connecting');
+db.on('error', function(err) {
+	console.error('[DATABASE]Error while connecting:', err);
 });
 
 db.on('disconnected', function() {
@@ -59,7 +59,9 @@ var user = require('./user.js');
 var workspace = require('./workspace.js');
 var course = require('./courses.js');
 var board = require('./board.js');
+var raspberrypi = require('./raspberrypi.js');
 module.exports.user = user;
 module.exports.workspace = workspace;
 module.exports.course = course;
 module.exports.board = board;
+module.exports.raspberrypi = raspberrypi;

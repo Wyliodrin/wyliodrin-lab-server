@@ -155,12 +155,74 @@ privateApp.get('/logout', function(req, res) {
 	res.status(200).send({ err: 0 });
 });
 
-// TODO: This should be moved to admin
-privateApp.get('/logout/:tokenId', function(req, res) {
-	delete tokens[req.token];
-	debug(req.user.userId + ' logged out for ' + req.params.tokenId);
-	res.status(200).send({ err: 0 });
+
+privateApp.post('/connect', async function(req, res, next) {
+	var e;
+	var courseId = req.body.courseId;
+	var boardId = req.body.boardId;
+	if (!courseId || !boardId) {
+		e = error.badRequest('Request must contain course ID and board ID');
+		next(e);
+	}
+	try {
+		var board = db.board.findByBoardId(boardId);
+		var course = db.course.findByCourseId(courseId);
+	} catch (err) {
+		e = error.serverError(err);
+		next(e);
+		debug(err);
+	}
+	if (!course) {
+		e = error.badRequest('Invalid course ID');
+		next(e);
+	}
+	if (!board) {
+		e = error.badRequest('Invalid board ID');
+		next(e);
+	}
+
+	if (board.userId) {
+		e = error.notAcceptable('Board already in use');
+		next(e);
+	}
+
+	try {
+		await db.raspberrypi.setup(req.user.userId, courseId, courseId.imageId);
+	} catch (err) {
+		e = error.serverError(err);
+		next(e);
+	}
+
 });
+
+privateApp.post('/disconnect', async function(req, res, next) {
+	var e;
+	var userId = req.user.userId;
+	try {
+		var board = await db.board.findByUserId(userId);
+		var course = await db.course.findByUserId(userId);
+	} catch (err) {
+		e = error.serverError(err);
+		next(e);
+	}
+	if (!board) {
+		e = error.notAcceptable('User is not connected to a board');
+		next(e);
+	}
+	if (!course) {
+		e = error.notAcceptable('User is not enrolled to a course');
+		next(e);
+	}
+
+	try {
+		await db.raspberrypi.unSetup(userId, course.courseId);
+	} catch (err) {
+		e = error.serverError(err);
+		next(e);
+	}
+
+});
+
 
 module.exports.publicRoutes = publicApp;
 module.exports.security = security;

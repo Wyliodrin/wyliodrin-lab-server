@@ -10,6 +10,7 @@ var users = require('./routes/users');
 var error = require('./error.js');
 var projects = require('./routes/projects');
 var admin = require('./routes/admin');
+var statusCodes = require('http-status-codes');
 
 debug.log = console.info.bind(console);
 var app = express();
@@ -43,6 +44,10 @@ app.get('/', function(req, res) {
 
 app.use(function(err, res) {
 	if (err.status) {
+		if (err.status == statusCodes.INTERNAL_SERVER_ERROR) {
+			error.sendError(res, error.serverError('Something went wrong with your request. Try again later!'));
+			console.error(err);
+		}
 		error.sendError(res, err);
 	} else {
 		error.sendError(res, error.notFound('Page not found'));
