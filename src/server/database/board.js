@@ -70,6 +70,11 @@ function createBoard(serial, userId, course, status) {
 	return board.save();
 }
 
+function boardStatus (boardId, status)
+{
+	return Board.findByIdAndUpdate ({boardId}, {$set: {status: status}, lastInfo: Date.now ()}, {upsert: true, new: true}).lean();
+}
+
 
 function findByBoardId(boardId) {
 	return Board.findOne({ boardId: boardId }).lean();
@@ -87,6 +92,7 @@ var board = {
 	createBoard,
 	findByBoardId,
 	findBySerial,
+	boardStatus,
 	findByUser,
 	status
 };

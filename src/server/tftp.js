@@ -20,41 +20,48 @@ var server = tftp.createServer ({
 	denyPUT: true
 }, async function (req, res)
 {
-	let filename = path.basename (req.file);
-	let boardId = readBoardId (req.file);
-	try
+	if (req.method === 'GET')
 	{
-		let pathBoot = db.image.pathBoot ();
-		if (!await db.image.hasSetup (boardId))
+		let filename = path.basename (req.file);
+		let boardId = readBoardId (req.file);
+		try
 		{
-			console.log ('setting up image for '+boardId);
-			await db.image.setup (boardId);
+			let pathBoot = db.image.pathBoot ();
+			if (!await db.image.hasSetup (boardId))
+			{
+				console.log ('setting up image for '+boardId);
+				await db.image.setup (boardId);
+			}
+			// console.log (pathBoot);
+			console.log ('boardId: '+boardId+' filename: '+filename);
+			// console.log (req.stats);
+			let data = null;
+			if (filename === 'cmdline.txt')
+			{
+				data = await db.image.cmdline (null, null, boardId, null);
+				console.log ('cmdline '+data);
+			}
+			else
+			{
+				// console.log (filename);
+				data = await fs.readFile (path.join (pathBoot, filename));
+			}
+			res.setSize (data.length);
+			res.write (data);
+			res.end ();
 		}
-		// console.log (pathBoot);
-		console.log ('boardId: '+boardId+' filename: '+filename);
-		// console.log (req.stats);
-		let data = null;
-		if (filename === 'cmdline.txt')
+		catch (e)
 		{
-			data = await db.image.cmdline (null, null, boardId, null);
-			console.log ('cmdline '+data);
+			if (e.message.indexOf ('ENOENT')<0)
+			{
+				console.log (filename+' '+e.message);
+			}
+			req.abort (tftp.ENOENT);
 		}
-		else
-		{
-			// console.log (filename);
-			data = await fs.readFile (path.join (pathBoot, filename));
-		}
-		res.setSize (data.length);
-		res.write (data);
-		res.end ();
 	}
-	catch (e)
+	else
 	{
-		if (e.message.indexOf ('ENOENT')<0)
-		{
-			console.log (filename+' '+e.message);
-		}
-		req.abort (tftp.ENOENT);
+		req.abort ();
 	}
 });
 

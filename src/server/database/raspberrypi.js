@@ -109,6 +109,7 @@ async function mountRamFs (boardId)
 {
 	let folder = path.join (RAM_FS, boardId);
 	await fs.mkdirs (folder); 
+	await spawnPrivileged ('umount', [folder]);
 	await spawnPrivileged ('mount', ['-t', 'tmpfs', '-o', 'size='+RAM_FS_SIZE, 'none', folder]);
 }
 
