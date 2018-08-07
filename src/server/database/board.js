@@ -1,5 +1,4 @@
 var mongoose = require('mongoose');
-var uuid = require('uuid');
 var validator = require('validator');
 var _ = require('lodash');
 var debug = require('debug')('wyliodrin-lab-server:board-database');
@@ -7,12 +6,6 @@ debug.log = console.info.bind(console);
 
 var boardSchema = mongoose.Schema({
 	boardId: {
-		type: String,
-		required: true,
-		default: uuid.v4,
-		unique: true
-	},
-	serial: {
 		type: String,
 		required: true,
 		unique: true,
@@ -23,25 +16,26 @@ var boardSchema = mongoose.Schema({
 			}
 		}
 	},
-	user: {
+	userId: {
 		type: String,
-		required: true,
-		default: 'default'
+		required: false,
+		unique: true,
 	},
 	status: {
 		type: String,
 		required: true,
 		default: 'offline'
 	},
-	course: {
+	courseId: {
 		type: String,
-		required: true,
-		default: 'default'
 	},
 	lastInfo: {
 		type: Date,
 		default: Date.now,
 		required: true
+	},
+	command: {
+		type: String
 	}
 }, {
 	toObject: {
@@ -93,7 +87,8 @@ var board = {
 	createBoard,
 	findByBoardId,
 	findBySerial,
-	findByUser
+	findByUser,
+	status
 };
 
 module.exports = board;

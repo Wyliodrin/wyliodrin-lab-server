@@ -288,5 +288,11 @@ adminApp.get('/get_course/:courseId', async function(req, res, next) {
 	res.status(200).send({ err: 0, course: finalCourse });
 });
 
+// adminApp.get('/logout/:tokenId', function(req, res) {
+// 	delete tokens[req.params.tokenId];
+// 	debug(req.user.userId + ' logged out for ' + req.params.tokenId);
+// 	res.status(200).send({ err: 0 });
+// });
+
 module.exports.adminSecurity = adminSecurity;
 module.exports.adminRoute = adminApp;

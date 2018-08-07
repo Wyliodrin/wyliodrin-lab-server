@@ -20,3 +20,9 @@ boardApp.post('/get_id/:board_serial', async function(res, req, next) {
 	}
 	res.status(200).send({ err: 0, board });
 });
+
+var remoteApp = express.Router();
+
+remoteApp.post('/exchange', async function(req, res, next) {
+	var info;
+});

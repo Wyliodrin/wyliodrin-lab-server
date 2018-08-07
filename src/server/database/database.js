@@ -35,8 +35,8 @@ db.on('close', function() {
 	debug('[MONGODB]: Connection closed');
 });
 
-db.on('error', function() {
-	debug('[MONGODB]: Error while connecting');
+db.on('error', function(err) {
+	console.error('[DATABASE]Error while connecting:', err);
 });
 
 db.on('disconnected', function() {

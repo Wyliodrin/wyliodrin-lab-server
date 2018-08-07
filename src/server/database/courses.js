@@ -28,6 +28,9 @@ var courseSchema = mongoose.Schema({
 	},
 	students: {
 		type: [String]
+	},
+	boards: {
+		type: [String]
 	}
 
 }, {
@@ -140,6 +143,10 @@ async function getUserRole(courseId, userId) {
 
 }
 
+function findByBoardId(boardId) {
+	return Course.findOne({ boards: boardId }).lean();
+}
+
 var course = {
 	createCourse,
 	findByCourseId,
@@ -150,7 +157,8 @@ var course = {
 	listAllCourses,
 	deleteStudent,
 	deleteTeacher,
-	deleteByCourseId
+	deleteByCourseId,
+	findByBoardId
 };
 
 module.exports = course;
