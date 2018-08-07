@@ -165,8 +165,8 @@ privateApp.post('/connect', async function(req, res, next) {
 		next(e);
 	}
 	try {
-		var board = db.board.findByBoardId(boardId);
-		var course = db.course.findByCourseId(courseId);
+		var board = await db.board.findByBoardId(boardId);
+		var course = await db.course.findByCourseId(courseId);
 	} catch (err) {
 		e = error.serverError(err);
 		next(e);
@@ -181,6 +181,8 @@ privateApp.post('/connect', async function(req, res, next) {
 		next(e);
 	}
 
+	//TODO: If user not enrolled
+
 	if (board.userId) {
 		e = error.notAcceptable('Board already in use');
 		next(e);
@@ -188,11 +190,11 @@ privateApp.post('/connect', async function(req, res, next) {
 
 	try {
 		await db.raspberrypi.setup(req.user.userId, courseId, courseId.imageId);
+		await db.board.assignUserToBoard(req.user.userId);
 	} catch (err) {
 		e = error.serverError(err);
 		next(e);
 	}
-
 });
 
 privateApp.post('/disconnect', async function(req, res, next) {

@@ -29,8 +29,8 @@ var courseSchema = mongoose.Schema({
 	students: {
 		type: [String]
 	},
-	boards: {
-		type: [String]
+	imageId: {
+		type: String
 	}
 
 }, {
@@ -52,13 +52,15 @@ var Course = mongoose.model('Course', courseSchema);
  * Create a new user
  * @param {String} name - name of the course
  * @param {[String]} students - ID's of students enrolled
- * @param {[String]} teachers = ID's of teachers managing course
+ * @param {[String]} teachers - ID's of teachers managing course
+ * @param {String} imageId - ID of the image designated for the course
  */
-function createCourse(name, students, teachers) {
+function createCourse(name, students, teachers, imageId) {
 	var course = new Course(_.assign({}, {
 		name: name,
 		students: students,
-		teachers: teachers
+		teachers: teachers,
+		imageId: imageId
 	}));
 
 	return course.save();
@@ -143,8 +145,8 @@ async function getUserRole(courseId, userId) {
 
 }
 
-function findByBoardId(boardId) {
-	return Course.findOne({ boards: boardId }).lean();
+function findByStudentId(studentId) {
+	return Course.findOne({ students: studentId });
 }
 
 var course = {
@@ -158,7 +160,7 @@ var course = {
 	deleteStudent,
 	deleteTeacher,
 	deleteByCourseId,
-	findByBoardId
+	findByStudentId
 };
 
 module.exports = course;
