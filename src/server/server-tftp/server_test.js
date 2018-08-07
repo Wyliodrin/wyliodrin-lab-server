@@ -2,10 +2,11 @@ var tftp = require("./lib/index");
 var path = require("path");
 var fs = require("fs");
 var errors = require("./lib/protocol/errors");
+var ip = require ('ip');
 
 var server = tftp.createServer({
-    host: '192.168.2.8',
-    root: '/tftpboot',
+    host: process.env.WYLIODRIN_LAB_SERVER_IP || ip.address (),
+    root: path.join (__dirname),
     class: 'USO'
 }, function(req, res) {
     req.on("error", function(error) {

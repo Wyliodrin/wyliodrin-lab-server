@@ -32,27 +32,28 @@ module.exports = function(grunt) {
 				files: [{
 					expand: true,
 					cwd: 'src/server',
-					src: ['*'],
+					src: ['**/*'],
 					dest: 'build/server/'
 				},
-				{
-					expand: true,
-					cwd: 'src/server/bin',
-					src: ['*'],
-					dest: 'build/server/bin/'
-				},
-				{
-					expand: true,
-					cwd: 'src/server/database',
-					src: ['*'],
-					dest: 'build/server/database/'
-				},
-				{
-					expand: true,
-					cwd: 'src/server/routes',
-					src: ['*'],
-					dest: 'build/server/routes/'
-				}]
+				// {
+				// 	expand: true,
+				// 	cwd: 'src/server/bin',
+				// 	src: ['*'],
+				// 	dest: 'build/server/bin/'
+				// },
+				// {
+				// 	expand: true,
+				// 	cwd: 'src/server/database',
+				// 	src: ['*'],
+				// 	dest: 'build/server/database/'
+				// },
+				// {
+				// 	expand: true,
+				// 	cwd: 'src/server/routes',
+				// 	src: ['*'],
+				// 	dest: 'build/server/routes/'
+				// }
+				]
 			},
 			ui: {
 				files: [{
