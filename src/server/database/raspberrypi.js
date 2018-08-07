@@ -5,6 +5,7 @@ var fs = require ('fs-extra');
 var crypto = require ('crypto');
 var pty = require ('pty.js');
 var _ = require ('lodash');
+var ip = require ('ip');
 
 function spawnPrivileged ()
 {
@@ -630,10 +631,10 @@ async function unsetup (boardId)
 async function run ()
 {
 	await readImages ();
-	// console.log (imagesList);
-	// console.log (listImagesAsArray());
+	console.log (imagesList);
+	console.log (listImagesAsArray());
 	// await unsetup ('board1');
-	// await setup ('board1', 'user1', 'course1', '212b3209ec67bf6728d14a16d4ad47e4acabac4c');
+	await setup ('board1', 'user1', 'course1', '212b3209ec67bf6728d14a16d4ad47e4acabac4c');
 	// console.log (await listExportFs ());
 	// let imageInfo = await mountImage ('../../../../../Downloads/2018-04-18-raspbian-stretch-lite.img');
 	// let imageInfo = await mountImage ('../../../../Downloads/2018-06-27-raspbian-stretch-lite.img');
@@ -643,6 +644,31 @@ async function run ()
 	// setupServer (imagesList[0]);
 	// await unmount (imageInfo.bootFolder);
 	// await unmount (imageInfo.fsFolder);
+}
+
+/*
+parameters
+{
+	serverIp: server_ip // null for autodetect
+}
+*/
+async function cmdline (courseId, imageId, boardId, parameters)
+{
+	if (!parameters) parameters = {};
+	if (!parameters.serverIp) parameters.serverIp = ip.address ();
+	let str = 'root=/dev/nfs nfsroot='+parameters.serverIp+':'+path.join (ROOT_FS, boardId)+',vers=3 rw ip=dhcp rootwait elevator=deadline';
+	let folderBoot = path.join (BOOT, imageId);
+	let cmdline = await fs.readFile (path.join (folderBoot, 'cmdline.txt')).toString ();
+	let pos = cmdline.indexOf ('root=');
+	if (pos>=0)
+	{
+		cmdline = cmdline.substr (0, pos) + ' ' + str;
+	}
+	else
+	{
+		cmdline = cmdline + ' ' + str;
+	}
+	return cmdline;
 }
 
 run ();
@@ -655,12 +681,10 @@ process.on ('exit', function ()
 // TODO export install image instead of this
 module.exports.setupServer = setupServer;
 
-// TODO
-// installImage
-// removeImage
-
 module.exports.listImages = listImages;
 module.exports.listImagesAsArray = listImagesAsArray;
 module.exports.setup = setup;
 module.exports.unsetup = unsetup;
 module.exports.setupCourse = setupCourse;
+
+module.exports.cmdline = cmdline;
