@@ -75,9 +75,17 @@ var server = tftp.createServer ({
 				let data = null;
 				if (filename === 'cmdline.txt')
 				{
-					let params = await imageData (boardId);
-					data = await db.image.cmdline (params.userId, params.courseId, params.id, boardId, { server: SERVER });
-					console.log ('cmdline '+data);
+					try 
+					{
+						let params = await imageData (boardId);
+						data = await db.image.cmdline (params.courseId, params.id, boardId, params.userId, { server: SERVER });
+						console.log ('cmdline '+data);
+					}
+					catch (e)
+					{
+						console.log (e);
+						console.error ('ERROR: cmdline.txt '+e.message);
+					}
 				}
 				else
 				{

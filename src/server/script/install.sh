@@ -58,7 +58,7 @@ fi
 
 echo "Install Raspberry Pi Server"
 
-sudo npm install -g wyliolab@1.0.19 --unsafe-perm
+sudo npm install -g wyliolab@1.1.2 --unsafe-perm
 
 # Writing fstab
 echo "Setting mount /proc"

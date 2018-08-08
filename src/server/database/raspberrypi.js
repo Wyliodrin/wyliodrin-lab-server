@@ -7,6 +7,14 @@ var pty = require('pty.js');
 var _ = require('lodash');
 var ip = require('ip');
 
+var fsid = 0;
+
+function nextFsId ()
+{
+	fsid++;
+	return fsid;
+}
+
 function spawnPrivileged() {
 	if (process.geteuid() !== 0) {
 		if (!arguments[1]) arguments[1] = [];
@@ -533,7 +541,8 @@ async function setup(boardId, userId, courseId, imageId) {
 			if (mount) {
 				let read = 'rw';
 				// if (!userId || !courseId) read = 'ro';
-				let exp = await exportFs(folder, ['fsid=0', read, 'no_root_squash']);
+				if (userId) await exportFs (await pathUser (userId, true), ['fsid='+nextFsId(), read, 'all_squash', 'anonuid=1000', 'anongid=1000']);
+				let exp = await exportFs(folder, ['fsid='+nextFsId(), read, 'no_root_squash']);
 				if (!exp) {
 					await unmountRootFs(boardId);
 					throw new Error('Failed to export rootfs for image ' + imageId);
@@ -592,8 +601,9 @@ async function cmdline(courseId, imageId, boardId, userId, parameters) {
 	// TODO debug using default image
 	if (!imageId) imageId = defaultImageId();
 	if (!parameters) parameters = {};
-	if (!parameters.serverIp) parameters.server = 'http://'+ip.address();
-	let str = 'root=/dev/nfs nfsroot=' + parameters.serverIp + ':' + path.join(ROOT_FS, boardId) + ',vers=3 rw ip=dhcp rootwait elevator=deadline userId='+userId+' server='+parameters.server+' courseId='+courseId;
+	if (!parameters.server) parameters.server = 'http://'+ip.address();
+	if (!parameters.nfsServer) parameters.nfsServer = ip.address ();
+	let str = 'root=/dev/nfs nfsroot=' + parameters.nfsServer + ':' + path.join(ROOT_FS, boardId) + ',vers=3 rw ip=dhcp rootwait elevator=deadline userId='+userId+' server='+parameters.server+' courseId='+courseId;
 	let folderBoot = path.join(BOOT, imageId);
 	let cmdline = (await fs.readFile(path.join(folderBoot, 'cmdline.txt'))).toString();
 	let pos = cmdline.indexOf('root=');
@@ -614,10 +624,26 @@ function defaultImageId() {
 	}
 }
 
+async function setupUser (userId)
+{
+	let folderFs = path.join (FS, defaultImageId ());
+	let folderUser = path.join (HOME, userId);
+	await spawnPrivileged ('bash', ['-c', 'cp '+folderFs+'/home/pi/* '+folderUser+' && chown -R 1000:1000 *']);
+}
+
 async function pathUser (userId, write = false)
 {
 	let folder = path.join (HOME, userId);
-	if (write) await fs.mkdirs (folder);
+	if (write) 
+	{
+		await fs.mkdirs (folder);
+		if (!await fs.exists (path.join (HOME, '.profile'))) 
+		{
+			await setupUser ();
+		}
+		// TODO is recursive useful?
+		await spawnPrivileged ('chown', ['-R', '1000:1000', folder]);
+	}
 	return folder;
 }
 
