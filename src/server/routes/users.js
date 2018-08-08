@@ -160,68 +160,79 @@ privateApp.post('/connect', async function(req, res, next) {
 	var e;
 	var courseId = req.body.courseId;
 	var boardId = req.body.boardId;
+	var userId = req.user.userId;
+	debug('CourseId:', courseId);
+	debug('boardId:', boardId);
 	if (!courseId || !boardId) {
 		e = error.badRequest('Request must contain course ID and board ID');
 		next(e);
 	}
 	try {
 		var board = await db.board.findByBoardId(boardId);
-		var course = await db.course.findByCourseId(courseId);
+		var course = await db.course.findByCourseIdAndStudentId(courseId, userId);
 	} catch (err) {
 		e = error.serverError(err);
-		next(e);
-		debug(err);
+		return next(e);
 	}
 	if (!course) {
-		e = error.badRequest('Invalid course ID');
-		next(e);
+		e = error.badRequest('Invalid course or user ID');
+		return next(e);
 	}
 	if (!board) {
 		e = error.badRequest('Invalid board ID');
-		next(e);
+		return next(e);
 	}
 
-	//TODO: If user not enrolled
+	if (board.userId && board.userId !== userId) {
+		e = error.unauthorized('Board already in use by other user');
+		return next(e);
+	}
 
-	if (board.userId) {
-		e = error.notAcceptable('Board already in use');
-		next(e);
+	if (board.courseId && board.courseId !== courseId) {
+		e = error.unauthorized('Board is registered for another course');
+		return next(e);
 	}
 
 	try {
-		await db.raspberrypi.setup(req.user.userId, courseId, courseId.imageId);
-		await db.board.assignUserToBoard(req.user.userId);
+		await db.board.assignCourseAndUser(boardId, userId, courseId);
 	} catch (err) {
 		e = error.serverError(err);
-		next(e);
+		return next(e);
 	}
+
+	res.status(200).send({ err: 0 });
 });
 
 privateApp.post('/disconnect', async function(req, res, next) {
 	var e;
 	var userId = req.user.userId;
+	console.log(userId);
 	try {
 		var board = await db.board.findByUserId(userId);
-		var course = await db.course.findByUserId(userId);
+		console.log(board);
+		var course = await db.course.findByCourseIdAndStudentId(board.courseId, userId);
+		console.log(course);
 	} catch (err) {
 		e = error.serverError(err);
-		next(e);
+		return next(e);
 	}
 	if (!board) {
 		e = error.notAcceptable('User is not connected to a board');
-		next(e);
+		return next(e);
 	}
 	if (!course) {
-		e = error.notAcceptable('User is not enrolled to a course');
-		next(e);
+		e = error.notAcceptable('Invalid user or course ID');
+		return next(e);
 	}
 
 	try {
-		await db.raspberrypi.unSetup(userId, course.courseId);
+		var out = await db.board.unsetCourseAndUser(board.boardId);
+		debug(out);
 	} catch (err) {
 		e = error.serverError(err);
-		next(e);
+		return next(e);
 	}
+	res.status(200).send({ err: 0 });
 
 });
 

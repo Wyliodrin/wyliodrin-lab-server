@@ -129,7 +129,13 @@ adminApp.post('/add_student', async function(req, res, next) {
 	var e;
 	var studentId = req.body.studentId;
 	var courseId = req.body.courseId;
+
 	try {
+		var user = await db.user.findByUserId(studentId);
+		if (!user) {
+			e = error.badRequest('Invalid student ID');
+			next(e);
+		}
 		var out = await db.course.addStudent(courseId, studentId);
 	} catch (err) {
 		debug(err);
@@ -148,6 +154,11 @@ adminApp.post('/add_teacher', async function(req, res, next) {
 	var teacherId = req.body.teacherId;
 	var courseId = req.body.courseId;
 	try {
+		var user = await db.user.findByUserId(courseId);
+		if (!user) {
+			e = error.badRequest('Invalid student ID');
+			next(e);
+		}
 		var out = await db.course.addTeacher(courseId, teacherId);
 	} catch (err) {
 		debug(err);
