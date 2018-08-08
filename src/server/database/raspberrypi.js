@@ -281,7 +281,7 @@ async function setupServer(imageInfo) {
 	let folderSetup = path.join(SETUP_SERVER, imageInfo.id);
 	// await fs.mkdirs (folderSetup);
 	// TODO if is mounted
-	// await unmount (folderSetup);
+	await unmount (folderSetup);
 	try {
 		if (await mountAufs(folderStack, folderSetup, ['suid'])) {
 			let setup = await spawnPrivileged('bash', [path.join(SCRIPT, 'setup.sh'), folderSetup]);
@@ -575,7 +575,7 @@ async function run() {
 	// console.log (imageInfo);
 	// await mountPartition (imageInfo, 'fat', 'fat');
 	// await mountPartition (imageInfo, 'ext3', 'ext3');
-	// await setupServer (defaultImage);
+	await setupServer (defaultImage);
 	// await unmount (imageInfo.bootFolder);
 	// await unmount (imageInfo.fsFolder);
 }
@@ -591,7 +591,7 @@ async function cmdline(courseId, imageId, boardId, parameters) {
 	if (!imageId) imageId = defaultImageId();
 	if (!parameters) parameters = {};
 	if (!parameters.serverIp) parameters.serverIp = ip.address();
-	let str = 'root=/dev/nfs nfsroot=' + parameters.serverIp + ':' + path.join(ROOT_FS, boardId) + ',vers=3 rw ip=dhcp rootwait elevator=deadline';
+	let str = 'root=/dev/nfs nfsroot=' + parameters.serverIp + ':' + path.join(ROOT_FS, boardId) + ',vers=3 rw ip=dhcp rootwait elevator=deadline server=http://'+parameters.serverIp;
 	let folderBoot = path.join(BOOT, imageId);
 	let cmdline = (await fs.readFile(path.join(folderBoot, 'cmdline.txt'))).toString();
 	let pos = cmdline.indexOf('root=');

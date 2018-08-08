@@ -189,7 +189,6 @@ privateApp.post('/connect', async function(req, res, next) {
 	}
 
 	try {
-		await db.raspberrypi.setup(req.user.userId, courseId, courseId.imageId);
 		await db.board.assignUserToBoard(req.user.userId);
 	} catch (err) {
 		e = error.serverError(err);

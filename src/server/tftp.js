@@ -36,7 +36,7 @@ async function imageData (boardId, status)
 	return data;
 }
 
-console.log (IP_ADDRESS);
+// console.log (IP_ADDRESS);
 
 var server = tftp.createServer ({
 	host: IP_ADDRESS,

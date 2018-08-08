@@ -77,6 +77,11 @@ function boardStatus (boardId, status)
 	return Board.findOneAndUpdate ({boardId}, {$set: {status: status}, lastInfo: Date.now ()}, {upsert: true, new: true}).lean();
 }
 
+function resetComand (boardId)
+{
+	return Board.findOneAndUpdate ({boardId}, {$set: {command: null}}).lean();
+}
+
 
 function findByBoardId(boardId) {
 	return Board.findOne({ boardId: boardId }).lean();
@@ -103,6 +108,7 @@ var board = {
 	findByBoardId,
 	findBySerial,
 	boardStatus,
+	resetComand,
 	findByUser,
 	issueCommand,
 	assignUserToBoard

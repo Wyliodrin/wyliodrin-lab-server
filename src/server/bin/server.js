@@ -9,6 +9,8 @@ var app = require('../app');
 var debug = require('debug')('wyliodrin-lab-server:server');
 var http = require('http');
 
+require ('../tftp');
+
 debug.log = console.info.bind(console);
 
 /**
