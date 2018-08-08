@@ -28,7 +28,7 @@ projectApp.post('/list_projects', async(req, res, next) => {
 	} catch (err) {
 		debug('Error router list projects', err);
 		var e = error.serverError(err);
-		next(e);
+		return next(e);
 	}
 	res.status(200).send(projects);
 });

@@ -49,7 +49,7 @@ adminApp.post('/create_user', async function(req, res, next) {
 		} catch (err) {
 			debug('Error creating workspace', err);
 			e = error.serverError(err);
-			next(e);
+			return next(e);
 		}
 		res.status(200).send({
 			err: 0,
@@ -76,7 +76,7 @@ adminApp.post('/delete_user', async function(req, res, next) {
 	} catch (err) {
 		debug(err);
 		e = error.serverError();
-		next(e);
+		return next(e);
 	}
 	res.status(200).send({ err: 0 });
 });
@@ -88,7 +88,7 @@ adminApp.get('/list_users', async function(req, res, next) {
 	} catch (err) {
 		debug('Error listing users');
 		e = error.serverError(err);
-		next(e);
+		return next(e);
 	}
 	res.status(200).send({ err: 0, users });
 });
@@ -108,7 +108,7 @@ adminApp.post('/update_user', async function(req, res, next) {
 	} catch (err) {
 		debug(err);
 		e = error.serverError(err);
-		next(e);
+		return next(e);
 	}
 	res.status(200).send({ err: 0 });
 });
@@ -120,7 +120,7 @@ adminApp.get('/list_courses', async function(req, res, next) {
 	} catch (err) {
 		debug('Error listing courses');
 		e = error.serverError(err);
-		next(e);
+		return next(e);
 	}
 	res.status(200).send({ err: 0, courses });
 });
@@ -134,17 +134,17 @@ adminApp.post('/add_student', async function(req, res, next) {
 		var user = await db.user.findByUserId(studentId);
 		if (!user) {
 			e = error.badRequest('Invalid student ID');
-			next(e);
+			return next(e);
 		}
 		var out = await db.course.addStudent(courseId, studentId);
 	} catch (err) {
 		debug(err);
 		e = error.serverError(err);
-		next(e);
+		return next(e);
 	}
 	if (!out) {
 		e = error.badRequest();
-		next(e);
+		return next(e);
 	}
 	res.status(200).send({ err: 0 });
 });
@@ -157,17 +157,17 @@ adminApp.post('/add_teacher', async function(req, res, next) {
 		var user = await db.user.findByUserId(courseId);
 		if (!user) {
 			e = error.badRequest('Invalid student ID');
-			next(e);
+			return next(e);
 		}
 		var out = await db.course.addTeacher(courseId, teacherId);
 	} catch (err) {
 		debug(err);
 		e = error.serverError(err);
-		next(e);
+		return next(e);
 	}
 	if (!out) {
 		e = error.badRequest();
-		next(e);
+		return next(e);
 	}
 	res.status(200).send({ err: 0 });
 });
@@ -182,7 +182,7 @@ adminApp.post('/add_course', async function(req, res, next) {
 	} catch (err) {
 		debug(err);
 		e = error.serverError(err);
-		next(e);
+		return next(e);
 	}
 	res.status(200).send({ err: 0 });
 });
@@ -197,11 +197,11 @@ adminApp.post('/remove_student', async function(req, res, next) {
 	} catch (err) {
 		debug(err);
 		e = error.serverError(err);
-		next(e);
+		return next(e);
 	}
 	if (out.err) {
 		e = error.badRequest('Invalid course or student');
-		next(e);
+		return next(e);
 	}
 	res.status(200).send({ err: 0 });
 });
@@ -215,11 +215,11 @@ adminApp.post('/remove_teacher', async function(req, res, next) {
 	} catch (err) {
 		debug(err);
 		e = error.serverError(err);
-		next(e);
+		return next(e);
 	}
 	if (out.err) {
 		e = error.badRequest('Invalid course or student');
-		next(e);
+		return next(e);
 	}
 	res.status(200).send({ err: 0 });
 });
@@ -232,7 +232,7 @@ adminApp.post('/remove_course', async function(req, res, next) {
 	} catch (err) {
 		debug(err);
 		e = error.serverError();
-		next(e);
+		return next(e);
 	}
 	res.status(200).send({ err: 0 });
 });
@@ -245,7 +245,7 @@ adminApp.get('/get_user/:userId', async function(req, res, next) {
 	} catch (err) {
 		debug(err);
 		e = error.serverError(err);
-		next(e);
+		return next(e);
 	}
 	res.status(200).send({ err: 0, user });
 });
@@ -258,7 +258,7 @@ adminApp.get('/get_user_by_id', async function(req, res, next) {
 	} catch (err) {
 		debug(err);
 		e = error.serverError(err);
-		next(e);
+		return next(e);
 	}
 	delete user.password;
 	res.status(200).send({ err: 0, user });
@@ -272,11 +272,11 @@ adminApp.get('/get_course/:courseId', async function(req, res, next) {
 	} catch (err) {
 		debug(err);
 		e = error.serverError(err);
-		next(e);
+		return next(e);
 	}
 	if (!course) {
 		e = error.badRequest('Course not found');
-		next(e);
+		return next(e);
 	}
 
 	var finalCourse = {};
