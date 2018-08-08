@@ -48,7 +48,8 @@ app.get('/', function(req, res) {
 	res.redirect('/login.html');
 });
 
-app.use(function(err, res) {
+app.use(function(err, req, res, next) {
+	console.log (err);
 	if (err.status) {
 		if (err.status == statusCodes.INTERNAL_SERVER_ERROR) {
 			error.sendError(res, error.serverError('Something went wrong with your request. Try again later!'));
@@ -58,6 +59,7 @@ app.use(function(err, res) {
 	} else {
 		error.sendError(res, error.notFound('Page not found'));
 	}
+	next;
 });
 
 module.exports = app;

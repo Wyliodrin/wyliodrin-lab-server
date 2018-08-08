@@ -577,7 +577,7 @@ async function run() {
 	// console.log (imageInfo);
 	// await mountPartition (imageInfo, 'fat', 'fat');
 	// await mountPartition (imageInfo, 'ext3', 'ext3');
-	await setupServer (defaultImage);
+	// await setupServer (defaultImage);
 	// await unmount (imageInfo.bootFolder);
 	// await unmount (imageInfo.fsFolder);
 }
@@ -588,12 +588,12 @@ parameters
 	serverIp: server_ip // null for autodetect
 }
 */
-async function cmdline(courseId, imageId, boardId, parameters) {
+async function cmdline(courseId, imageId, boardId, userId, parameters) {
 	// TODO debug using default image
 	if (!imageId) imageId = defaultImageId();
 	if (!parameters) parameters = {};
-	if (!parameters.serverIp) parameters.serverIp = ip.address();
-	let str = 'root=/dev/nfs nfsroot=' + parameters.serverIp + ':' + path.join(ROOT_FS, boardId) + ',vers=3 rw ip=dhcp rootwait elevator=deadline server=http://'+parameters.serverIp;
+	if (!parameters.serverIp) parameters.server = 'http://'+ip.address();
+	let str = 'root=/dev/nfs nfsroot=' + parameters.serverIp + ':' + path.join(ROOT_FS, boardId) + ',vers=3 rw ip=dhcp rootwait elevator=deadline userId='+userId+' server='+parameters.server+' courseId='+courseId;
 	let folderBoot = path.join(BOOT, imageId);
 	let cmdline = (await fs.readFile(path.join(folderBoot, 'cmdline.txt'))).toString();
 	let pos = cmdline.indexOf('root=');

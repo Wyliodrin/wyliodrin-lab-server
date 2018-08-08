@@ -7,6 +7,9 @@ var fs = require ('fs-extra');
 var db = require ('./database/database');
 
 var IP_ADDRESS = process.env.WYLIODRIN_LAB_SERVER_IP || ip.address ();
+var PORT = process.env.NODE_PORT || 3000;
+
+var SERVER = process.env.WYLIODRIN_LAB_SERVER || ('http://'+IP_ADDRESS+':'+PORT);
 
 function readBoardId (filename)
 {
@@ -49,44 +52,54 @@ var server = tftp.createServer ({
 	{
 		let filename = path.basename (req.file);
 		let boardId = readBoardId (req.file);
-		try
+		if (boardId !== '.')
 		{
-			let pathBoot = db.image.pathBoot ();
-			if (filename === 'start.elf')
+			try
 			{
-				if (await db.image.hasSetup (boardId))
+				let pathBoot = db.image.pathBoot ();
+				if (filename === 'start.elf')
 				{
-					await db.image.unsetup (boardId);
+					if (await db.image.hasSetup (boardId))
+					{
+						await db.image.unsetup (boardId);
+					}
+					console.log ('setting up image for '+boardId);
+					let data = await imageData (boardId, 'bootup');
+					console.log (data);
+					await db.image.setup (boardId, data.userId, data.courseId, data.id);
+					// TODO set default image if image not found
 				}
-				console.log ('setting up image for '+boardId);
-				let data = await imageData (boardId, 'bootup');
-				await db.image.setup (boardId, data.userId, data.courseId, data.id);
+				// console.log (pathBoot);
+				console.log ('boardId: '+boardId+' filename: '+filename);
+				// console.log (req.stats);
+				let data = null;
+				if (filename === 'cmdline.txt')
+				{
+					let params = await imageData (boardId);
+					data = await db.image.cmdline (params.userId, params.courseId, params.id, boardId, { server: SERVER });
+					console.log ('cmdline '+data);
+				}
+				else
+				{
+					// console.log (filename);
+					data = await fs.readFile (path.join (pathBoot, filename));
+				}
+				res.setSize (data.length);
+				res.write (data);
+				res.end ();
 			}
-			// console.log (pathBoot);
-			console.log ('boardId: '+boardId+' filename: '+filename);
-			// console.log (req.stats);
-			let data = null;
-			if (filename === 'cmdline.txt')
+			catch (e)
 			{
-				let params = await imageData (boardId);
-				data = await db.image.cmdline (params.courseId, params.id, boardId);
-				console.log ('cmdline '+data);
+				if (e.message.indexOf ('ENOENT')<0)
+				{
+					console.log (filename+' '+e.message);
+					await db.board.boardStatus (boardId, 'noimage');
+				}
+				req.abort (tftp.ENOENT);
 			}
-			else
-			{
-				// console.log (filename);
-				data = await fs.readFile (path.join (pathBoot, filename));
-			}
-			res.setSize (data.length);
-			res.write (data);
-			res.end ();
 		}
-		catch (e)
+		else
 		{
-			if (e.message.indexOf ('ENOENT')<0)
-			{
-				console.log (filename+' '+e.message);
-			}
 			req.abort (tftp.ENOENT);
 		}
 	}
