@@ -58,7 +58,16 @@ fi
 
 echo "Install Raspberry Pi Server"
 
-sudo npm install -g wylio --unsafe-perm
+sudo npm install -g wyliolab@1.0.19 --unsafe-perm
 
 # Writing fstab
+echo "Setting mount /proc"
 echo "proc            /proc           proc    defaults          0       0" | sudo tee /etc/fstab
+
+# Install wyliolab
+echo "Install wyliolab"
+
+sudo tee /etc/supervisor/conf.d/wyliolab.conf &> /dev/null << EOF 
+[program:wyliolab]
+command=/usr/bin/wyliolab
+EOF

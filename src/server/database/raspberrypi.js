@@ -25,6 +25,8 @@ let BOOT = path.join(MOUNT, 'boot');
 let FS = path.join(MOUNT, 'fs');
 let ROOT_FS = path.join(MOUNT, 'rootfs');
 
+let HOME = path.join (STORAGE, 'home');
+
 let RAM_FS_SIZE = process.env.WYLIDORIN_LAB_RAM_FS_SIZE || '100M';
 
 let FILE_SYSTEM = path.join(STORAGE, 'filesystem');
@@ -281,7 +283,7 @@ async function setupServer(imageInfo) {
 	let folderSetup = path.join(SETUP_SERVER, imageInfo.id);
 	// await fs.mkdirs (folderSetup);
 	// TODO if is mounted
-	// await unmount (folderSetup);
+	await unmount (folderSetup);
 	try {
 		if (await mountAufs(folderStack, folderSetup, ['suid'])) {
 			let setup = await spawnPrivileged('bash', [path.join(SCRIPT, 'setup.sh'), folderSetup]);
@@ -575,7 +577,7 @@ async function run() {
 	// console.log (imageInfo);
 	// await mountPartition (imageInfo, 'fat', 'fat');
 	// await mountPartition (imageInfo, 'ext3', 'ext3');
-	// await setupServer (defaultImage);
+	await setupServer (defaultImage);
 	// await unmount (imageInfo.bootFolder);
 	// await unmount (imageInfo.fsFolder);
 }
@@ -591,7 +593,7 @@ async function cmdline(courseId, imageId, boardId, parameters) {
 	if (!imageId) imageId = defaultImageId();
 	if (!parameters) parameters = {};
 	if (!parameters.serverIp) parameters.serverIp = ip.address();
-	let str = 'root=/dev/nfs nfsroot=' + parameters.serverIp + ':' + path.join(ROOT_FS, boardId) + ',vers=3 rw ip=dhcp rootwait elevator=deadline';
+	let str = 'root=/dev/nfs nfsroot=' + parameters.serverIp + ':' + path.join(ROOT_FS, boardId) + ',vers=3 rw ip=dhcp rootwait elevator=deadline server=http://'+parameters.serverIp;
 	let folderBoot = path.join(BOOT, imageId);
 	let cmdline = (await fs.readFile(path.join(folderBoot, 'cmdline.txt'))).toString();
 	let pos = cmdline.indexOf('root=');
@@ -610,6 +612,18 @@ function defaultImageId() {
 	} else {
 		return defaultImage.id;
 	}
+}
+
+async function pathUser (userId, write = false)
+{
+	let folder = path.join (HOME, userId);
+	if (write) await fs.mkdirs (folder);
+	return folder;
+}
+
+function pathHomes ()
+{
+	return HOME;
 }
 
 function pathBoot(id) {
@@ -642,7 +656,10 @@ module.exports.setupCourse = setupCourse;
 module.exports.cmdline = cmdline;
 
 module.exports.defaultImageId = defaultImageId;
+
 module.exports.pathBoot = pathBoot;
 module.exports.pathRootFs = pathRootFs;
+module.exports.pathUser = pathUser;
+module.exports.pathHomes = pathHomes;
 
 module.exports.hasSetup = hasSetup;

@@ -49,7 +49,7 @@ remoteApp.post('/exchange', async function(req, res/*, next*/) {
 			{
 				if (board.command)
 				{
-					// TODO reset command
+					await db.board.resetComand (boardId);
 				}
 				res.status(200).send({command: board.command});
 			}
