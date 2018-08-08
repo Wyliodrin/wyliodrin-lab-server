@@ -10,17 +10,6 @@ debug.log = console.info.bind(console);
 var HOMES = path.join(__dirname, 'homes');
 var PROJECTS = 'projects';
 
-async function init() {
-	if (!fs.existsSync(HOMES)) {
-
-		try {
-			await fs.mkdir(HOMES);
-		} catch (err) {
-			debug('Error creating homes directory. Error:\n', err);
-		}
-	}
-	debug('Homes exists');
-}
 /**
  * 
  * @param {String} filePath - path relative to project for file
@@ -226,8 +215,6 @@ async function listProjects(userId) {
 
 	return projectList;
 }
-
-init();
 
 var workspace = {
 	createUserHome,

@@ -151,7 +151,7 @@ async function getUserRole(courseId, userId) {
 }
 
 function findByStudentId(studentId) {
-	return Course.findOne({ students: studentId });
+	return Course.find({ students: studentId });
 }
 
 function findByCourseIdAndStudentId(courseId, studentId) {

@@ -40,7 +40,7 @@ publicApp.post('/login', async function(req, res, next) {
 				} catch (err) {
 					debug(err);
 					e = error.serverError(err);
-					next(e);
+					return next(e);
 				}
 			}
 
@@ -203,10 +203,23 @@ privateApp.post('/connect', async function(req, res, next) {
 	res.status(200).send({ err: 0 });
 });
 
+privateApp.get('/my_courses', async function(req, res, next) {
+	var e;
+	var userId = req.user.userId;
+
+	try {
+		var courses = await db.course.findByStudentId(userId);
+	} catch (err) {
+		e = error.serverError(err);
+		return next(e);
+	}
+
+	res.status(200).send({ err: 0, courses });
+});
+
 privateApp.post('/disconnect', async function(req, res, next) {
 	var e;
 	var userId = req.user.userId;
-	console.log(userId);
 	try {
 		var board = await db.board.findByUserId(userId);
 		console.log(board);
