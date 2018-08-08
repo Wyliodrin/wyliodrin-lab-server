@@ -25,6 +25,8 @@ let BOOT = path.join(MOUNT, 'boot');
 let FS = path.join(MOUNT, 'fs');
 let ROOT_FS = path.join(MOUNT, 'rootfs');
 
+let HOME = path.join (STORAGE, 'home');
+
 let RAM_FS_SIZE = process.env.WYLIDORIN_LAB_RAM_FS_SIZE || '100M';
 
 let FILE_SYSTEM = path.join(STORAGE, 'filesystem');
@@ -612,6 +614,18 @@ function defaultImageId() {
 	}
 }
 
+async function pathUser (userId, write = false)
+{
+	let folder = path.join (HOME, userId);
+	if (write) await fs.mkdirs (folder);
+	return folder;
+}
+
+function pathHomes ()
+{
+	return HOME;
+}
+
 function pathBoot(id) {
 	// TODO debug using default image
 	if (!id) id = defaultImage.id;
@@ -642,7 +656,10 @@ module.exports.setupCourse = setupCourse;
 module.exports.cmdline = cmdline;
 
 module.exports.defaultImageId = defaultImageId;
+
 module.exports.pathBoot = pathBoot;
 module.exports.pathRootFs = pathRootFs;
+module.exports.pathUser = pathUser;
+module.exports.pathHomes = pathHomes;
 
 module.exports.hasSetup = hasSetup;
