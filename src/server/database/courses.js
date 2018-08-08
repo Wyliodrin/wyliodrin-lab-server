@@ -31,6 +31,11 @@ var courseSchema = mongoose.Schema({
 	},
 	imageId: {
 		type: String
+	},
+	open: {
+		type: Boolean,
+		required: true,
+		default: false
 	}
 
 }, {
@@ -149,6 +154,10 @@ function findByStudentId(studentId) {
 	return Course.findOne({ students: studentId });
 }
 
+function findByCourseIdAndStudentId(courseId, studentId) {
+	return Course.findOne({ $and: [{ courseId: courseId }, { $or: [{ students: studentId }, { open: true }] }] });
+}
+
 var course = {
 	createCourse,
 	findByCourseId,
@@ -160,7 +169,8 @@ var course = {
 	deleteStudent,
 	deleteTeacher,
 	deleteByCourseId,
-	findByStudentId
+	findByStudentId,
+	findByCourseIdAndStudentId
 };
 
 module.exports = course;

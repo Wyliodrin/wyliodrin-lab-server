@@ -37,6 +37,9 @@ var boardSchema = mongoose.Schema({
 	},
 	command: {
 		type: String
+	},
+	ip: {
+		type: String,
 	}
 }, {
 	toObject: {
@@ -61,20 +64,20 @@ var Board = mongoose.model('Board', boardSchema);
  * @param {String} course - the course for which the board is used
  * @param {String} status - current status of the board
  */
-function createBoard(boardId, userId, courseId, command) {
+function createBoard(boardId, userId, courseId, command, ip) {
 	var board = new Board(_.assign({}, {
 		boardId: boardId,
 		userId: userId,
 		command: command,
-		courseId: courseId
+		courseId: courseId,
+		ip: ip
 	}));
 
 	return board.save();
 }
 
-function boardStatus (boardId, status)
-{
-	return Board.findOneAndUpdate ({boardId}, {$set: {status: status}, lastInfo: Date.now ()}, {upsert: true, new: true}).lean();
+function boardStatus(boardId, status) {
+	return Board.findOneAndUpdate({ boardId }, { $set: { status: status }, lastInfo: Date.now() }, { upsert: true, new: true }).lean();
 }
 
 function resetComand (boardId)
@@ -87,31 +90,46 @@ function findByBoardId(boardId) {
 	return Board.findOne({ boardId: boardId }).lean();
 }
 
-function findBySerial(boardSerial) {
-	return Board.findOne({ serial: boardSerial });
-}
+// function findBySerial(boardSerial) {
+// 	return Board.findOne({ serial: boardSerial });
+// }
 
-function findByUser(userId) {
-	return Board.findOne({ user: userId });
+function findByUserId(userId) {
+	return Board.findOne({ userId: userId });
 }
 
 function assignUserToBoard(boardId, userId) {
 	return Board.findOneAndUpdate({ boardId: boardId }, { userId: userId });
 }
 
+function assignCourseToBoard(boardId, courseId) {
+	return Board.findOneAndUpdate({ boardId: boardId }, { courseId: courseId });
+}
+
+function assignCourseAndUser(boardId, userId, courseId) {
+	return Board.findOneAndUpdate({ boardId: boardId }, { $set: { userId: userId, courseId: courseId, command: 'reboot', lastInfo: Date.now() } }, { upsert: true, new: true }).lean();
+}
+
+function unsetCourseAndUser(boardId) {
+	return Board.findOneAndUpdate({ boardId: boardId }, { $unset: { courseId: '', userId: '' }, $set: { command: 'reboot' }, lastInfo: Date.now() }).lean();
+}
+
 function issueCommand(boardId, command) {
-	return Board.findOneAndUpdate({ boardId: boardId }, { command: command });
+	return Board.findOneAndUpdate({ boardId }, { $set: { command: command }, lastInfo: Date.now() }, { upsert: true, new: true }).lean();
 }
 
 var board = {
 	createBoard,
 	findByBoardId,
-	findBySerial,
+	// findBySerial,
 	boardStatus,
 	resetComand,
-	findByUser,
+	findByUserId,
 	issueCommand,
-	assignUserToBoard
+	assignUserToBoard,
+	assignCourseToBoard,
+	assignCourseAndUser,
+	unsetCourseAndUser
 };
 
 module.exports = board;
