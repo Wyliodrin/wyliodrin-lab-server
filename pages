@@ -1,0 +1,46 @@
+Login:
+	admin/teacher
+		username
+		password
+
+	student
+		username
+		password
+		device - input normal (poate fi ascuns sau readonly)
+			-> login success -> select course (daca e inscris la mai multe)
+
+Pagina Admin/Teacher - Admin-ul trebe sa aleaga dintr-o pagina daca vrea teacher, administrare sau sa se conecteze la o placa (daca nu e teacher acesta pagina nu a)
+
+Admin
+	eu as pune tab-uri verticale cu:
+		Users
+			lista de useri, adauga, modifica si sterge conturi
+		Courses
+			lista ce cursuri, adauga, modifica si sterge cursuri
+		Raspberry PI Images
+			lista de imagini, adauga, modifica si sterge imagini
+		Manage Boards 
+			lista de device-uri conectate, status, user conectat, cpu, mem optiuni (reset, disconnect user etc)
+		Server Setup
+			delatii mai incolo aici
+	
+
+Teacher
+	Lista de cursuri - la fiecare are Manage si Conectare la o placa cu acest curs (daca nu e deja conectat la ceva)
+
+Course pentru Teacher (poate fi un popup mare sau o parte din pagina)
+	Studenti
+		adauga studenti
+		sterge studenti
+	Devices
+		lista de device-uri care ruleaza acest curs si cu studntul conectat (poate da afara un student)
+	Imagine
+		poate selecta imagine de baza
+		are un script de instalare (e editor asta)
+		optiuni:
+			- reset image (reseteaza imaginea si ruleaza script-ul)
+
+Course pentru Admin (poate fi acceasi pagina, ascundem noi elementele in plus)
+	tot ce face teacher plus
+	seteaza teacher la curs
+
