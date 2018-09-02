@@ -22,7 +22,9 @@ Admin
 		Manage Boards 
 			lista de device-uri conectate, status, user conectat, cpu, mem optiuni (reset, disconnect user etc)
 		Server Setup
-			delatii mai incolo aici
+			- o poza de background pentru ecranul de login (sa isi poata brandui lab-ul)
+			- un text care se pune pe ecranul de login
+			- adresa IP a server-ului
 	
 
 Teacher
