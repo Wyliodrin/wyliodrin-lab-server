@@ -98,6 +98,10 @@ function findByUserId(userId) {
 	return Board.findOne({ userId: userId });
 }
 
+function findByUserIdAndBoardId(userId, boardId) {
+	return Board.findOne({ boardId: boardId }, { userId: userId }).lean();
+}
+
 function assignUserToBoard(boardId, userId) {
 	return Board.findOneAndUpdate({ boardId: boardId }, { userId: userId });
 }
@@ -129,7 +133,8 @@ var board = {
 	assignUserToBoard,
 	assignCourseToBoard,
 	assignCourseAndUser,
-	unsetCourseAndUser
+	unsetCourseAndUser,
+	findByUserIdAndBoardId
 };
 
 module.exports = board;

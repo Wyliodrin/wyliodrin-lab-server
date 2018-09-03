@@ -3,6 +3,7 @@ var raspberrypi = require('./database/raspberrypi.js');
 var msgpack = require('msgpack5');
 var EventEmitter = require ('events').EventEmitter;
 var _ = require('lodash');
+var db = require('../database/database.js');
 
 const EMIT_SOCK_SEND_PREFIX = 'socket:send:';
 
@@ -36,14 +37,15 @@ function initSocket(route, server){
 		let authenticated = false;
 		let token = false;
 
-		socket.on ('message', function (message){
+		socket.on ('message', async function (message){
 			let err = false;
 			try
 			{
 
 				let data =  msgpack.decode (message);
 				if (authenticated === false){
-					if (data.token){ //TODO board found in database
+					if (await db.board.findByBoardId(data.token)){
+						//board found in database
 						authenticated = true;
 						token = data.token;
 						if (boardList[token] !== undefined){
@@ -59,8 +61,16 @@ function initSocket(route, server){
 				else if (authenticated === true){
 					if (data.t === 'u'){
 						//shell for users
-						let userToken = Object(); // TODO get user / usersocks
-						userList.emit(EMIT_SOCK_SEND_PREFIX + userToken, data);
+						let found = await db.board.findByBoardId(token);
+						if (found !== null){
+							let userToken = found.userId;
+							userList.emit(EMIT_SOCK_SEND_PREFIX + userToken, data);
+						}
+						else{
+							//board no longer in database
+							socket.close();
+						}
+						
 						
 					}
 				}
@@ -112,7 +122,8 @@ function initSocket(route, server){
 
 				let data =  msgpack.decode (message);
 				if (authenticated === false){
-					if (data.token){ //TODO found in database
+					if (await db.user.findByUserId(data.token)){
+						//user found in database
 						authenticated = true;
 						token = data.token;
 						userList.on(EMIT_SOCK_SEND_PREFIX + token, pushToSocket);
@@ -125,7 +136,8 @@ function initSocket(route, server){
 				else if (authenticated === true){
 					if (data.t === 's'){
 						//shell for courses
-						if (true){ //TODO token (user prof) allowed to modify course data.b
+						if (await db.board.findByCourseIdAndTeacher(data.b, token)){ 
+							//token (user prof) allowed to modify course data.b
 							if (data.a === 'o'){
 								//open
 								let currentCourse = openCourses[token];
@@ -171,7 +183,8 @@ function initSocket(route, server){
 
 					else if (data.t === 'u'){
 						//user shell
-						if (true){ // TODO token (user) allowed to use board data.b (board token)
+						if (await db.board.findByUserIdAndBoardId(token, data.b)){ 
+							//token (user) allowed to use board data.b (board token)
 							if (boardList[data.b] !== undefined){
 								//board is on
 								send(boardList[data.b], message);
