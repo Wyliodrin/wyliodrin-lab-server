@@ -7,14 +7,17 @@ var error = require('../error.js');
 
 var boardApp = express.Router();
 var remoteApp = express.Router();
+var adminApp = express.Router();
 
 debug.log = console.info.bind(console);
 
-boardApp.post('/get_id/:board_serial', async function(res, req, next) {
+boardApp.get('/get/:boardId', async function(req, res, next) {
 	var e;
-	var board_serial = req.params.board_serial;
+	console.log('Aici');
+	var boardId = req.params.boardId;
+	console.log('Test serial parms', boardId);
 	try {
-		var board = await db.board.findBySerial(board_serial);
+		var board = await db.board.findByBoardId(boardId);
 	} catch (err) {
 		e = error.serverError(err);
 		return next(e);
@@ -43,7 +46,7 @@ remoteApp.post('/exchange', async function(req, res /*, next*/ ) {
 				res.send({ err: 0, command: 'reboot' });
 			} else {
 				if (board.command) {
-					await db.board.resetComand(boardId);
+					await db.board.resetCommand(boardId);
 				}
 				res.status(200).send({ command: board.command });
 			}
@@ -56,5 +59,22 @@ remoteApp.post('/exchange', async function(req, res /*, next*/ ) {
 
 });
 
-module.exports.remoteRoute = remoteApp;
-module.exports.boardRoute = boardApp;
+adminApp.get('/list', async function(req, res, next) {
+	var e;
+	try {
+		var boards = await db.board.listBoards();
+	} catch (err) {
+		e = error.serverError(err);
+		next(e);
+	}
+
+	if (boards) {
+		res.status(200).send({ err: 0, boards });
+	} else {
+		res.status(200).send({ err: 0, message: 'No boards' });
+	}
+});
+
+module.exports.remoteRoutes = remoteApp;
+module.exports.privateRoutes = boardApp;
+module.exports.adminRoutes = adminApp;

@@ -7,6 +7,7 @@ var db = require('../database/database.js');
 var error = require('../error.js');
 var publicApp = express.Router();
 var privateApp = express.Router();
+var adminApp = express.Router();
 
 debug.log = console.info.bind(console);
 
@@ -107,9 +108,10 @@ privateApp.post('/edit', async function(req, res, next) {
 	}
 });
 
-privateApp.get('/', async function(req, res) {
+privateApp.get('/info', async function(req, res) {
 	debug('User: ' + req.user.userId + 'requested /');
 	let user = await db.user.findByUserId(req.user.userId);
+	delete user.password;
 	res.status(200).send({ err: 0, user });
 });
 
@@ -139,15 +141,6 @@ privateApp.post('/password/edit', async function(req, res, next) {
 	}
 });
 
-privateApp.get('/list/:partOfName', async function(req, res, next) {
-	if (req.params.partOfName && req.params.partOfName.length >= 3) {
-		var userList = await db.user.findUsers(req.params.partOfName);
-		res.status(200).send(userList);
-	} else {
-		var e = error.badRequest('Name is required');
-		next(e);
-	}
-});
 
 privateApp.get('/logout', function(req, res) {
 	delete tokens[req.token];
@@ -203,20 +196,6 @@ privateApp.post('/connect', async function(req, res, next) {
 	res.status(200).send({ err: 0 });
 });
 
-privateApp.get('/my_courses', async function(req, res, next) {
-	var e;
-	var userId = req.user.userId;
-
-	try {
-		var courses = await db.course.findByStudentId(userId);
-	} catch (err) {
-		e = error.serverError(err);
-		return next(e);
-	}
-
-	res.status(200).send({ err: 0, courses });
-});
-
 privateApp.post('/disconnect', async function(req, res, next) {
 	var e;
 	var userId = req.user.userId;
@@ -249,7 +228,128 @@ privateApp.post('/disconnect', async function(req, res, next) {
 
 });
 
+adminApp.post('/update', async function(req, res, next) {
+	var e;
+	var userId = req.body.userId;
+	var username = req.body.username;
+	var password = req.body.password;
+	var email = req.body.email;
+	var firstName = req.body.firstName;
+	var lastName = req.body.lastName;
+	var role = req.body.role;
+
+	try {
+		await db.user.edit(userId, username, password, email, firstName, lastName, role);
+	} catch (err) {
+		debug(err);
+		e = error.serverError(err);
+		return next(e);
+	}
+	res.status(200).send({ err: 0 });
+});
+
+adminApp.get('/list', async function(req, res, next) {
+	var e;
+	try {
+		var users = await db.user.listUsers();
+	} catch (err) {
+		debug('Error listing users');
+		e = error.serverError(err);
+		return next(e);
+	}
+	res.status(200).send({ err: 0, users });
+});
+
+// adminApp.get('/find/:partOfName', async function(req, res, next) {
+// 	if (req.params.partOfName && req.params.partOfName.length >= 3) {
+// 		var userList = await db.user.findUsers(req.params.partOfName);
+// 		res.status(200).send(userList);
+// 	} else {
+// 		var e = error.badRequest('Name is required');
+// 		next(e);
+// 	}
+// });
+
+adminApp.get('/get/:userId', async function(req, res, next) {
+	var e;
+	var userId = req.params.userId;
+	try {
+		var user = await db.user.findByUserId(userId);
+	} catch (err) {
+		debug(err);
+		e = error.serverError(err);
+		return next(e);
+	}
+	if (user) {
+		delete user.password;
+		res.status(200).send({ err: 0, user });
+	} else {
+		res.status(200).send({ err: 0, message: 'User not found' });
+	}
+});
+
+/**
+ * @api {post} /create Create a user
+ * @apiName CreateUser
+ * @apiGroup User
+ *
+ * @apiParam {String} username Username
+ * @apiParam {String} password Password
+ * @apiParam {String} firstName First name of user
+ * @apiParam {String} email Email of user
+ *
+ * @apiSuccess {Number} err 0 
+ * @apiError {String} err Error
+ * @apiError {String} statusError error
+ */
+adminApp.post('/create', async function(req, res, next) {
+	var e;
+	var username = req.body.username;
+	var password = req.body.password;
+	var email = req.body.email;
+	var firstName = req.body.firstName;
+	var lastName = req.body.lastName;
+	var role = req.body.role;
+	try {
+		var user = await db.user.create(username, password, firstName, lastName, email, role);
+		try {
+			await db.workspace.createUserHome(user.userId);
+		} catch (err) {
+			debug('Error creating workspace', err);
+			e = error.serverError(err);
+			return next(e);
+		}
+		res.status(200).send({
+			err: 0,
+			user: user
+		});
+	} catch (err) {
+		if (err.code !== 11000) {
+			debug('Creation failed', { requestId: req.requestId, error: err });
+			e = error.serverError();
+			next(e);
+		} else {
+			debug('Creation failed, user exists', { requestId: req.requestId, error: err });
+			e = error.notAcceptable('User already exists');
+			next(e);
+		}
+	}
+});
+
+adminApp.post('/delete', async function(req, res, next) {
+	var e;
+	var userId = req.body.userId;
+	try {
+		await db.user.deleteByUserId(userId);
+	} catch (err) {
+		debug(err);
+		e = error.serverError();
+		return next(e);
+	}
+	res.status(200).send({ err: 0 });
+});
 
 module.exports.publicRoutes = publicApp;
 module.exports.security = security;
 module.exports.privateRoutes = privateApp;
+module.exports.adminRoutes = adminApp;
