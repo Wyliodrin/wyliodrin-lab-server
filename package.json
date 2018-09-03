@@ -19,13 +19,15 @@
         "ip": "^1.1.5",
         "mongodb": "^3.1.0",
         "mongoose": "^5.2.4",
-        "morgan": "~1.9.0",
+		"morgan": "~1.9.0",
+		"msgpack5": "^4.2.0",
         "nodemailer": "^4.6.7",
         "pty.js": "^0.3.1",
         "tftp": "^0.1.2",
         "uuid": "^3.3.2",
         "validator": "^10.4.0",
-        "vueify": "^9.4.1"
+		"vueify": "^9.4.1",
+		"ws": "^6.0.0"
     },
     "devDependencies": {
         "bootbox": "^4.4.0",
@@ -40,7 +42,6 @@
         "grunt-eslint": "^21.0.0",
         "jquery": "^3.3.1",
         "lodash": "^4.17.10",
-        "msgpack5": "^4.2.0",
         "nodemon": "^1.18.3",
         "reconnectingwebsocket": "^1.0.0",
         "popper.js": "^1.14.3",

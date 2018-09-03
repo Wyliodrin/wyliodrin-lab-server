@@ -1,13 +1,10 @@
 var WebSocket = require ('ws');
-var raspberrypi = require('./database/raspberrypi.js')
+var raspberrypi = require('./database/raspberrypi.js');
 var msgpack = require('msgpack5');
 var EventEmitter = require ('events').EventEmitter;
+var _ = require('lodash');
 
-const EMIT_SOCK_SEND_PREFIX = 'socket:send:'
-
-
-var port = process.env.PORT || 9030;
-var ws = new Server({port: port});
+const EMIT_SOCK_SEND_PREFIX = 'socket:send:';
 
 var userList = new EventEmitter ();
 var boardList = {};
@@ -39,7 +36,7 @@ function initSocket(route, server){
 		let authenticated = false;
 		let token = false;
 
-		socket.on ('message', async function (message){
+		socket.on ('message', function (message){
 			let err = false;
 			try
 			{
@@ -50,7 +47,7 @@ function initSocket(route, server){
 						authenticated = true;
 						token = data.token;
 						if (boardList[token] !== undefined){
-							console.log('Websocket overwriting ond websocket for board ' + token)	
+							console.log('Websocket overwriting ond websocket for board ' + token);
 						}
 						boardList[token] = socket;
 						
@@ -76,19 +73,19 @@ function initSocket(route, server){
 			}
 			if (err)
 			{
-				send(socket, {t:'e', a:'e', e:'servererror'})
+				send(socket, {t:'e', a:'e', e:'servererror'});
 				socket.close ();
 			}
 		});
 
-		socket.on ('close', async function (){
+		socket.on ('close', function (){
 			if (boardList[token] === undefined){
 				console.log('Websocket closing and not in database for board ' + token);
 			}
 			boardList[token] = undefined;
 		});
 
-		socket.on ('error', async function (e){
+		socket.on ('error', function (e){
 			console.log('WebSocket error : ' + e);
 			send(socket, {t:'e', a:'e', e:'servererror'});
 		});
@@ -194,18 +191,20 @@ function initSocket(route, server){
 			}
 			if (err)
 			{
-				send(socket, {t:'e', a:'e', e:'servererror'})
+				send(socket, {t:'e', a:'e', e:'servererror'});
 				socket.close ();
 			}
 		});
 
-		socket.on ('close', async function (){
+		socket.on ('close', function (){
 			userList.removeListener(EMIT_SOCK_SEND_PREFIX + token, pushToSocket);
 		});
 
-		socket.on ('error', async function (e){
+		socket.on ('error', function (e){
 			console.log('WebSocket error : ' + e);
-			send(socket, {t:'e', a:'e', e:'servererror'})
+			send(socket, {t:'e', a:'e', e:'servererror'});
 		});
 	});
 }
+
+module.exports.initSocket = initSocket;
