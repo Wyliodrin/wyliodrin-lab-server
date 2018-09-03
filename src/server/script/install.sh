@@ -46,7 +46,7 @@ fi
 
 echo "Install supervisord"
 
-if ! supervisorctl status &> /dev/null;
+if ! sudo supervisorctl status &> /dev/null;
 then
 	sudo apt-get update
 	sudo apt-get install -y supervisor
@@ -71,3 +71,5 @@ sudo tee /etc/supervisor/conf.d/wyliolab.conf &> /dev/null << EOF
 [program:wyliolab]
 command=/usr/bin/wyliolab
 EOF
+
+echo "Done install image"
