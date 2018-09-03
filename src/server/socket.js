@@ -3,7 +3,7 @@ var raspberrypi = require('./database/raspberrypi.js');
 var msgpack = require('msgpack5');
 var EventEmitter = require ('events').EventEmitter;
 var _ = require('lodash');
-var db = require('../database/database.js');
+var db = require('./database/database.js');
 
 const EMIT_SOCK_SEND_PREFIX = 'socket:send:';
 
