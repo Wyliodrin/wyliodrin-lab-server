@@ -1,312 +1,125 @@
 <template>
-	<div>
-		<div class="admin-page">
-			<p> Bun venit in pagina de admin </p>
-
-			<!-- Aici e tabul cu editat useri -->
-			<div>
-				<h2>Tabela de useri</h2>
-
-					<table style="width:100%">
-						<tr>
-							<th>Username</th>
-							<th>First Name</th> 
-							<th>Last Name</th>
-							<th>Email</th>
-							<th>Role</th>
-							<th>Edit user</th>
-						</tr>
-
-						<tr v-for="(item, index) in users" :key="item.userId">
-							<td>{{item.username}}</td>
-							<td>{{item.firstName}}</td>
-							<td>{{item.lastName}}</td>
-							<td>{{item.email}}</td>
-							<td>{{item.role}}</td>
-							<td>
-								<button @click="editUser(index)">Edit</button>
-							</td>
-						</tr>
-
-					</table>
-					<p> Adauga un user in baza de date: </p>
-					<button @click="addUser">Add</button>
-			</div>
-
-			<!-- Asta e tabul de cursuri, in care sunt editate cursuri -->
-			<div>
-				<h2>Lista de cursuri</h2>
-				
-				<p>Selecteaza un curs: </p>
-				<div class="dropdown">
-					<button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-						{{courseName}}
-					</button>
-					<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-						<a class="dropdown-item" v-for="(item, index) in courses" :key="item.courseId" 
-							@click="selectCourse(index)" href="#">{{item.name}}</a> <!-- Aici e posibil :-? -->
+	<div class="content w-100">
+		<nav class="navbar navbar-expand-lg navbar-inverse navbar-static-top p-0 w-100 wsd-menu" id="slide-nav">
+			<a class="navbar-brand pt-0 pb-0 pl-4" href="index.html"><img src="img/logo.png"></a>
+			<button class="navbar-toggler hidden-sm-up" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+				<img src="img/icons/menu-icon.png">
+			</button>
+			<div class="navbar-toggler hidden-sm-up close-area collapsed" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation"></div>
+			<div class="collapse navbar-collapse no-transition navbar-toggleable-xs" id="navbarResponsive">
+				<!-- <div class="nav navbar-nav nav-switch mr-auto" >
+					<div class="options-list">
+						<a href="/studio.html" data-toggle="tooltip" target="_blank" v-tooltip data-placement="bottom" title="Develop Applications using the Studio" class="switch-app">
+							<img src="img/icon-editor.png">
+							<span>STUDIO</span>
+						</a>
+					</div>
+				</div> -->
+				<div class="nav navbar-nav nav-btns" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false">
+					<div style="float: left">
+						<!--<div class="run-proj right">
+							<a href="#" data-toggle="modal" data-target="#myRunModal">
+								<img src="img/run-project.png">
+								<span> Run project</span>
+								<div class="triangle"></div>
+							</a>
+						</div>-->
+						<div class="main-btn left">
+							<router-link to="/" :class="{'active':activeDashboard}" exact>
+								<i class="i-dashboard nav-icon"></i>
+								<span> Dashboard</span>
+								<div class="triangle"></div>
+							</router-link>
+						</div>
+						<div class="main-btn left">
+							<router-link to="/users" :class="{'active':activeUsers}">
+								<i class="i-device nav-icon"></i>
+								<span> Users</span>
+								<div class="triangle"></div>
+							</router-link>
+						</div>
+						<div class="main-btn left">
+							<router-link to="/courses" class="menu-last-dist" :class="{'active':activeCourses}">
+								<i class="i-product nav-icon"></i>
+								<span> Courses</span>
+								<div class="triangle"></div>
+							</router-link>
+						</div>
+						<div class="main-btn left">
+							<router-link to="/raspberrypi" class="menu-last-dist" :class="{'active':activeRaspberryPi}">
+								<i class="i-product nav-icon"></i>
+								<span> Raspberry Pi</span>
+								<div class="triangle"></div>
+							</router-link>
+						</div>
+						<div class="main-btn left">
+							<router-link href="#" to="/boards" class="menu-last-dist" :class="{'active':activeBoards}">
+								<i class="i-product nav-icon"></i>
+								<span> Boards</span>
+								<div class="triangle"></div>
+							</router-link>
+						</div>
+						<!-- <div class="main-btn left">
+							<router-link href="#" to="/settings" class="menu-last-dist">
+								<i class="i-account nav-icon"></i>
+								<span> Settings</span>
+								<div class="triangle"></div>
+							</router-link>
+						</div> -->
+					</div>
+					<div class="user right connected" style="float: right">
+						<a href="#">{{user.name}}</a><span class="user-image">
+						<img :src="gravatar"></span>
+						<div class="triangle"></div>
+						<div class="options-list">
+							<!--<a href="#" data-toggle="tooltip" data-placement="bottom" title="Tutorials"><img src="img/icon-tutorial.png"></a>
+							<a href="#" data-toggle="tooltip" data-placement="bottom" title="Take the tour"><img src="img/icon-tour.png"></a>
+							<a href="#" data-toggle="tooltip" data-placement="bottom" v-tooltip title="Notifications"><img src="img/icon-notification.png">  </a>-->
+							<!-- <a href="/docs" data-toggle="tooltip" data-placement="bottom" v-tooltip title="Documentation" target="_blank" class="doc-link"><img src="img/icon-tutorial.png"></a> -->
+							<a data-toggle="modal" data-placement="bottom" title="Settings" v-tooltip data-target="#settingsModal" class="settings-link"><img src="img/icon-settings.png"></a>
+							<a data-toggle="tooltip" data-placement="bottom" v-tooltip title="Logout" class="logout-link" @click="logout"><img src="img/icon-logoff.png"></a>
+						</div>
 					</div>
 				</div>
-
-				<table style="width:100%">
-					<tr>
-						<th>Name</th>
-						<th>Students</th> 
-						<th>Teachers</th>
-						<th>Edit course</th>
-					</tr>
-
-					<tr v-if="courseIndex !== null">
-						<td>{{course.name}}</td>
-						<td>
-							<ul class="list-group">
-								<li class="list-group-item" v-for="(student, index) in course.students" :key="index">
-										{{student.firstName + ' ' + student.lastName}}
-										<button @click="deleteStudentFromCourse(student.userId)">X</button>
-								</li>
-							</ul>
-							<button @click="addNewStudent">Add new student</button>
-						</td>
-						<td>
-							<ul class="list-group">
-								<li class="list-group-item" v-for="(teacher, index) in course.teachers" :key="index">
-										{{teacher.firstName + ' ' + teacher.lastName}}
-										<button @click="deleteTeacherFromCourse(teacher.userId)">X</button>
-								</li>
-							</ul>
-							<button @click="addNewTeacher">Add new teacher</button>
-						</td>
-						<td>
-							<button @click="editCourseName(course.courseId)">Edit Name</button>
-							<button @click="deleteCourse(course.courseId)">Delete</button>
-						</td>
-					</tr>
-				</table>
-
-				<button @click="addCourse">Add new course</button>
 			</div>
+		</nav>
+		<div class="admin-page">
+			<!-- <p> Bun venit in pagina de admin </p> -->
+
+			<router-view></router-view>
+
+			
 		</div>
 	</div>
 </template>
 
 <script>
-var Vue = require ('vue');
-var EditUserModal = require ('./EditUserModal.vue');
-var AddUserModal = require ('./AddUserModal.vue');
-var AddCourseModal = require ('./AddCourseModal.vue');
-var AddStudentToCourseModal = require ('./AddStudentToCourseModal.vue');
-var AddTeacherToCourseModal = require ('./AddTeacherToCourseModal.vue');
-var EditCourseNameModal = require ('./EditCourseNameModal.vue');
+
 var mapGetters = require('vuex').mapGetters;
 
 module.exports = {
 	name: 'Admin',
 	data() {
 		return {
-			courseIndex: null
+			
 		};
 	},
 	methods: {
-		async getAllUsers () {
-			let recvUsers = await this.$store.dispatch ('user/getAllUsers');
-
-			if (!recvUsers)
-				console.log('Could not get users...');
+		async logout ()
+		{
+			if (await this.$store.dispatch ('user/logout'))
+			{
+				this.$store.dispatch ('settings/redirect', 'LOGIN');
+			}
 		},
-
-		async getAllCourses () {
-			let recvCourses = await this.$store.dispatch ('course/listCourses');
-
-			if (!recvCourses)
-				console.log('Could not get courses...');
-		},
-
-		async selectCourse (index) {
-			let recvCourse = await this.$store.dispatch ('course/getCourse', this.courses[index].courseId);
-			this.courseIndex = index;
-			if (!recvCourse)
-				console.log('Could not get courses...');
-		},
-
-		addCourse () {
-			Vue.bootbox.dialog (AddCourseModal, {}, {
-				title: 'Add course',
-				buttons: {
-					add: {
-						label: 'Done',
-						className: 'wyliodrin-active'
-					},
-					back: {
-						label: 'Cancel',
-						className: 'wyliodrin-back'
-					}
-				}
-			});
-		},
-
-		editCourseName () {
-			Vue.bootbox.dialog (EditCourseNameModal, {
-				courseId: this.course.courseId
-			}, {
-				title: 'Edit course name',
-				buttons: {
-					edit: {
-						label: 'Done',
-						className: 'wyliodrin-active'
-					},
-					back: {
-						label: 'Cancel',
-						className: 'wyliodrin-back'
-					}
-				}
-			});
-		},
-
-		async deleteCourse (courseId) {
-			console.log(courseId);
-			this.courseIndex = null;
-			let recvDelete = await this.$store.dispatch ('course/deleteCourse',{
-				courseId: courseId
-			});
-
-			if (!recvDelete)
-				console.log('Could not delete course...');
-		},
-
-		editUser (index) {
-			Vue.bootbox.dialog (EditUserModal, {
-				'userId': this.users[index].userId,
-				'username': this.users[index].username,
-				'firstName': this.users[index].firstName,
-				'lastName': this.users[index].lastName,
-				'email': this.users[index].email,
-				'role': this.users[index].role
-			}, {
-				title: 'Edit user '+this.users[index].username,
-				buttons: {
-					edit: {
-						label: 'Done',
-						className: 'wyliodrin-active'
-					},
-					back: {
-						label: 'Cancel',
-						className: 'wyliodrin-back'
-					}
-				}
-			});
-		},
-
-		addUser () {
-			Vue.bootbox.dialog (AddUserModal, {}, {
-				title: 'Add user ',
-				buttons: {
-					add: {
-						label: 'Done',
-						className: 'wyliodrin-active'
-					},
-					back: {
-						label: 'Cancel',
-						className: 'wyliodrin-back'
-					}
-				}
-			});
-		},
-
-		async getUserById(userId) {
-			let recvUser = await this.$store.dispatch ('user/getUser', userId);
-
-			console.log(recvUser.firstName);
-
-			if (recvUser)
-				return recvUser.firstName;
-			else
-				return null;
-		},
-
-		addNewStudent () {
-			Vue.bootbox.dialog (AddStudentToCourseModal, {
-				courseId: this.course.courseId,
-				studentIds: this.course.students.map(student => student.userId),
-				teacherIds: this.course.teachers.map(teacher => teacher.userId)
-			}, {
-				title: 'Add new Student',
-				buttons: {
-					add: {
-						label: 'Done',
-						className: 'wyliodrin-active'
-					},
-					back: {
-						label: 'Cancel',
-						className: 'wyliodrin-back'
-					}
-				}
-			});
-		},
-
-		async deleteStudentFromCourse(studentId){
-			let courseId = this.course.courseId;
-
-			console.log(studentId);
-			console.log(courseId);
-
-			let recvDelStudent = await this.$store.dispatch ('course/deleteStudentFromCourse', {
-				courseId: courseId,
-				studentId: studentId
-			});
-
-			if (!recvDelStudent)
-				console.log('Could not delete student from course..');
-		},
-
-		addNewTeacher () {
-			Vue.bootbox.dialog (AddTeacherToCourseModal, {
-				courseId: this.course.courseId,
-				studentIds: this.course.students.map(student => student.userId),
-				teacherIds: this.course.teachers.map(teacher => teacher.userId)
-			}, {
-				title: 'Add new Teacher',
-				buttons: {
-					add: {
-						label: 'Done',
-						className: 'wyliodrin-active'
-					},
-					back: {
-						label: 'Cancel',
-						className: 'wyliodrin-back'
-					}
-				}
-			});
-		},
-
-		async deleteTeacherFromCourse(teacherId){
-			let courseId = this.course.courseId;
-
-			let recvDelTeacher = await this.$store.dispatch ('course/deleteTeacherFromCourse', {
-				courseId: courseId,
-				teacherId: teacherId
-			});
-
-			if (!recvDelTeacher)
-				console.log('Could not delete teacher from course..');
-		}
 	},
 	created() {
-		this.getAllUsers();
-		this.getAllCourses();
-		console.log(this.courses);
+		
 	},
 	computed: {
 		...mapGetters ({
-			users: 'user/users',
-			courses: 'course/courses',
-			course: 'course/course'
-		}),
-		courseName () {
-			if (this.courseIndex === null)
-				return 'Niciun curs selectat';
-			else
-				return this.course.name;
-		}
+			user: 'user/user',
+		})
 	}
 };
 

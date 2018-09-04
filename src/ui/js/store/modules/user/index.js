@@ -175,7 +175,36 @@ module.exports ={
 			{
 				return false;
 			}
-		}
+		},
+		async updateUser (store)
+		{
+			try
+			{
+				let response = await Vue.http.get (setup.API+'/user');
+				if (response.data.err === 0)
+				{
+					store.commit ('user', response.data.user);
+					return true;
+				}
+				else
+				{
+					// TODO toast token expired
+					store.commit ('user', null);
+					store.commit ('token', null);
+					return false;
+				}
+			}
+			catch (e)
+			{
+				if (e.status === 401)
+				{
+					store.commit ('user', null);
+					store.commit ('token', null);
+				}
+				// TODO toast network error
+				return false;
+			}
+		},
 		// async changePassword (store, passwordsData)
 		// {
 		// 	try

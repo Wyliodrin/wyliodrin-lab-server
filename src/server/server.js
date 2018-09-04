@@ -5,12 +5,12 @@
  */
 
 require('dotenv').config();
-var app = require('../app');
-var socket = require('../socket.js');
+var app = require('./app');
+var socket = require('./socket.js');
 var debug = require('debug')('wyliodrin-lab-server:server');
 var http = require('http');
 
-require ('../tftp');
+require ('./tftp');
 
 debug.log = console.info.bind(console);
 

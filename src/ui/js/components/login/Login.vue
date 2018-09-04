@@ -14,7 +14,7 @@
 				<input type="password" class="form-control" name="Password" placeholder="Password" required="" @keyup.enter="login" v-model="password"/>
 				<button class="btn btn-login btn-block" name="Submit" value="Login" @click="login">Login</button>
 				<!-- <button class="btn btn-signup btn-block" value="Create account" @click="createAccount">Create account</button> -->
-				<button class="btn btn-signup btn-block" value="Create account" @click="requestDemo">Request demo account</button>
+				<!-- <button class="btn btn-signup btn-block" value="Create account" @click="requestDemo">Request demo account</button> -->
 				<a href="#" class="recoverpass" @click="recoverPassword">Forgot password</a>
 			</div>
 		</div>

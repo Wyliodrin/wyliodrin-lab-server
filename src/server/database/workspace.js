@@ -4,10 +4,10 @@ var path = require('path');
 var fs = require('fs-extra');
 var debug = require('debug')('wyliodrin-lab-server:workspace-database');
 var statusCodes = require('http-status-codes');
+var raspberrypi = require ('./raspberrypi');
 
 debug.log = console.info.bind(console);
 
-var HOMES = path.join(__dirname, 'homes');
 var PROJECTS = 'projects';
 
 /**
@@ -16,10 +16,11 @@ var PROJECTS = 'projects';
  * @param {String} userId - id of the user
  * @param {String} project - the project containing the file
  */
-function verifyPath(filePath, userId, project) {
-	var absPath = path.join(HOMES, userId, project, filePath);
+async function verifyPath(filePath, userId, project) {
+	var homeFolder = await raspberrypi.pathUser (userId);
+	var absPath = path.join(homeFolder, PROJECTS, project, filePath);
 	var normalizedPath = path.normalize(absPath);
-	var verifyPath = path.join(HOMES, userId, project);
+	var verifyPath = path.join(homeFolder, PROJECTS, project);
 	if (normalizedPath.startsWith(verifyPath)) {
 		return { valid: true, absPath: absPath, normalizedPath: normalizedPath };
 	}
@@ -27,7 +28,7 @@ function verifyPath(filePath, userId, project) {
 }
 
 async function hasHome(userId) {
-	var userHome = path.join(HOMES, userId);
+	var userHome = await raspberrypi.pathUser (userId);
 	try {
 		var homeExists = await fs.pathExists(userHome);
 	} catch (err) {
@@ -37,7 +38,7 @@ async function hasHome(userId) {
 }
 
 async function projectExists(userId, project) {
-	var userHome = path.join(HOMES, userId);
+	var userHome = await raspberrypi.pathUser (userId);
 	var projPath = path.join(userHome, PROJECTS, project);
 
 	try {
@@ -50,7 +51,7 @@ async function projectExists(userId, project) {
 }
 
 async function fileExists(userId, project, filePath) {
-	var userHome = path.join(HOMES, userId);
+	var userHome = await raspberrypi.pathUser (userId);
 	var file_path = path.join(userHome, PROJECTS, project, filePath);
 	try {
 		var exists = await fs.pathExists(file_path);
@@ -64,15 +65,15 @@ async function fileExists(userId, project, filePath) {
 
 
 async function createUserHome(userId) {
-	var userHome = path.join(HOMES, userId);
+	var userHome = await raspberrypi.pathUser (userId, true);
 	var userProjects = path.join(userHome, PROJECTS);
 
-	try {
-		await fs.mkdir(userHome);
-	} catch (err) {
-		debug('Error making user home', err);
-		throw new Error('File System Error: \n', err);
-	}
+	// try {
+	// 	await fs.mkdir(userHome);
+	// } catch (err) {
+	// 	debug('Error making user home', err);
+	// 	throw new Error('File System Error: \n', err);
+	// }
 	try {
 		await fs.mkdir(userProjects);
 	} catch (err) {
@@ -95,7 +96,7 @@ async function createProject(userId, projectName) {
 	if (isValidName(projectName)) {
 		return { success: false, message: 'Invalid project name' };
 	}
-	var userHome = path.join(HOMES, userId);
+	var userHome = await raspberrypi.pathUser (userId);
 	var userProjects = path.join(userHome, PROJECTS);
 	var projectPath = path.join(userProjects, projectName);
 
@@ -130,7 +131,7 @@ async function setFile(filePath, userId, project, data) {
 		return { success: false, message: 'Project not found', err: statusCodes.BAD_REQUEST };
 	}
 
-	var pathIsValid = verifyPath(filePath, userId, project);
+	var pathIsValid = await verifyPath(filePath, userId, project);
 	if (!pathIsValid.valid) {
 		return { success: false, message: 'Invalid path', err: statusCodes.BAD_REQUEST };
 	}
@@ -154,7 +155,7 @@ async function setFile(filePath, userId, project, data) {
  * @param {String} project - name of the project 
  */
 async function getFile(filePath, userId, project) {
-	var pathIsValid = verifyPath(filePath, userId, project);
+	var pathIsValid = await verifyPath(filePath, userId, project);
 	if (!pathIsValid.valid) {
 		return { success: false, message: 'Invalid path', err: statusCodes.BAD_REQUEST };
 	}
@@ -196,7 +197,7 @@ async function getFile(filePath, userId, project) {
  * @param {String} userId Id of user to list projects
  */
 async function listProjects(userId) {
-	var userHome = path.join(HOMES, userId);
+	var userHome = await raspberrypi.pathUser (userId);
 	var userProjects = path.join(userHome, PROJECTS);
 	debug(userProjects);
 	var projectList = [];

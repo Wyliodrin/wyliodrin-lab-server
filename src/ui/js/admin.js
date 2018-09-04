@@ -10,14 +10,88 @@ Vue.mixin({
 });
 
 var Admin = require ('./components/admin/Admin.vue');
+var Loading = require ('./components/Loading.vue');
+
+var VueRouter = require ('vue-router');
+Vue.use (VueRouter);
+
+var $ = require ('jquery');
+
+Vue.directive ('tooltip', {
+	inserted: function (el)
+	{
+		$(el).tooltip ();
+	},
+	unbind: function (el)
+	{
+		// console.log ('unbind');
+		$(el).tooltip ('hide');
+	}
+});
+
+var Dashboard = require ('./components/admin/Dashboard.vue');
+var Users = require ('./components/admin/Users.vue');
+var Courses = require ('./components/admin/Courses.vue');
+var Setup = require ('./components/admin/Setup.vue');
+var Boards = require ('./components/admin/Boards.vue');
+var RaspberryPi = require ('./components/admin/RaspberryPi.vue');
+
+var router = new VueRouter ({
+	routes: [
+		{
+			path: '/',
+			component: Dashboard
+		},
+		{
+			path: '/users',
+			component: Users
+		},
+		{
+			path: '/courses',
+			component: Courses
+		},
+		// {
+		// 	path: '/course/:courseId',
+		// 	component: Cluster
+		// },
+		{
+			path: '/raspberrypi',
+			component: RaspberryPi
+		},
+		{
+			path: '/boards',
+			component: Boards
+		},
+		{
+			path: '/setup',
+			component: Setup
+		},
+	]
+}
+);
 
 new Vue({
 	el: '#admin',
+	data: {
+		loading: true
+	},
+	router,
 	render: function (render) {
-		return render (Admin, {
+		if (this.loading) return render (Loading);
+		else return render (Admin, {
 		});
 	}, 
-	components: {
-		Admin
+	async created ()
+	{
+		await this.$store.dispatch ('user/updateUser');
+		if (!this.$store.getters ['user/token']) 
+		{
+			this.$store.dispatch ('settings/redirect', 'LOGIN');
+		}
+		else
+		{
+			this.loading = false;
+			// Vue.socket.connect (this.$store.getters ['user/token']);
+		}
 	}
 });
