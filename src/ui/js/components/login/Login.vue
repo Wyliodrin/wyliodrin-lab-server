@@ -1,13 +1,24 @@
 <template>
-	<div>
-		<div class="login-page">
-			<div class="form">
-				<!-- <form class="login-form"> -->
-					<input type="text" placeholder="username" v-model="username"/>
-					<input type="password" placeholder="password" v-model="password"/>
-				<!-- </form> -->
+	<div class="login-box d-flex align-items-center">
+		<!-- <form action="" method="post" name="Login_Form" class="form-signin"> -->
+		<div class="form-signin">
+			<center><img src="/img/logo.png" class="m-3"></center>
+			<hr class="colorgraph">
+			<h5 class="form-signin-heading">Welcome! Please sign in</h5>
+			<br>
+			<div v-if="working" class="d-flex justify-content-center align-items-center">
+				<img src="/img/loading-white.gif">
+			</div>
+			<div v-else>
+				<input type="text" class="form-control" name="Username" placeholder="Username" required="" autofocus="" @keyup.enter="login" v-model="username"/>
+				<input type="password" class="form-control" name="Password" placeholder="Password" required="" @keyup.enter="login" v-model="password"/>
+				<button class="btn btn-login btn-block" name="Submit" value="Login" @click="login">Login</button>
+				<!-- <button class="btn btn-signup btn-block" value="Create account" @click="createAccount">Create account</button> -->
+				<button class="btn btn-signup btn-block" value="Create account" @click="requestDemo">Request demo account</button>
+				<a href="#" class="recoverpass" @click="recoverPassword">Forgot password</a>
 			</div>
 		</div>
+		<!-- </form> -->
 	</div>
 </template>
 

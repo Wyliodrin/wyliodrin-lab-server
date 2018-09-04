@@ -79,8 +79,8 @@ module.exports = function(grunt) {
 		less: {
 			vendor: {
 				files: {
-					'build/ui/style/login.css': 'src/ui/style/login.less',
-					'build/ui/style/admin.css': 'src/ui/style/admin.less',
+					'build/ui/style/wyliodrin.css': 'src/ui/style/style.less',
+					// 'build/ui/style/admin.css': 'src/ui/style/admin.less',
 					'build/ui/style/vendor.css': 'src/ui/style/vendor.less'
 				}
 			}
@@ -101,5 +101,8 @@ module.exports = function(grunt) {
 
 	grunt.registerTask('server', ['eslint:server', 'copy:server']);
 
-	grunt.registerTask('default', ['server', 'eslint', 'browserify', 'copy', 'less']);
+	grunt.registerTask('ui', ['eslint:ui', 'browserify', 'less', 'copy:ui']);
+	grunt.registerTask('fastui', ['eslint:ui', 'browserify:ui']);
+
+	grunt.registerTask('default', ['server', 'ui']);
 };
