@@ -6,6 +6,7 @@
 
 require('dotenv').config();
 var app = require('../app');
+var socket = require('../socket.js');
 var debug = require('debug')('wyliodrin-lab-server:server');
 var http = require('http');
 
@@ -25,7 +26,7 @@ app.set('port', port);
  */
 
 var server = http.createServer(app);
-
+socket.initSocket ('', server);
 /**
  * Listen on provided port, on all network interfaces.
  */

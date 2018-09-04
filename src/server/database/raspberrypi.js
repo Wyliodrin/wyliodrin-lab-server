@@ -291,7 +291,9 @@ async function setupServer(imageInfo) {
 	let folderSetup = path.join(SETUP_SERVER, imageInfo.id);
 	// await fs.mkdirs (folderSetup);
 	// TODO if is mounted
-	await unmount (folderSetup);
+	if (await isMounted(folderSetup)){
+		await unmount (folderSetup);
+	}
 	try {
 		if (await mountAufs(folderStack, folderSetup, ['suid'])) {
 			let setup = await spawnPrivileged('bash', [path.join(SCRIPT, 'setup.sh'), folderSetup]);
@@ -334,6 +336,7 @@ async function mountSetupCourse(courseId, imageInfo) {
 	let mount = false;
 	// TODO get image info
 	let folderCourse = path.join(COURSE, courseId);
+	await fs.mkdirs(folderCourse);
 	let folderStack = [folderCourse, ...await serverStack(imageInfo)];
 	let folderSetupCourse = path.join(SETUP_COURSE, courseId);
 	if (await mountAufs(folderStack, folderSetupCourse, ['suid'])) {
@@ -349,12 +352,15 @@ async function mountSetupCourse(courseId, imageInfo) {
 async function unmountSetupCourse(courseId) {
 	let folderSetupCourse = path.join(SETUP_COURSE, courseId);
 	// umount /proc
-	await spawnPrivileged('mount', [path.join(folderSetupCourse, 'proc')]);
+	await unmount(path.join(folderSetupCourse, 'proc'));
 	return await unmount(folderSetupCourse);
 }
 
-async function setupCourse(courseId, imageInfo, cmd = 'bash', cols = 80, rows = 24) {
-	// TODO get image info
+async function setupCourse(courseId, imageInfo, userList, emitString ,cmd = 'bash', cols = 80, rows = 24) {
+	if (!imageInfo) {
+		debug('mount root fs using default image id ' + defaultImage.id);
+		imageInfo = defaultImage;
+	}
 	if (await mountSetupCourse(courseId, imageInfo)) {
 		let folderSetupCourse = path.join(SETUP_COURSE, courseId);
 		let command = 'chroot';
@@ -371,8 +377,22 @@ async function setupCourse(courseId, imageInfo, cmd = 'bash', cols = 80, rows = 
 			USERNAME: 'pi'
 		});
 		run.on('exit', async function(exitCode) {
+			let toSend = {t:'s', a:'c', b:courseId};
+			userList.emit(emitString, toSend);
+
 			debug('setup course ' + exitCode);
 			await unmountSetupCourse(courseId);
+		});
+		run.on('data', function(data){
+			let toSend = {t:'s', a:'k', b:courseId, c:data};
+			userList.emit(emitString, toSend);
+		});
+		run.on ('error', function (error)
+		{
+			if (error.message.indexOf ('EIO') === -1)
+			{
+				console.log ('SHELL '+error.message);
+			}
 		});
 		return run;
 	} else {
@@ -388,7 +408,7 @@ async function mountRootFs(boardId, userId, courseId, imageInfo) {
 		imageInfo = defaultImage;
 	}
 	if (userId && courseId) {
-		let folderRoot = path.join(USER, userId, courseId);
+		let folderRoot = path.join(USER, courseId, userId);
 		let folderCourse = path.join(COURSE, courseId);
 		let folderStack = [folderRoot, folderCourse, ...await serverStack(imageInfo)];
 		let folderRootFs = path.join(ROOT_FS, boardId);
@@ -422,8 +442,12 @@ async function unmountRootFs(boardId) {
 	let folderRamFs = path.join(RAM_FS, boardId);
 	let folderRootFs = path.join(ROOT_FS, boardId);
 	// umount /proc
-	await unmount(folderRootFs);
-	await unmount(folderRamFs);
+	if (isMounted(folderRootFs)){
+		await unmount(folderRootFs);
+	}
+	if (isMounted(folderRamFs)){
+		await unmount(folderRamFs);
+	}
 	// TODO modify this
 	return true;
 }
@@ -639,7 +663,7 @@ async function pathUser (userId, write = false)
 		await fs.mkdirs (folder);
 		if (!await fs.exists (path.join (HOME, '.profile'))) 
 		{
-			await setupUser ();
+			await setupUser (userId);
 		}
 		// TODO is recursive useful?
 		await spawnPrivileged ('chown', ['-R', '1000:1000', folder]);

@@ -76,6 +76,10 @@ function findByCourseId(courseId) {
 	return Course.findOne({ courseId: courseId }).lean();
 }
 
+function findByCourseIdAndTeacher(courseId, teacherId) {
+	return Course.findOne({ courseId: courseId ,teachers : teacherId}).lean();
+}
+
 function findByName(courseName) {
 	return Course.findOne({ name: courseName });
 }
@@ -170,7 +174,8 @@ var course = {
 	deleteTeacher,
 	deleteByCourseId,
 	findByStudentId,
-	findByCourseIdAndStudentId
+	findByCourseIdAndStudentId,
+	findByCourseIdAndTeacher
 };
 
 module.exports = course;
