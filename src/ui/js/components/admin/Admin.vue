@@ -12,7 +12,7 @@
 			<div class="navbar-toggler hidden-sm-up close-area collapsed" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation"></div>
 			<div class="collapse navbar-collapse no-transition navbar-toggleable-xs" id="navbarResponsive">
 				<div class="nav navbar-nav nav-switch mr-auto" ></div>
-				<div class="nav navbar-nav nav-btns" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false">
+				<div class="nav navbar-nav nav-btns">
 					<div style="float: left">
 						<div class="my-boards left">
 							<router-link to="/" :class="{'active':activeDashboard}" exact>
