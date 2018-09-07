@@ -67,3 +67,9 @@ database/homes/
 
 # the build folder
 build/
+
+# THIS SHOULD BE REMOVED LATER
+docs/
+
+# Local session tokens
+tokens.json

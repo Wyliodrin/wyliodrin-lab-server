@@ -81,20 +81,20 @@ function findByCourseIdAndTeacher(courseId, teacherId) {
 }
 
 function findByName(courseName) {
-	return Course.findOne({ name: courseName });
+	return Course.findOne({ name: courseName }).lean();
 }
 
 function addStudent(courseId, studentId) {
-	return Course.findOneAndUpdate({ courseId: courseId, teachers: { $ne: studentId } }, { $addToSet: { students: studentId } });
+	return Course.findOneAndUpdate({ courseId: courseId, teachers: { $ne: studentId } }, { $addToSet: { students: studentId } }).lean();
 }
 
 function addTeacher(courseId, teacherId) {
-	return Course.findOneAndUpdate({ courseId: courseId, students: { $ne: teacherId } }, { $addToSet: { teachers: teacherId } });
+	return Course.findOneAndUpdate({ courseId: courseId, students: { $ne: teacherId } }, { $addToSet: { teachers: teacherId } }).lean();
 }
 
 async function deleteStudent(courseId, studentId) {
 	try {
-		var course = await Course.findOne({ courseId });
+		var course = await Course.findOne({ courseId }).lean();
 	} catch (err) {
 		debug(err);
 		throw new Error('Got error querying database', err);
@@ -114,7 +114,7 @@ async function deleteStudent(courseId, studentId) {
 
 async function deleteTeacher(courseId, teacherId) {
 	try {
-		var course = await Course.findOne({ courseId });
+		var course = await Course.findOne({ courseId }).lean();
 	} catch (err) {
 		debug(err);
 		throw new Error('Got error querying database', err);
@@ -142,7 +142,7 @@ function listAllCourses() {
 
 async function getUserRole(courseId, userId) {
 	try {
-		var course = await findByCourseId(courseId);
+		var course = await findByCourseId(courseId).lean();
 	} catch (err) {
 		debug(err);
 		throw new Error('Problem querying database', err);
@@ -159,7 +159,7 @@ function findByStudentId(studentId) {
 }
 
 function findByCourseIdAndStudentId(courseId, studentId) {
-	return Course.findOne({ $and: [{ courseId: courseId }, { $or: [{ students: studentId }, { open: true }] }] });
+	return Course.findOne({ $and: [{ courseId: courseId }, { $or: [{ students: studentId }, { open: true }] }] }).lean();
 }
 
 var course = {

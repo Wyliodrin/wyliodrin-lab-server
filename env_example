@@ -15,3 +15,6 @@ DEBUG=
 
 # Port in use. Default is 3000
 PORT=
+
+# Default file location for session tokens
+LOCAL_TOKENS=

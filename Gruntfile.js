@@ -87,7 +87,7 @@ module.exports = function(grunt) {
 		},
 		eslint: {
 			gruntfile: 'Gruntfile.js',
-			server: ['src/server/**/*.js', '!src/server/server-tftp/**/*.js'],
+			server: ['src/server/**/*.js', '!src/server/server-tftp/**/*.js', '!src/server/app.js'],
 			ui: ['src/ui/**/*.js', 'src/ui/**/*.vue']
 		}
 	};

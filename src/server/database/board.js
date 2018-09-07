@@ -80,9 +80,8 @@ function boardStatus(boardId, status) {
 	return Board.findOneAndUpdate({ boardId }, { $set: { status: status }, lastInfo: Date.now() }, { upsert: true, new: true }).lean();
 }
 
-function resetComand (boardId)
-{
-	return Board.findOneAndUpdate ({boardId}, {$set: {command: null}}).lean();
+function resetCommand(boardId) {
+	return Board.findOneAndUpdate({ boardId }, { $set: { command: null } }).lean();
 }
 
 
@@ -90,12 +89,8 @@ function findByBoardId(boardId) {
 	return Board.findOne({ boardId: boardId }).lean();
 }
 
-// function findBySerial(boardSerial) {
-// 	return Board.findOne({ serial: boardSerial });
-// }
-
 function findByUserId(userId) {
-	return Board.findOne({ userId: userId });
+	return Board.findOne({ userId: userId }).lean();
 }
 
 function findByUserIdAndBoardId(userId, boardId) {
@@ -103,11 +98,11 @@ function findByUserIdAndBoardId(userId, boardId) {
 }
 
 function assignUserToBoard(boardId, userId) {
-	return Board.findOneAndUpdate({ boardId: boardId }, { userId: userId });
+	return Board.findOneAndUpdate({ boardId: boardId }, { userId: userId }).lean();
 }
 
 function assignCourseToBoard(boardId, courseId) {
-	return Board.findOneAndUpdate({ boardId: boardId }, { courseId: courseId });
+	return Board.findOneAndUpdate({ boardId: boardId }, { courseId: courseId }).lean();
 }
 
 function assignCourseAndUser(boardId, userId, courseId) {
@@ -122,19 +117,23 @@ function issueCommand(boardId, command) {
 	return Board.findOneAndUpdate({ boardId }, { $set: { command: command }, lastInfo: Date.now() }, { upsert: true, new: true }).lean();
 }
 
+function listBoards() {
+	return Board.find().lean();
+}
+
 var board = {
 	createBoard,
 	findByBoardId,
-	// findBySerial,
 	boardStatus,
-	resetComand,
+	resetCommand,
 	findByUserId,
 	issueCommand,
 	assignUserToBoard,
 	assignCourseToBoard,
 	assignCourseAndUser,
 	unsetCourseAndUser,
-	findByUserIdAndBoardId
+	findByUserIdAndBoardId,
+	listBoards
 };
 
 module.exports = board;
