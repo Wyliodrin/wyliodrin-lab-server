@@ -46,6 +46,7 @@ adminApp.post('/add', async function(req, res, next) {
 		e = error.serverError(err);
 		return next(e);
 	}
+	//TODO: Send back the course 
 	res.status(200).send({ err: 0 });
 });
 
@@ -61,6 +62,8 @@ adminApp.post('/remove', async function(req, res, next) {
 	}
 	res.status(200).send({ err: 0 });
 });
+
+//TODO: Make a /courses/update
 
 adminApp.get('/get/:courseId', async function(req, res, next) {
 	var e;

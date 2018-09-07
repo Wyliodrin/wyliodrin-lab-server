@@ -89,20 +89,16 @@ function findByBoardId(boardId) {
 	return Board.findOne({ boardId: boardId }).lean();
 }
 
-// function findBySerial(boardSerial) {
-// 	return Board.findOne({ serial: boardSerial });
-// }
-
 function findByUserId(userId) {
-	return Board.findOne({ userId: userId });
+	return Board.findOne({ userId: userId }).lean();
 }
 
 function assignUserToBoard(boardId, userId) {
-	return Board.findOneAndUpdate({ boardId: boardId }, { userId: userId });
+	return Board.findOneAndUpdate({ boardId: boardId }, { userId: userId }).lean();
 }
 
 function assignCourseToBoard(boardId, courseId) {
-	return Board.findOneAndUpdate({ boardId: boardId }, { courseId: courseId });
+	return Board.findOneAndUpdate({ boardId: boardId }, { courseId: courseId }).lean();
 }
 
 function assignCourseAndUser(boardId, userId, courseId) {
@@ -124,7 +120,6 @@ function listBoards() {
 var board = {
 	createBoard,
 	findByBoardId,
-	// findBySerial,
 	boardStatus,
 	resetCommand,
 	findByUserId,

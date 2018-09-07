@@ -53,7 +53,7 @@ app.get('/', function(req, res) {
 
 app.use(function(err, req, res, next) {
 	if (err.status) {
-		if (err.status == statusCodes.INTERNAL_SERVER_ERROR) {
+		if (err.status === statusCodes.INTERNAL_SERVER_ERROR) {
 			error.sendError(res, error.serverError('Something went wrong with your request. Try again later!'));
 			console.error(err);
 		} else {

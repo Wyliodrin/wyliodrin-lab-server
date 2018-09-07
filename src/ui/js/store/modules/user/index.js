@@ -1,109 +1,84 @@
-var Vue = require ('vue');
-var setup = require ('../../setup.js');
+var Vue = require('vue');
+var setup = require('../../setup.js');
 
 var KEY_TOKEN = 'wyliodrin.token';
 Vue.http.interceptors.push(function(request, next) {
-	if (window.localStorage.getItem (KEY_TOKEN))
-	{
-		request.headers.set('Authorization', 'Bearer '+window.localStorage.getItem (KEY_TOKEN));
+	if (window.localStorage.getItem(KEY_TOKEN)) {
+		request.headers.set('Authorization', 'Bearer ' + window.localStorage.getItem(KEY_TOKEN));
 	}
 	next();
 });
 
-module.exports ={
+module.exports = {
 	namespaced: true,
 	state: {
-		token: window.localStorage.getItem (KEY_TOKEN),
+		token: window.localStorage.getItem(KEY_TOKEN),
 		role: null,
 		user: null,
 		userById: null,
 		users: null
 	},
 	getters: {
-		token (state)
-		{
+		token(state) {
 			return state.token;
 		},
-		role (state)
-		{
+		role(state) {
 			return state.role;
 		},
-		isLoggedIn (state)
-		{
+		isLoggedIn(state) {
 			return state.token && state.token !== '';
 		},
-		user (state)
-		{
+		user(state) {
 			return state.user;
 		},
-		userById (state)
-		{
+		userById(state) {
 			return state.userById;
 		},
-		users (state)
-		{
+		users(state) {
 			return state.users;
 		}
 	},
 	actions: {
-		async login (store, credentials)
-		{
-			try
-			{
-				let response = await Vue.http.post (setup.API+'/user/login', credentials);
+		async login(store, credentials) {
+			try {
+				let response = await Vue.http.post(setup.API + '/users/login', credentials);
 				console.log(response.data.role);
 				if (response.data.token) {
-					store.commit ('token', response.data.token);
-					store.commit ('role', response.data.role);
+					store.commit('token', response.data.token);
+					store.commit('role', response.data.role);
 				}
 				return true;
-			}
-			catch (e)
-			{
-				console.log ('Login fail '+e);
+			} catch (e) {
+				console.log('Login fail ' + e);
 				return false;
 			}
 		},
-		async logout (store)
-		{
-			try
-			{
-				let response = await Vue.http.get (setup.API+'/user/logout');
-				store.commit ('token', null);
-				if (response.data.err === 0)
-				{
+		async logout(store) {
+			try {
+				let response = await Vue.http.get(setup.API + '/users/logout');
+				store.commit('token', null);
+				if (response.data.err === 0) {
 					return true;
-				}
-				else
-				{
+				} else {
 					return false;
 				}
-			}
-			catch (e)
-			{
-				console.log ('Logout fail '+e);
+			} catch (e) {
+				console.log('Logout fail ' + e);
 				return false;
 			}
 		},
-		async getAllUsers (store)
-		{
-			try
-			{
-				let response = await Vue.http.get (setup.API+'/admin/list_users');
-				if (response.data.err === 0)
-				{
+		async getAllUsers(store) {
+			try {
+				let response = await Vue.http.get(setup.API + '/users/list');
+				if (response.data.err === 0) {
 					console.log(response.data.users);
-					store.commit ('users', response.data.users);
+					store.commit('users', response.data.users);
 					return true;
-				}
-				else 
-				{
+				} else {
 					return false;
 				}
-			}
-			catch (e)
-			{
-				console.log('Getting all users fail '+e);
+			} catch (e) {
+				console.log('Getting all users fail ' + e);
 				console.log(e);
 				return false;
 			}
@@ -125,54 +100,40 @@ module.exports ={
 		// 		return false;
 		// 	}
 		// },
-		async addUser (store, user)
-		{
+		async addUser(store, user) {
 			console.log(user);
-			try
-			{
-				let response = await Vue.http.post (setup.API+'/admin/create_user', user);
-				if (response.data.err === 0)
-				{
-					await store.dispatch ('getAllUsers');
+			try {
+				let response = await Vue.http.post(setup.API + '/users/create', user);
+				if (response.data.err === 0) {
+					await store.dispatch('getAllUsers');
 					return true;
-				} else 
+				} else
 					return false;
-			} 
-			catch (e) 
-			{
+			} catch (e) {
 				return false;
 			}
 		},
-		async adminUserEdit (store, user)
-		{
-			try 
-			{
-				let response = await Vue.http.post (setup.API+'/admin/update_user', user);
-				if (response.data.err === 0)
-				{
-					await store.dispatch ('getAllUsers');
+		async adminUserEdit(store, user) {
+			try {
+				let response = await Vue.http.post(setup.API + '/users/update', user);
+				if (response.data.err === 0) {
+					await store.dispatch('getAllUsers');
 					return true;
-				} else 
+				} else
 					return false;
-			}
-			catch (e)
-			{
+			} catch (e) {
 				return false;
 			}
 		},
-		async getUser (store, userId)
-		{
-			try
-			{
-				let response = await Vue.http.get (setup.API +'/admin/get_user/' + userId);
+		async getUser(store, userId) {
+			try {
+				let response = await Vue.http.get(setup.API + '/users/get/' + userId);
 				if (response.data.err === 0) {
 					console.log(response.data.user);
 					return response.data.user;
 				}
 				return false;
-			}
-			catch (e)
-			{
+			} catch (e) {
 				return false;
 			}
 		}
@@ -198,35 +159,26 @@ module.exports ={
 		// 	}
 		// }
 	},
-	mutations: 
-	{
-		token (state, value)
-		{
-			if (value !== null)
-			{
-				window.localStorage.setItem (KEY_TOKEN, value);
+	mutations: {
+		token(state, value) {
+			if (value !== null) {
+				window.localStorage.setItem(KEY_TOKEN, value);
 				state.token = value;
-			}
-			else
-			{
-				window.localStorage.removeItem (KEY_TOKEN);
+			} else {
+				window.localStorage.removeItem(KEY_TOKEN);
 				state.token = undefined;
 			}
 		},
-		role (state, value)
-		{
+		role(state, value) {
 			state.role = value;
 		},
-		user (state, value)
-		{
+		user(state, value) {
 			state.user = value;
 		},
-		userById (state, value)
-		{
+		userById(state, value) {
 			state.userById = value;
 		},
-		users (state, value)
-		{
+		users(state, value) {
 			state.users = value;
 		}
 	}

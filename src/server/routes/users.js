@@ -5,17 +5,33 @@ var debug = require('debug')('wyliodrin-lab-server:user-routes');
 var uuid = require('uuid');
 var db = require('../database/database.js');
 var error = require('../error.js');
+var fs = require('fs-extra');
 var publicApp = express.Router();
 var privateApp = express.Router();
 var adminApp = express.Router();
 
 debug.log = console.info.bind(console);
 
+var localTokens = process.env.LOCAL_TOKENS;
+
+var tokens = {};
+
 function createToken() {
 	return uuid.v4() + uuid.v4() + uuid.v4() + uuid.v4();
 }
 
-var tokens = {};
+async function initTokens() {
+
+	await fs.ensureFile(localTokens);
+	tokens = JSON.parse(fs.readFileSync('tokens.json', 'utf8'));
+}
+
+initTokens();
+
+function updateLocalTokens() {
+	var out = JSON.stringify(tokens);
+	fs.writeFile(localTokens, out);
+}
 
 publicApp.post('/login', async function(req, res, next) {
 	var e;
@@ -28,6 +44,7 @@ publicApp.post('/login', async function(req, res, next) {
 			debug('Found user ' + user);
 			var token = createToken();
 			tokens[token] = user.userId;
+			updateLocalTokens();
 			debug('User ' + user.username + ':' + user.userId + ' logged in');
 
 			try {
@@ -112,6 +129,8 @@ privateApp.get('/info', async function(req, res) {
 	debug('User: ' + req.user.userId + 'requested /');
 	let user = await db.user.findByUserId(req.user.userId);
 	delete user.password;
+	delete user._id;
+	delete user.__v;
 	res.status(200).send({ err: 0, user });
 });
 
@@ -145,55 +164,52 @@ privateApp.post('/password/edit', async function(req, res, next) {
 privateApp.get('/logout', function(req, res) {
 	delete tokens[req.token];
 	debug(req.user.userId + ' logged out');
+	updateLocalTokens();
 	res.status(200).send({ err: 0 });
 });
-
 
 privateApp.post('/connect', async function(req, res, next) {
 	var e;
 	var courseId = req.body.courseId;
 	var boardId = req.body.boardId;
 	var userId = req.user.userId;
-	debug('CourseId:', courseId);
-	debug('boardId:', boardId);
 	if (!courseId || !boardId) {
 		e = error.badRequest('Request must contain course ID and board ID');
 		next(e);
-	}
-	try {
-		var board = await db.board.findByBoardId(boardId);
-		var course = await db.course.findByCourseIdAndStudentId(courseId, userId);
-	} catch (err) {
-		e = error.serverError(err);
-		return next(e);
-	}
-	if (!course) {
-		e = error.badRequest('Invalid course or user ID');
-		return next(e);
-	}
-	if (!board) {
-		e = error.badRequest('Invalid board ID');
-		return next(e);
-	}
+	} else {
+		try {
+			var board = await db.board.findByBoardId(boardId);
+			var course = await db.course.findByCourseIdAndStudentId(courseId, userId);
+		} catch (err) {
+			e = error.serverError(err);
+			next(e);
+		}
+		if (board && course) {
+			if (typeof(board.userId) === 'undefined' || (board.userId === userId)) {
 
-	if (board.userId && board.userId !== userId) {
-		e = error.unauthorized('Board already in use by other user');
-		return next(e);
-	}
+				if (typeof(board.courseId) === 'undefined' || (board.courseId === courseId)) {
+					try {
+						await db.board.assignCourseAndUser(boardId, userId, courseId);
+						res.status(200).send({ err: 0 });
 
-	if (board.courseId && board.courseId !== courseId) {
-		e = error.unauthorized('Board is registered for another course');
-		return next(e);
-	}
+					} catch (err) {
+						e = error.serverError(err);
+						next(e);
+					}
 
-	try {
-		await db.board.assignCourseAndUser(boardId, userId, courseId);
-	} catch (err) {
-		e = error.serverError(err);
-		return next(e);
+				} else {
+					e = error.unauthorized('Board assigned to another course');
+					next(e);
+				}
+			} else {
+				e = error.unauthorized('Board assigned to another user');
+				next(e);
+			}
+		} else {
+			e = error.badRequest('Invalid course or board ID');
+			next(e);
+		}
 	}
-
-	res.status(200).send({ err: 0 });
 });
 
 privateApp.post('/disconnect', async function(req, res, next) {
@@ -201,31 +217,28 @@ privateApp.post('/disconnect', async function(req, res, next) {
 	var userId = req.user.userId;
 	try {
 		var board = await db.board.findByUserId(userId);
-		console.log(board);
 		var course = await db.course.findByCourseIdAndStudentId(board.courseId, userId);
-		console.log(course);
 	} catch (err) {
 		e = error.serverError(err);
-		return next(e);
+		next(e);
 	}
-	if (!board) {
-		e = error.notAcceptable('User is not connected to a board');
-		return next(e);
+	if (board) {
+		if (course) {
+			try {
+				await db.board.unsetCourseAndUser(board.boardId);
+				res.status(200).send({ err: 0 });
+			} catch (err) {
+				e = error.serverError(err);
+				next(e);
+			}
+		} else {
+			e = error.badRequest('Invalid user or course ID');
+			next(e);
+		}
+	} else {
+		e = error.badRequest('User is not connected to a board');
+		next(e);
 	}
-	if (!course) {
-		e = error.notAcceptable('Invalid user or course ID');
-		return next(e);
-	}
-
-	try {
-		var out = await db.board.unsetCourseAndUser(board.boardId);
-		debug(out);
-	} catch (err) {
-		e = error.serverError(err);
-		return next(e);
-	}
-	res.status(200).send({ err: 0 });
-
 });
 
 adminApp.post('/update', async function(req, res, next) {
@@ -240,24 +253,24 @@ adminApp.post('/update', async function(req, res, next) {
 
 	try {
 		await db.user.edit(userId, username, password, email, firstName, lastName, role);
+		res.status(200).send({ err: 0 });
 	} catch (err) {
 		debug(err);
 		e = error.serverError(err);
-		return next(e);
+		next(e);
 	}
-	res.status(200).send({ err: 0 });
 });
 
 adminApp.get('/list', async function(req, res, next) {
 	var e;
 	try {
 		var users = await db.user.listUsers();
+		res.status(200).send({ err: 0, users });
 	} catch (err) {
 		debug('Error listing users');
 		e = error.serverError(err);
-		return next(e);
+		next(e);
 	}
-	res.status(200).send({ err: 0, users });
 });
 
 // adminApp.get('/find/:partOfName', async function(req, res, next) {
@@ -278,7 +291,7 @@ adminApp.get('/get/:userId', async function(req, res, next) {
 	} catch (err) {
 		debug(err);
 		e = error.serverError(err);
-		return next(e);
+		next(e);
 	}
 	if (user) {
 		delete user.password;
@@ -341,12 +354,12 @@ adminApp.post('/delete', async function(req, res, next) {
 	var userId = req.body.userId;
 	try {
 		await db.user.deleteByUserId(userId);
+		res.status(200).send({ err: 0 });
 	} catch (err) {
 		debug(err);
 		e = error.serverError();
-		return next(e);
+		next(e);
 	}
-	res.status(200).send({ err: 0 });
 });
 
 module.exports.publicRoutes = publicApp;
