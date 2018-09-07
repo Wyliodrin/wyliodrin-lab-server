@@ -12,7 +12,7 @@ var adminApp = express.Router();
 
 debug.log = console.info.bind(console);
 
-var localTokens = process.env.LOCAL_TOKENS;
+var localTokens = process.env.LOCAL_TOKENS || __dirname + './local_tokens.json';
 
 var tokens = {};
 
@@ -23,7 +23,7 @@ function createToken() {
 async function initTokens() {
 
 	await fs.ensureFile(localTokens);
-	tokens = JSON.parse(fs.readFileSync('tokens.json', 'utf8'));
+	tokens = JSON.parse(fs.readFileSync(localTokens, 'utf8'));
 }
 
 initTokens();
