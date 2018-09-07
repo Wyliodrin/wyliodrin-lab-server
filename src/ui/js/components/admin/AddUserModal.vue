@@ -29,7 +29,9 @@
 			<div class="input-group-prepend">
 				<span class="input-group-text" id="inputGroup-sizing-default">Role</span>
 			</div>
-			<input type="text" class="form-control" aria-label="Name" v-model="role">
+			<select name="platform" class="custom-select" v-model="role">
+				<option v-for="role in ROLES" :key="role.name" :value="role.name">{{role.title}}</option>
+			</select>
 		</div>
 		<div class="input-group mb-3">
 			<div class="input-group-prepend">
@@ -48,7 +50,7 @@
 
 <script>
 
-// var mapGetters = require('vuex').mapGetters;
+var mapGetters = require('vuex').mapGetters;
 
 module.exports = {
 	name: 'AddUserModal',
@@ -59,7 +61,7 @@ module.exports = {
 			firstName: '',
 			lastName: '',
 			email: '',
-			role: '',
+			role: 'user',
 			password: '',
 			retypePassword: ''
 		};
@@ -85,6 +87,9 @@ module.exports = {
 					return false;
 			}
 		}
-	}
+	},
+	computed: mapGetters ({
+		ROLES: 'settings/ROLES'
+	})
 };
 </script>
