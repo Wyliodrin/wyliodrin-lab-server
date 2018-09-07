@@ -23,7 +23,7 @@ function createToken() {
 async function initTokens() {
 
 	await fs.ensureFile(localTokens);
-	tokens = JSON.parse(fs.readFileSync('tokens.json', 'utf8'));
+	tokens = JSON.parse(fs.readFileSync(localTokens, 'utf8'));
 }
 
 initTokens();
