@@ -4,9 +4,23 @@ module.exports = {
 		DASHBOARD: '/dashboard.html',
 		ADMIN: '/admin.html',
 		LOGIN: '/login.html',
-		LAB: '/lab.html'
+		LAB: '/lab.html',
+		ROLES: [
+			{
+				name: 'user',
+				title: 'User'
+			},
+			{
+				name: 'admin',
+				title: 'Administrator'
+			}
+		]
 	},
 	getters: {
+		ROLES (state)
+		{
+			return state.ROLES;
+		}
 	},
 	actions: {
 		redirect (store, application)

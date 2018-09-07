@@ -141,7 +141,7 @@ module.exports = {
 		{
 			try
 			{
-				let response = await Vue.http.get (setup.API+'/user');
+				let response = await Vue.http.get (setup.API+'/users/info');
 				if (response.data.err === 0)
 				{
 					store.commit ('user', response.data.user);

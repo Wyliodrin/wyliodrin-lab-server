@@ -52,12 +52,7 @@ module.exports = {
 		},
 		editUser (index) {
 			Vue.bootbox.dialog (EditUserModal, {
-				'userId': this.users[index].userId,
-				'username': this.users[index].username,
-				'firstName': this.users[index].firstName,
-				'lastName': this.users[index].lastName,
-				'email': this.users[index].email,
-				'role': this.users[index].role
+				user: this.users[index]
 			}, {
 				title: 'Edit user '+this.users[index].username,
 				buttons: {

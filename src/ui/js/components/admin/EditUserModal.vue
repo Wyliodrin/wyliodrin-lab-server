@@ -5,31 +5,33 @@
 			<div class="input-group-prepend">
 				<span class="input-group-text" id="inputGroup-sizing-default">Username</span>
 			</div>
-			<input type="text" class="form-control" aria-label="Name" v-model="inputUsername">
+			<input type="text" class="form-control" aria-label="Name" v-model="userEdit.username">
 		</div>
 		<div class="input-group mb-3">
 			<div class="input-group-prepend">
 				<span class="input-group-text" id="inputGroup-sizing-default">First Name</span>
 			</div>
-			<input type="text" class="form-control" aria-label="Name" v-model="inputFirstName">
+			<input type="text" class="form-control" aria-label="Name" v-model="userEdit.firstName">
 		</div>
 		<div class="input-group mb-3">
 			<div class="input-group-prepend">
 				<span class="input-group-text" id="inputGroup-sizing-default">Last Name</span>
 			</div>
-			<input type="text" class="form-control" aria-label="Name" v-model="inputLastName">
+			<input type="text" class="form-control" aria-label="Name" v-model="userEdit.lastName">
 		</div>
 		<div class="input-group mb-3">
 			<div class="input-group-prepend">
 				<span class="input-group-text" id="inputGroup-sizing-default">Email</span>
 			</div>
-			<input type="text" class="form-control" aria-label="Name" v-model="inputEmail">
+			<input type="text" class="form-control" aria-label="Name" v-model="userEdit.email">
 		</div>
 		<div class="input-group mb-3">
 			<div class="input-group-prepend">
 				<span class="input-group-text" id="inputGroup-sizing-default">Role</span>
 			</div>
-			<input type="text" class="form-control" aria-label="Name" v-model="inputRole">
+			<select name="platform" class="custom-select" v-model="userEdit.role">
+				<option v-for="role in ROLES" :key="role.name" :value="role.name">{{role.title}}</option>
+			</select>
 		</div>
 		<div class="input-group mb-3">
 			<div class="input-group-prepend">
@@ -48,18 +50,15 @@
 
 <script>
 
-// var mapGetters = require('vuex').mapGetters;
+var mapGetters = require('vuex').mapGetters;
+var _ = require ('lodash');
 
 module.exports = {
 	name: 'EditUserModal',
-	props: ['dialog', 'userId', 'username', 'firstName', 'lastName', 'email', 'role'],
+	props: ['dialog', 'user'],
 	data () {
 		return {
-			inputUsername: this.username,
-			inputFirstName: this.firstName,
-			inputLastName: this.lastName,
-			inputEmail: this.email,
-			inputRole: this.role,
+			userEdit: _.cloneDeep (this.user),
 			inputPassword: '',
 			inputRetypePassword: ''
 		};
@@ -71,30 +70,11 @@ module.exports = {
 			if (this.inputPassword != this.inputRetypePassword)
 				window.alert('Passwords do not match');
 			else {
-				let toBeModifiedUser;
-
 				if (this.inputPassword) {
-					toBeModifiedUser = {
-						username: this.inputUsername,
-						firstName: this.inputFirstName,
-						lastName: this.inputLastName,
-						email: this.inputEmail,
-						role: this.inputRole,
-						password: this.inputPassword,
-						userId: this.userId
-					};
-				} else {
-					toBeModifiedUser = {
-						username: this.inputUsername,
-						firstName: this.inputFirstName,
-						lastName: this.inputLastName,
-						email: this.inputEmail,
-						role: this.inputRole,
-						userId: this.userId
-					};
-				}
+					this.userEdit.password = this.inputPassword;
+				} 
 
-				let newUser = Object.assign({}, toBeModifiedUser);
+				let newUser = Object.assign({}, this.userEdit);
 				console.log(newUser);
 				// console.log(this);
 				let res = await this.$store.dispatch ('user/adminUserEdit', newUser);
@@ -104,6 +84,9 @@ module.exports = {
 					return false;
 			}
 		}
-	}
+	},
+	computed: mapGetters ({
+		ROLES: 'settings/ROLES'
+	})
 };
 </script>
