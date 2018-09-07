@@ -12,7 +12,7 @@ var adminApp = express.Router();
 
 debug.log = console.info.bind(console);
 
-var localTokens = process.env.LOCAL_TOKENS;
+var localTokens = process.env.LOCAL_TOKENS || __dirname + './local_tokens.json';
 
 var tokens = {};
 
