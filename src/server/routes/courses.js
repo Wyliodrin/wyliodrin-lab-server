@@ -123,7 +123,7 @@ adminApp.post('/teachers/add', async function(req, res, next) {
 	var teacherId = req.body.teacherId;
 	var courseId = req.body.courseId;
 	try {
-		var user = await db.user.findByUserId(courseId);
+		var user = await db.user.findByUserId(teacherId);
 		if (!user) {
 			e = error.badRequest('Invalid teacher ID');
 			return next(e);
