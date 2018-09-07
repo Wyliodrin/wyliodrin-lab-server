@@ -2,15 +2,31 @@
 	<div>
 		<!-- Modalul pentru adaugarea unui student la un curs in tabul de editare curs -->
 		<p>Selecteaza un user pentru a-l adauga: </p>
-		<div class="dropdown">
+		<input type="text" v-model="search">
+		<br>
+		<table border="1">
+			<tr>
+				<th>Name</th>
+				<th>Username</th>
+				<th>Actions</th>
+			</tr>
+			<tr v-for="user in filteredUsers" :key="user.userId">
+				<td>{{user.firstName+' '+user.lastName}}</td>
+				<td>{{user.username}}</td>
+				<td>
+					<a v-tooltip data-toggle="tooltip" data-placement="top" title="Add Student"><img src="img/icons/add.png"></a>
+				</td>
+			</tr>
+		</table>
+		<!-- <div class="dropdown">
 			<button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 				{{displayedUserName}}
 			</button>
 			<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-				<a class="dropdown-item" v-for="user in filteredUsers" :key="user.userId" 
+				<a class="dropdown-item"  
 					href="#" @click="selectUsername(user)">{{user.firstName + ' ' + user.lastName}}</a> 
 			</div>
-		</div>
+		</div> -->
 	</div>
 </template>
 

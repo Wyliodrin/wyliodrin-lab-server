@@ -1,18 +1,6 @@
 <template>
 	<!-- Asta e tabul de cursuri, in care sunt editate cursuri -->
-	<div>
-		<h2>Lista de cursuri</h2>
-		
-		<p>Selecteaza un curs: </p>
-		<div class="dropdown">
-			<button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-				{{courseName}}
-			</button>
-			<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-				<a class="dropdown-item" v-for="(item, index) in courses" :key="item.courseId" 
-					@click="selectCourse(index)" href="#">{{item.name}}</a> <!-- Aici e posibil :-? -->
-			</div>
-		</div>
+	<!--<div>
 
 		<table style="width:100%">
 			<tr>
@@ -50,6 +38,55 @@
 		</table>
 
 		<button @click="addCourse">Add new course</button>
+	</div>-->
+	<div class="content greybg w-100 d-flex flex-column h-top">
+			
+		<div class="content w-100 d-flex flex-row proj-bar">
+			<div class="content-top w-100 pt-2">
+				<div class="content-title float-left">
+					<span><img src="img/icons/course-48.png" class="mr-4">Couses</span>
+				</div>
+				<div class="btn-group submenu">
+					<button type="button" class="btn btn-secondary dropdown-toggle xs-submenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+						<img src="img/icons/submenu-icon.png">
+					</button>
+					<div class="dropdown-menu dropdown-menu-right">
+						<button @click="addCourse" class="projbar-btn"><img src="img/icons/add-icon-16.png"> New Course</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="content pt-4 pr-4 pl-4 d-flex flex-column w-100 h-100 rel">
+			<div class="d-flex h-100 justify-content-center align-items-center" v-if="courses === null">
+				<div>
+					<half-circle-spinner :animation-duration="1000" :size="120"/>
+				</div>
+			</div>
+			<table v-else class="table table-hover">
+				<thead>
+					<tr>
+						<th scope="col">Course
+							<a href="#" class="sort-by"></a></th>
+						<th scope="col" class="text-center">Students
+							<a href="#" class="sort-by"></a></th>
+						<!-- <th scope="col" class="text-center">Teachers
+							<a href="#" class="sort-by"></a></th> -->
+						<!-- <th scope="col" class="text-center">Iterations
+							<a href="#" class="sort-by"></a></th> -->
+						<th scope="col" class="text-center" style="width:130px">Actions</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr v-for="course in courses" :key="course.name" @click="linkCourse (course.courseId)" class="handpointer">
+						<td>{{course.name}}</td>
+						<td class="text-center">{{course.students.length}}</td>
+						<!-- <td class="text-center">{{latestVersion(application)}}</td> -->
+						<!-- <td class="text-center">17</td> -->
+						<td class="text-center" style="width:130px"><router-link :to="'/courses/'+course.courseId" class="iconbtn" v-tooltip data-toggle="tooltip" data-placement="top" title="View details"><img src="img/icons/view-16.png"></router-link></td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
 	</div>
 </template>
 
@@ -59,6 +96,7 @@ var AddCourseModal = require ('./AddCourseModal.vue');
 var AddStudentToCourseModal = require ('./AddStudentToCourseModal.vue');
 var AddTeacherToCourseModal = require ('./AddTeacherToCourseModal.vue');
 var EditCourseNameModal = require ('./EditCourseNameModal.vue');
+var HalfCircleSpinner = require ('epic-spinners/dist/lib/epic-spinners.min.js').HalfCircleSpinner;
 
 var mapGetters = require('vuex').mapGetters;
 module.exports = {
@@ -67,6 +105,9 @@ module.exports = {
 		return {
 			courseIndex: null
 		};
+	},
+	components: {
+		HalfCircleSpinner
 	},
 	methods: {
 		async getAllCourses () {
