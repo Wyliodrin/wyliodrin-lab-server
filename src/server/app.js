@@ -43,6 +43,10 @@ apiv1.use('/boards', boards.adminRoutes);
 apiv1.use('/courses', courses.adminRoutes);
 apiv1.use('/boards', boards.adminRoutes);
 
+apiv1.use (function (req, res) {
+	error.sendError (res, error.notFound ('Link not found'));
+});
+
 app.use('/api/v1', apiv1);
 
 app.use(express.static(path.join(__dirname, '../ui')));
@@ -51,7 +55,9 @@ app.get('/', function(req, res) {
 	res.redirect('/login.html');
 });
 
+/** */
 app.use(function(err, req, res, next) {
+	next;
 	if (err.status) {
 		if (err.status === statusCodes.INTERNAL_SERVER_ERROR) {
 			error.sendError(res, error.serverError('Something went wrong with your request. Try again later!'));

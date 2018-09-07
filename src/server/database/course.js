@@ -24,10 +24,14 @@ var courseSchema = mongoose.Schema({
 		unique: true
 	},
 	teachers: {
-		type: [String]
+		type: [String],
+		required: true,
+		default: [],
 	},
 	students: {
-		type: [String]
+		type: [String],
+		required: true,
+		default: []
 	},
 	imageId: {
 		type: String
