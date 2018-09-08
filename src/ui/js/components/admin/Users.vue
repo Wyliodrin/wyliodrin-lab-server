@@ -47,7 +47,7 @@
 		</div>
 		<div class="content pt-4 pr-4 pl-4 d-flex flex-column w-100 h-100 rel">
 			<input type="text" v-model="search" placeholder="search">
-			<div class="d-flex h-100 justify-content-center align-items-center" v-if="courses === null">
+			<div class="d-flex h-100 justify-content-center align-items-center" v-if="users === null">
 				<div>
 					<half-circle-spinner :animation-duration="1000" :size="120"/>
 				</div>
@@ -65,7 +65,7 @@
 							<a href="#" class="sort-by"></a></th>
 						<!-- <th scope="col" class="text-center">Iterations
 							<a href="#" class="sort-by"></a></th> -->
-						<th scope="col" class="text-center" style="width:130px">Actions</th>
+						<!-- <th scope="col" class="text-center" style="width:130px">Actions</th> -->
 					</tr>
 				</thead>
 				<tbody>
@@ -75,7 +75,7 @@
 						<td class="text-center">{{user.email}}</td>
 						<td class="text-center">{{user.role}}</td>
 						<!-- <td class="text-center">17</td> -->
-						<td class="text-center" style="width:130px"></td>
+						<!-- <td class="text-center" style="width:130px"></td> -->
 					</tr>
 				</tbody>
 			</table>
@@ -93,6 +93,8 @@ var mapGetters = require('vuex').mapGetters;
 
 var _ = require ('lodash');
 
+var HalfCircleSpinner = require ('epic-spinners/dist/lib/epic-spinners.min.js').HalfCircleSpinner;
+
 module.exports = {
 	name: 'Users',
 	data () {
@@ -103,6 +105,9 @@ module.exports = {
 	created () {
 		this.getAllUsers();
 	},
+	components: {
+		HalfCircleSpinner
+	},
 	methods: {
 		async getAllUsers () {
 			let recvUsers = await this.$store.dispatch ('user/getAllUsers');
@@ -110,22 +115,28 @@ module.exports = {
 			if (!recvUsers)
 				console.log('Could not get users...');
 		},
-		editUser (index) {
-			Vue.bootbox.dialog (EditUserModal, {
-				user: this.users[index]
-			}, {
-				title: 'Edit user '+this.users[index].username,
-				buttons: {
-					edit: {
-						label: 'Done',
-						className: 'wyliodrin-active'
-					},
-					back: {
-						label: 'Cancel',
-						className: 'wyliodrin-back'
-					}
-				}
+		editUser (userId) {
+			let user = _.find (this.users, function (user){
+				return user.userId === userId;
 			});
+			if (user)
+			{
+				Vue.bootbox.dialog (EditUserModal, {
+					user: user
+				}, {
+					title: 'Edit user '+user.username,
+					buttons: {
+						edit: {
+							label: 'Done',
+							className: 'wyliodrin-active'
+						},
+						back: {
+							label: 'Cancel',
+							className: 'wyliodrin-back'
+						}
+					}
+				});
+			}
 		},
 
 		addUser () {

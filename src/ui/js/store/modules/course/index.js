@@ -30,6 +30,7 @@ module.exports = {
 	actions: {
 		async listCourses(store) {
 			try {
+				store.commit('courses', null);
 				let response = await Vue.http.get(setup.API + '/courses/all');
 				if (response.data.err === 0) {
 					console.log(response.data.courses);
@@ -44,6 +45,7 @@ module.exports = {
 
 		async getCourse(store, courseId) {
 			try {
+				store.commit('course', null);
 				let response = await Vue.http.get(setup.API + '/courses/get/' + courseId);
 				if (response.data.err === 0) {
 					console.log(response.data.course);

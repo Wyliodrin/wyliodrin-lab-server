@@ -32,6 +32,7 @@ Vue.directive ('tooltip', {
 var Dashboard = require ('./components/admin/Dashboard.vue');
 var Users = require ('./components/admin/Users.vue');
 var Courses = require ('./components/admin/Courses.vue');
+var Course = require ('./components/admin/Course.vue');
 var Setup = require ('./components/admin/Setup.vue');
 var Boards = require ('./components/admin/Boards.vue');
 var RaspberryPi = require ('./components/admin/RaspberryPi.vue');
@@ -50,10 +51,10 @@ var router = new VueRouter ({
 			path: '/courses',
 			component: Courses
 		},
-		// {
-		// 	path: '/course/:courseId',
-		// 	component: Cluster
-		// },
+		{
+			path: '/courses/:courseId',
+			component: Course
+		},
 		{
 			path: '/raspberrypi',
 			component: RaspberryPi

@@ -206,6 +206,11 @@ module.exports = {
 				console.log('Could not delete student from course..');
 		},
 
+		linkCourse (cousreId)
+		{
+			this.$router.push ('/courses/'+cousreId);
+		},
+
 		addNewTeacher () {
 			Vue.bootbox.dialog (AddTeacherToCourseModal, {
 				courseId: this.course.courseId,

@@ -80,24 +80,24 @@ adminApp.get('/get/:courseId', async function(req, res, next) {
 		return next(e);
 	}
 
-	var finalCourse = {};
-	var students = [];
-	var teachers = [];
+	// var finalCourse = {};
+	// var students = [];
+	// var teachers = [];
 
-	for (var studentId of course.students) {
-		var student = await db.user.findByUserId(studentId);
-		students.push(student);
-	}
+	// for (var studentId of course.students) {
+	// 	var student = await db.user.findByUserId(studentId);
+	// 	students.push(student);
+	// }
 
-	for (var teacherId of course.teachers) {
-		var teacher = await db.user.findByUserId(teacherId);
-		teachers.push(teacher);
-	}
-	finalCourse.name = course.name;
-	finalCourse.students = students;
-	finalCourse.teachers = teachers;
-	finalCourse.courseId = courseId;
-	res.status(200).send({ err: 0, course: finalCourse });
+	// for (var teacherId of course.teachers) {
+	// 	var teacher = await db.user.findByUserId(teacherId);
+	// 	teachers.push(teacher);
+	// }
+	// finalCourse.name = course.name;
+	// finalCourse.students = students;
+	// finalCourse.teachers = teachers;
+	// finalCourse.courseId = courseId;
+	res.status(200).send({ err: 0, course });
 });
 
 adminApp.post('/teachers/remove', async function(req, res, next) {

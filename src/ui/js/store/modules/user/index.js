@@ -69,6 +69,7 @@ module.exports = {
 		},
 		async getAllUsers(store) {
 			try {
+				store.commit('users', null);
 				let response = await Vue.http.get(setup.API + '/users/list');
 				if (response.data.err === 0) {
 					console.log(response.data.users);
