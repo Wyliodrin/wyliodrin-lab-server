@@ -22,7 +22,7 @@
 					<button class="btn btn-login btn-block" name="Submit" value="Login" @click="login">Login</button>
 					<!-- <button class="btn btn-signup btn-block" value="Create account" @click="createAccount">Create account</button> -->
 					<!-- <button class="btn btn-signup btn-block" value="Create account" @click="requestDemo">Request demo account</button> -->
-					<a href="#" class="recoverpass" @click="recoverPassword">Forgot password</a>
+					<!-- <a href="#" class="recoverpass" @click="recoverPassword">Forgot password</a> -->
 				</div>
 			</div>
 			<!-- </form> -->

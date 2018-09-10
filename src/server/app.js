@@ -12,6 +12,7 @@ var projects = require('./routes/projects');
 var admin = require('./routes/admin');
 var boards = require('./routes/boards');
 var courses = require('./routes/courses');
+var images = require ('./routes/raspberrypi');
 var statusCodes = require('http-status-codes');
 
 debug.log = console.info.bind(console);
@@ -33,6 +34,7 @@ apiv1.use(users.security);
 
 apiv1.use('/boards', boards.privateRoutes);
 apiv1.use('/users', users.privateRoutes);
+apiv1.use('/images', images.privateRoutes);
 apiv1.use('/projects', projects.privateRoutes);
 apiv1.use('/courses', courses.privateRoutes);
 
@@ -40,6 +42,7 @@ apiv1.use(admin.adminSecurity);
 
 apiv1.use('/users', users.adminRoutes);
 apiv1.use('/boards', boards.adminRoutes);
+apiv1.use('/images', images.adminRoutes);
 apiv1.use('/courses', courses.adminRoutes);
 apiv1.use('/boards', boards.adminRoutes);
 
