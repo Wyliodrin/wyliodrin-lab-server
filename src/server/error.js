@@ -51,7 +51,7 @@ function mongoErrors(errors) {
 */
 
 process.on('uncaughtException', function(ex) {
-	debug('Uncaught Exception', { exception: ex });
+	console.log('Uncaught Exception', { exception: ex });
 	process.nextTick(function() {
 		process.exit(1);
 	});

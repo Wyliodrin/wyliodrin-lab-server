@@ -36,9 +36,9 @@
 							</router-link>
 						</div>
 						<div class="my-boards left">
-							<router-link to="/raspberrypi" :class="{'active':activeRaspberryPi}">
+							<router-link to="/images" :class="{'active':activeRaspberryPi}">
 								<img src="img/raspberrypi.png">
-								<span> Raspberry Pi</span>
+								<span> Images</span>
 								<div class="triangle"></div>
 							</router-link>
 						</div>

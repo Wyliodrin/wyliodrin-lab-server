@@ -108,11 +108,13 @@ async function security(req, res, next) {
 
 privateApp.post('/edit', async function(req, res, next) {
 	var e;
-	if (req.body.firstname || req.body.lastName || req.body.email) {
+	var userId = req.user.userId;
+	var firstName = req.body.firstName;
+	var lastName = req.body.lastName;
+	var email = req.body.email;
+	if (firstName || lastName || email) {
 		try {
-			await db.user.edit(req.user.userId, req.body.email,
-				req.body.firstName, req.body.lastName);
-			debug(req.user.userId + 'changed his info');
+			await db.user.edit(userId, null, null, email, firstName, lastName);
 			res.status(200).send({ err: 0 });
 		} catch (err) {
 			debug(err.message);

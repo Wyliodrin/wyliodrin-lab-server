@@ -6,6 +6,11 @@ var crypto = require('crypto');
 var pty = require('pty.js');
 var _ = require('lodash');
 var ip = require('ip');
+var URL = require ('url').URL;
+var request = require ('request');
+var progress = require ('request-progress');
+var unzipper = require ('unzipper');
+var os = require ('os');
 
 var fsid = 0;
 
@@ -147,7 +152,7 @@ async function mountPartition(imageInfo, partition, folder, unmountIfMounted = f
 	return mount;
 }
 
-function sha1(str) {
+function newImageId(str) {
 	let shasum = crypto.createHash('sha1');
 	shasum.update(str);
 	return shasum.digest('hex');
@@ -197,28 +202,46 @@ function splitImageInfo(str) {
 
 async function readImageInfo(filename) {
 	var imageInfo = null;
+	var error = null;
 	try {
 		filename = path.normalize(path.resolve(__dirname, filename));
-		if (await fs.exists(filename)) {
+		if (await fs.pathExists(filename)) {
 			var data = await spawn('file', ['-b', filename]);
 			if (data.exitCode === 0 && data.stderr.toString() === '') {
 				let stdout = data.stdout.toString();
 				imageInfo = splitImageInfo(stdout);
 				if (imageInfo) {
-					imageInfo.id = sha1(filename);
+					imageInfo.id = newImageId(filename);
 					imageInfo.filename = filename;
+					imageInfo.status = 'downloaded';
+					if (await hasServerSetup (imageInfo)) imageInfo.status = 'ok';
 				} else {
-					console.error('ERROR: image does not have an MBR, FAT and EXT3 partition');
+					error = 'Image does not have an MBR, FAT and EXT3 partition';
+					console.error('ERROR: '+error);
+					// TODO load image with status error?
 				}
 			} else {
-				console.error('ERROR: Image file ' + filename + ' is not a Raspberry Pi Image ' + data.stderr);
+				error = 'Image file ' + filename + ' is not a Raspberry Pi Image ' + data.stderr;
+				console.error('ERROR: '+error);
 			}
 		} else {
-			console.error('ERROR: Image file ' + filename + ' does not exist');
+			error = 'Image file ' + filename + ' does not exist';
+			console.error('ERROR: '+error);
 		}
 	} catch (e) {
-		console.error('ERROR: Image file ' + filename + ' is not a Raspberry Pi Image (' + e.message + ')');
+		error = 'Image file ' + filename + ' is not a Raspberry Pi Image ' + data.stderr;
+		console.error('ERROR: '+error);
 	}
+	if (error)
+	{
+		imageInfo = {
+			filename: filename,
+			id: newImageId(filename),
+			status: 'error',
+			error: error
+		};
+	}
+	// console.log (imageInfo);
 	return imageInfo;
 }
 
@@ -286,50 +309,80 @@ async function serverStack(imageInfo) {
 	return [folderServer, fsFolder];
 }
 
-async function setupServer(imageInfo) {
-	let folderStack = await serverStack(imageInfo);
-	let folderSetup = path.join(SETUP_SERVER, imageInfo.id);
-	// await fs.mkdirs (folderSetup);
-	// TODO if is mounted
-	if (await isMounted(folderSetup)){
-		await unmount (folderSetup);
-	}
-	try {
-		if (await mountAufs(folderStack, folderSetup, ['suid'])) {
-			let setup = await spawnPrivileged('bash', [path.join(SCRIPT, 'setup.sh'), folderSetup]);
-			// mount /proc
-			await spawnPrivileged('mount', ['-t', 'proc', '/proc', path.join(folderSetup, 'proc')]);
-			if (setup.exitCode === 0) {
-				// process.exit (0);
-				console.log(process.env);
-				let install = spawnPrivileged('chroot', ['--userspec', 'pi:pi', folderSetup, '/bin/bash', 'install.sh'], {
-					env: _.assign({}, process.env, {
-						HOME: '/home/pi',
-						USER: 'pi',
-						USERNAME: 'pi',
-						HOSTNAME: 'raspberrypi'
-					})
-				});
-				install.stdout.on('data', function(data) {
-					process.stdout.write(data);
-				});
-				install.stderr.on('data', function(data) {
-					process.stderr.write(data);
-				});
-				await install;
-			} else {
-				throw new Error('setup: ' + setup.stderr.toString());
-			}
-		} else {
-			console.error('ERROR: setup server for ' + imageInfo.id + ' failed (unable to mount setup folder)');
-		}
+function setupFile (imageInfo)
+{
+	console.log (path.join (path.dirname (imageInfo.filename), '.'+imageInfo.id+'.setup'));
+	return path.join (path.dirname (imageInfo.filename), '.'+imageInfo.id+'.setup');
+}
 
-	} catch (e) {
-		console.log(e);
-		console.error('ERROR: setup server for ' + imageInfo.id + ' failed (' + e.message + ')');
+function hasServerSetup (imageInfo)
+{
+	console.log (setupFile(imageInfo));
+	return fs.pathExists (setupFile(imageInfo));
+}
+
+function makeServerSetup (imageInfo)
+{
+	return fs.writeFile (setupFile (imageInfo), JSON.stringify ({data: new Date()}));
+}
+
+async function setupServer(imageInfo, ignoreSetup) {
+	if (_.isString (imageInfo)) imageInfo = imagesList[imageInfo];
+	if (imageInfo)
+	{
+		if (await hasServerSetup (imageInfo) && !ignoreSetup)
+		{
+			return;
+		}
+		await fs.remove (setupFile(imageInfo));
+		imageInfo.status = 'setup';
+		let folderStack = await serverStack(imageInfo);
+		let folderSetup = path.join(SETUP_SERVER, imageInfo.id);
+		// await fs.mkdirs (folderSetup);
+		// TODO if is mounted
+		if (await isMounted(folderSetup)){
+			await unmount (folderSetup);
+		}
+		try {
+			if (await mountAufs(folderStack, folderSetup, ['suid'])) {
+				let setup = await spawnPrivileged('bash', [path.join(SCRIPT, 'setup.sh'), folderSetup]);
+				// mount /proc
+				await spawnPrivileged('mount', ['-t', 'proc', '/proc', path.join(folderSetup, 'proc')]);
+				if (setup.exitCode === 0) {
+					// process.exit (0);
+					console.log(process.env);
+					let install = spawnPrivileged('chroot', ['--userspec', 'pi:pi', folderSetup, '/bin/bash', 'install.sh'], {
+						env: _.assign({}, process.env, {
+							HOME: '/home/pi',
+							USER: 'pi',
+							USERNAME: 'pi',
+							HOSTNAME: 'raspberrypi'
+						})
+					});
+					install.stdout.on('data', function(data) {
+						process.stdout.write(data);
+					});
+					install.stderr.on('data', function(data) {
+						process.stderr.write(data);
+					});
+					await install;
+					await makeServerSetup (imageInfo);
+				} else {
+					throw new Error('setup: ' + setup.stderr.toString());
+				}
+			} else {
+				console.error('ERROR: setup server for ' + imageInfo.id + ' failed (unable to mount setup folder)');
+			}
+
+		} catch (e) {
+			console.log(e);
+			console.error('ERROR: setup server for ' + imageInfo.id + ' failed (' + e.message + ')');
+			imageInfo.status = 'error';
+		}
+		await spawnPrivileged('umount', [path.join(folderSetup, 'proc')]);
+		await unmount(folderSetup);
+		imageInfo.status = 'ok';
 	}
-	await spawnPrivileged('umount', [path.join(folderSetup, 'proc')]);
-	await unmount(folderSetup);
 }
 
 async function mountSetupCourse(courseId, imageInfo) {
@@ -517,9 +570,12 @@ async function readImages() {
 				try {
 					let imageInfo = await readImageInfo(path.join(IMAGES, file));
 					imagesList[imageInfo.id] = imageInfo;
-					if (!defaultImage) defaultImage = imageInfo;
-					if (file.indexOf('default') >= 0) defaultImage = imageInfo;
-					mountImage(imageInfo);
+					if (imageInfo.status !== 'error')
+					{
+						if (!defaultImage) defaultImage = imageInfo;
+						if (file.indexOf('default') >= 0) defaultImage = imageInfo;
+						mountImage(imageInfo);
+					}
 				} catch (e) {
 					console.error('ERROR: read image (' + e.message + ')');
 				}
@@ -537,10 +593,15 @@ function listImages() {
 
 function listImagesAsArray() {
 	let list = [];
+	let imagesList = listImages();
 	for (let image in imagesList) {
-		list.push(_.cloneDeep(imagesList[image]));
+		list.push(imagesList[image]);
 	}
-	return list;
+	return list.map (function (image)
+	{
+		image.filename = path.basename (image.filename);
+		return image;
+	});
 }
 
 async function isExported(folder) {
@@ -648,6 +709,79 @@ function defaultImageId() {
 	}
 }
 
+function downloadImage (link)
+{
+	let url = new URL (link);
+	console.log (url);
+	let filename = path.basename (url.pathname);
+	let archive = null;
+	let extension = path.extname (filename).toLowerCase ();
+	let writeStream;
+	if (extension === '.zip' || extension === '.img')
+	{
+		if (extension === '.zip')
+		{
+			archive = path.join (os.tmpdir (), filename);
+		}
+		filename = filename.substring (0, filename.length-4)+'.img';
+		filename = path.join (IMAGES, filename);
+		console.log (extension);
+		if (extension === '.zip') writeStream = fs.createWriteStream (archive);
+		else writeStream = fs.createWriteStream (filename);
+	}
+	else
+	{
+		return false;
+	}
+	let imageId = newImageId (filename);
+	if (!imagesList[imageId] || imagesList[imageId].status === 'error')
+	{
+		imagesList[imageId] = {
+			filename: filename,
+			id: imageId,
+			status: 'downloading',
+			progress: 0
+		};
+		progress (request (url.toString ()), {
+			
+		}).on ('progress', function (progress) {
+			imagesList[imageId].progress = progress;
+		}).on ('error', function (err) {
+			imagesList[imageId].status = 'error';
+			imagesList[imageId].error = err.message;
+		}).on ('end', async function () {
+			if (archive)
+			{
+				let zip = unzipper.ParseOne(/\.img$/);
+				let outStream = fs.createWriteStream(filename);
+				zip.on ('end', async function ()
+				{
+					imagesList[imageId].status = 'download';
+					imagesList[imageId] = await readImageInfo (filename);
+					if (imagesList[imageId].status !== 'error') setupServer (imagesList[imageId]);
+				}).on ('error', function (err) {
+					imagesList[imageId].status = 'error';
+					imagesList[imageId].error = err.message;
+				});
+				fs.createReadStream(archive)
+					.pipe(zip)
+					.pipe(outStream);
+			}
+			else
+			{
+				imagesList[imageId].status = 'download';
+				imagesList[imageId] = await readImageInfo (filename);
+				if (imagesList[imageId].status !== 'error') setupServer (imagesList[imageId]);
+			}
+		}).pipe (writeStream);
+	}
+	else
+	{
+		return false;
+	}
+	return true;
+}
+
 async function setupUser (userId)
 {
 	let folderFs = path.join (FS, defaultImageId ());
@@ -711,5 +845,7 @@ module.exports.pathBoot = pathBoot;
 module.exports.pathRootFs = pathRootFs;
 module.exports.pathUser = pathUser;
 module.exports.pathHomes = pathHomes;
+
+module.exports.downloadImage = downloadImage;
 
 module.exports.hasSetup = hasSetup;

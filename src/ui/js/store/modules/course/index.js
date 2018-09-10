@@ -1,25 +1,25 @@
 var Vue = require('vue');
 var setup = require('../../setup.js');
 
-var KEY_TOKEN = 'wyliodrin.token';
-Vue.http.interceptors.push(function(request, next) {
-	if (window.localStorage.getItem(KEY_TOKEN)) {
-		request.headers.set('Authorization', 'Bearer ' + window.localStorage.getItem(KEY_TOKEN));
-	}
-	next();
-});
+// var KEY_TOKEN = 'wyliodrin.token';
+// Vue.http.interceptors.push(function(request, next) {
+// 	if (window.localStorage.getItem(KEY_TOKEN)) {
+// 		request.headers.set('Authorization', 'Bearer ' + window.localStorage.getItem(KEY_TOKEN));
+// 	}
+// 	next();
+// });
 
 module.exports = {
 	namespaced: true,
 	state: {
-		token: window.localStorage.getItem(KEY_TOKEN),
+		// token: window.localStorage.getItem(KEY_TOKEN),
 		course: null,
 		courses: null
 	},
 	getters: {
-		token(state) {
-			return state.token;
-		},
+		// token(state) {
+		// 	return state.token;
+		// },
 		course(state) {
 			return state.course;
 		},
@@ -165,15 +165,15 @@ module.exports = {
 		}
 	},
 	mutations: {
-		token(state, value) {
-			if (value !== null) {
-				window.localStorage.setItem(KEY_TOKEN, value);
-				state.token = value;
-			} else {
-				window.localStorage.removeItem(KEY_TOKEN);
-				state.token = undefined;
-			}
-		},
+		// token(state, value) {
+		// 	if (value !== null) {
+		// 		window.localStorage.setItem(KEY_TOKEN, value);
+		// 		state.token = value;
+		// 	} else {
+		// 		window.localStorage.removeItem(KEY_TOKEN);
+		// 		state.token = undefined;
+		// 	}
+		// },
 		course(state, value) {
 			state.course = value;
 		},

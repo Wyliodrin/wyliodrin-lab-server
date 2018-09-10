@@ -35,7 +35,7 @@ var Courses = require ('./components/admin/Courses.vue');
 var Course = require ('./components/admin/Course.vue');
 var Setup = require ('./components/admin/Setup.vue');
 var Boards = require ('./components/admin/Boards.vue');
-var RaspberryPi = require ('./components/admin/RaspberryPi.vue');
+var Images = require ('./components/admin/Images.vue');
 
 var router = new VueRouter ({
 	routes: [
@@ -56,8 +56,8 @@ var router = new VueRouter ({
 			component: Course
 		},
 		{
-			path: '/raspberrypi',
-			component: RaspberryPi
+			path: '/images',
+			component: Images
 		},
 		{
 			path: '/boards',

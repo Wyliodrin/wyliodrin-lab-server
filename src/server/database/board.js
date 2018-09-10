@@ -121,6 +121,10 @@ function listBoards() {
 	return Board.find().lean();
 }
 
+function listBoardsByCourseId(courseId) {
+	return Board.find({ courseId: courseId });
+}
+
 var board = {
 	createBoard,
 	findByBoardId,
@@ -133,7 +137,8 @@ var board = {
 	assignCourseAndUser,
 	unsetCourseAndUser,
 	findByUserIdAndBoardId,
-	listBoards
+	listBoards,
+	listBoardsByCourseId
 };
 
 module.exports = board;

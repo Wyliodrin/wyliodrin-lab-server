@@ -98,13 +98,14 @@ var User = mongoose.model('User', userSchema);
  * @param {String} lastName - last name
  * @param {String} email - email
  */
-function create(username, password, firstName, lastName, email) {
+function create(username, password, firstName, lastName, email, role) {
 	var user = new User(_.assign({}, {
 		username: username,
 		password: password,
 		firstName: firstName,
 		lastName: lastName,
-		email: email
+		email: email,
+		role: role
 	}));
 
 	return user.save();
@@ -142,6 +143,12 @@ function findUsers(partOfName) {
 function listUsers() {
 	return User.find().lean();
 }
+
+function findOneOrMoreByUserId(users) {
+	return User.find({ userId: { $in: users } });
+}
+
+
 
 /**
  * Edit an user
@@ -211,7 +218,8 @@ var user = {
 	editPassword,
 	findByUserIdAndPassword,
 	resetPassword,
-	listUsers
+	listUsers,
+	findOneOrMoreByUserId
 };
 
 module.exports = user;
