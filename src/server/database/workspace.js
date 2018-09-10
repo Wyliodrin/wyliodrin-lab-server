@@ -4,7 +4,7 @@ var path = require('path');
 var fs = require('fs-extra');
 var debug = require('debug')('wyliodrin-lab-server:workspace-database');
 var statusCodes = require('http-status-codes');
-var raspberrypi = require ('./raspberrypi');
+var raspberrypi = require('./raspberrypi');
 
 debug.log = console.info.bind(console);
 
@@ -17,7 +17,7 @@ var PROJECTS = 'projects';
  * @param {String} project - the project containing the file
  */
 async function verifyPath(filePath, userId, project) {
-	var homeFolder = await raspberrypi.pathUser (userId);
+	var homeFolder = await raspberrypi.pathUser(userId);
 	var absPath = path.join(homeFolder, PROJECTS, project, filePath);
 	var normalizedPath = path.normalize(absPath);
 	var verifyPath = path.join(homeFolder, PROJECTS, project);
@@ -28,7 +28,7 @@ async function verifyPath(filePath, userId, project) {
 }
 
 async function hasHome(userId) {
-	var userHome = await raspberrypi.pathUser (userId);
+	var userHome = await raspberrypi.pathUser(userId);
 	try {
 		var homeExists = await fs.pathExists(userHome);
 	} catch (err) {
@@ -38,7 +38,7 @@ async function hasHome(userId) {
 }
 
 async function projectExists(userId, project) {
-	var userHome = await raspberrypi.pathUser (userId);
+	var userHome = await raspberrypi.pathUser(userId);
 	var projPath = path.join(userHome, PROJECTS, project);
 
 	try {
@@ -51,7 +51,7 @@ async function projectExists(userId, project) {
 }
 
 async function fileExists(userId, project, filePath) {
-	var userHome = await raspberrypi.pathUser (userId);
+	var userHome = await raspberrypi.pathUser(userId);
 	var file_path = path.join(userHome, PROJECTS, project, filePath);
 	try {
 		var exists = await fs.pathExists(file_path);
@@ -65,7 +65,7 @@ async function fileExists(userId, project, filePath) {
 
 
 async function createUserHome(userId) {
-	var userHome = await raspberrypi.pathUser (userId, true);
+	var userHome = await raspberrypi.pathUser(userId, true);
 	var userProjects = path.join(userHome, PROJECTS);
 
 	// try {
@@ -93,10 +93,10 @@ function isValidName(name) {
 
 async function createProject(userId, projectName) {
 
-	if (isValidName(projectName)) {
+	if (!isValidName(projectName)) {
 		return { success: false, message: 'Invalid project name' };
 	}
-	var userHome = await raspberrypi.pathUser (userId);
+	var userHome = await raspberrypi.pathUser(userId);
 	var userProjects = path.join(userHome, PROJECTS);
 	var projectPath = path.join(userProjects, projectName);
 
@@ -197,7 +197,7 @@ async function getFile(filePath, userId, project) {
  * @param {String} userId Id of user to list projects
  */
 async function listProjects(userId) {
-	var userHome = await raspberrypi.pathUser (userId);
+	var userHome = await raspberrypi.pathUser(userId);
 	var userProjects = path.join(userHome, PROJECTS);
 	debug(userProjects);
 	var projectList = [];
