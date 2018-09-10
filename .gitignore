@@ -69,7 +69,7 @@ database/homes/
 build/
 
 # THIS SHOULD BE REMOVED LATER
-docs/
+helper_docs/
 
 # Local session tokens
 tokens.json
