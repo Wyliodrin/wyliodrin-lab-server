@@ -1,51 +1,53 @@
 <template>
-	<div>
-		<!-- Editare user in tabul de useri -->
-		<div class="input-group mb-3">
-			<div class="input-group-prepend">
-				<span class="input-group-text" id="inputGroup-sizing-default">Username</span>
+	<span>
+		<div>
+			<!-- Editare user in tabul de useri -->
+			<div class="input-group mb-3">
+				<div class="input-group-prepend">
+					<span class="input-group-text" id="inputGroup-sizing-default">Username</span>
+				</div>
+				<input type="text" class="form-control" aria-label="Name" v-model="userEdit.username">
 			</div>
-			<input type="text" class="form-control" aria-label="Name" v-model="userEdit.username">
-		</div>
-		<div class="input-group mb-3">
-			<div class="input-group-prepend">
-				<span class="input-group-text" id="inputGroup-sizing-default">First Name</span>
+			<div class="input-group mb-3">
+				<div class="input-group-prepend">
+					<span class="input-group-text" id="inputGroup-sizing-default">First Name</span>
+				</div>
+				<input type="text" class="form-control" aria-label="Name" v-model="userEdit.firstName">
 			</div>
-			<input type="text" class="form-control" aria-label="Name" v-model="userEdit.firstName">
-		</div>
-		<div class="input-group mb-3">
-			<div class="input-group-prepend">
-				<span class="input-group-text" id="inputGroup-sizing-default">Last Name</span>
+			<div class="input-group mb-3">
+				<div class="input-group-prepend">
+					<span class="input-group-text" id="inputGroup-sizing-default">Last Name</span>
+				</div>
+				<input type="text" class="form-control" aria-label="Name" v-model="userEdit.lastName">
 			</div>
-			<input type="text" class="form-control" aria-label="Name" v-model="userEdit.lastName">
-		</div>
-		<div class="input-group mb-3">
-			<div class="input-group-prepend">
-				<span class="input-group-text" id="inputGroup-sizing-default">Email</span>
+			<div class="input-group mb-3">
+				<div class="input-group-prepend">
+					<span class="input-group-text" id="inputGroup-sizing-default">Email</span>
+				</div>
+				<input type="text" class="form-control" aria-label="Name" v-model="userEdit.email">
 			</div>
-			<input type="text" class="form-control" aria-label="Name" v-model="userEdit.email">
-		</div>
-		<div class="input-group mb-3">
-			<div class="input-group-prepend">
-				<span class="input-group-text" id="inputGroup-sizing-default">Role</span>
+			<div class="input-group mb-3">
+				<div class="input-group-prepend">
+					<span class="input-group-text" id="inputGroup-sizing-default">Role</span>
+				</div>
+				<select name="platform" class="custom-select" v-model="userEdit.role">
+					<option v-for="role in ROLES" :key="role.name" :value="role.name">{{role.title}}</option>
+				</select>
 			</div>
-			<select name="platform" class="custom-select" v-model="userEdit.role">
-				<option v-for="role in ROLES" :key="role.name" :value="role.name">{{role.title}}</option>
-			</select>
-		</div>
-		<div class="input-group mb-3">
-			<div class="input-group-prepend">
-				<span class="input-group-text" id="inputGroup-sizing-default">Password</span>
+			<div class="input-group mb-3">
+				<div class="input-group-prepend">
+					<span class="input-group-text" id="inputGroup-sizing-default">Password</span>
+				</div>
+				<input type="password" class="form-control" aria-label="Name" v-model="inputPassword">
 			</div>
-			<input type="password" class="form-control" aria-label="Name" v-model="inputPassword">
-		</div>
-		<div class="input-group mb-3">
-			<div class="input-group-prepend">
-				<span class="input-group-text" id="inputGroup-sizing-default">Retype password</span>
+			<div class="input-group mb-3">
+				<div class="input-group-prepend">
+					<span class="input-group-text" id="inputGroup-sizing-default">Retype password</span>
+				</div>
+				<input type="password" class="form-control" aria-label="Name" v-model="inputRetypePassword">
 			</div>
-			<input type="password" class="form-control" aria-label="Name" v-model="inputRetypePassword">
 		</div>
-	</div>
+	</span>
 </template>
 
 <script>

@@ -44,7 +44,7 @@
 		<div class="content w-100 d-flex flex-row proj-bar">
 			<div class="content-top w-100 pt-2">
 				<div class="content-title float-left">
-					<span><img src="img/icons/course-48.png" class="mr-4">Couses</span>
+					<span><img src="img/courses.png" class="mr-2">Courses</span>
 				</div>
 				<div class="btn-group submenu">
 					<button type="button" class="btn btn-secondary dropdown-toggle xs-submenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -62,27 +62,27 @@
 					<half-circle-spinner :animation-duration="1000" :size="120"/>
 				</div>
 			</div>
-			<table v-else class="table table-hover">
-				<thead>
+			<table v-else class="table courses-table table-hover">
+				<!-- <thead>
 					<tr>
 						<th scope="col">Course
 							<a href="#" class="sort-by"></a></th>
 						<th scope="col" class="text-center">Students
 							<a href="#" class="sort-by"></a></th>
-						<!-- <th scope="col" class="text-center">Teachers
-							<a href="#" class="sort-by"></a></th> -->
-						<!-- <th scope="col" class="text-center">Iterations
-							<a href="#" class="sort-by"></a></th> -->
+						<th scope="col" class="text-center">Teachers
+							<a href="#" class="sort-by"></a></th>
+						<th scope="col" class="text-center">Iterations
+							<a href="#" class="sort-by"></a></th>
 						<th scope="col" class="text-center" style="width:130px">Actions</th>
 					</tr>
-				</thead>
+				</thead> -->
 				<tbody>
-					<tr v-for="course in courses" :key="course.name" @click="linkCourse (course.courseId)" class="handpointer">
-						<td>{{course.name}}</td>
-						<td class="text-center">{{course.students.length}}</td>
+					<tr v-for="course in courses" :key="course.name" @click="linkCourse (course.courseId)" class="handpointer col-lg-2 col-md-3 col-sm-4 c-science">
+						<td class="course-name"><h5>{{course.name}}</h5></td>
+						<td class="course-std-nbr"><img src="img/students-group.png"> {{course.students.length}}</td>
 						<!-- <td class="text-center">{{latestVersion(application)}}</td> -->
-						<!-- <td class="text-center">17</td> -->
-						<td class="text-center" style="width:130px"><router-link :to="'/courses/'+course.courseId" class="iconbtn" v-tooltip data-toggle="tooltip" data-placement="top" title="View details"><img src="img/icons/view-16.png"></router-link></td>
+						<!-- <td class="text-center">17</td>
+						<td class="text-center" style="width:130px"><router-link :to="'/courses/'+course.courseId" class="iconbtn" v-tooltip data-toggle="tooltip" data-placement="top" title="View details"><img src="img/icons/view-16.png"></router-link></td> -->
 					</tr>
 				</tbody>
 			</table>

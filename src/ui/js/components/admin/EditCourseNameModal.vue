@@ -1,13 +1,15 @@
 <template>
-	<div>
-		<div class="input-group mb-3">
-			<!--  Editare nume curs in tabul de cursuri -->
-			<div class="input-group-prepend">
-				<span class="input-group-text" id="inputGroup-sizing-default">Course name</span>
+	<span>
+		<div>
+			<div class="input-group mb-3">
+				<!--  Editare nume curs in tabul de cursuri -->
+				<div class="input-group-prepend">
+					<span class="input-group-text" id="inputGroup-sizing-default">Course name</span>
+				</div>
+				<input type="text" class="form-control" aria-label="Name" v-model="courseName">
 			</div>
-			<input type="text" class="form-control" aria-label="Name" v-model="courseName">
 		</div>
-	</div>
+	</span>
 </template>
 
 <script>

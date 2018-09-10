@@ -306,7 +306,7 @@ table {font-size:0.875rem; line-height:26px;
 
 .login {background:url(../img/login-bg.jpg) no-repeat center center fixed @dark-color-1!important; background-size: cover;
 	.courseinfo {position: absolute; margin: 70px; max-width: 50%;
-		h1 {margin-bottom: 15px;
+		h1 {margin-bottom: 15px; font-weight: 400;
 			img { vertical-align: sub; margin-right: 10px;}
 		}
 		> span { margin-top: 25px; font-size: 16px; font-weight: 300; color: @color-grey; background-color: rgba(2,9,21,0.7); padding:30px; display: inline-block;}
@@ -505,6 +505,59 @@ animation: half-circle-spinner-animation 1s infinite alternate;
 .errorpage {margin: auto; font-size: 18px; text-align: center; font-weight: 300;
 	img {margin-bottom: 20px; filter: contrast(100%) sepia(100%) hue-rotate(123deg) invert(95%) brightness(1000%);}
 }
+
+.course-tab-bg {display: block; position: absolute; top: 0; left: 0; width: 100%; background: @color-white; height: 78px; z-index: 0;}
+.course-info {z-index: 1;
+	.tab-content h4{position: absolute; top: 30px;}
+	ul {border: 0;}
+	.nav-tabs .nav-link {border-radius: 0; border: 0; color: @color-black; padding: 15px 30px;}
+	.nav-tabs .nav-link.active {background: @color-grey; color: @color-black; border: 0; padding: 15px 30px;}
+
+}
+
+.courses-table {background: transparent;
+	tbody {background: transparent !important;}
+	tr, tr:hover {float: left; background-color: @color-white !important; border:@color-grey solid 15px;
+		td, td:hover {border: 0; width: 100%; float: left; text-align: center; background: transparent !important;}
+	}
+	tr:hover {float: left; background-color: @color-white !important; border:@color-white solid 15px;
+		.course-name {color:@color-hover;}
+	}
+	.c-science, .c-science:hover {background:url(../img/pics/c-science.png) no-repeat center center;}
+	.course-name {padding: 20px 0 30px;}
+	.course-std-nbr {padding: 110px 0 20px;}
+}
+
+.users-table {background: transparent;
+	tbody {background: transparent !important;}
+	tr, tr:hover {float: left; background-color: @color-white !important; border:@color-grey solid 15px; max-width: 250px; position: relative;
+		td, td:hover {border: 0; width: 100%; float: left; text-align: center; background: transparent !important;}
+	}
+	tr:hover {float: left; background-color: @color-white !important; border:@color-grey solid 15px;
+		.course-name {color:@color-hover;}
+	}
+	.user-name {padding: 20px 0 0px; min-height: 75px;
+		h5{padding: 0 25px;}
+	}
+	.user-nick {padding: 0;}
+	.user-email {padding: 10px 0 20px;}
+	.user-pic {padding-top: 0;
+		img {border-radius: 300px; border:@color-grey-4 20px solid;}
+	}
+	.user-del-btn {position: absolute; top: 0; right: 0; background: @color-white; border-radius: 100px;
+		-webkit-box-shadow: 0px 0px 0px 5px @color-grey;
+		-moz-box-shadow: 0px 0px 0px 5px @color-grey;
+		box-shadow: 0px 0px 0px 5px @color-grey;
+		img {padding: 5px;}
+	}
+
+	.add-user {min-height: 367px; background-color: @green-color2 !important;
+		.user-name {color: @color-white !important;}
+		.add-pic {padding: 80px 0;}
+	}
+	.add-user:hover {background-color: @connected !important;}
+}
+
 
 // .tooltip {left:17px !important;}
 

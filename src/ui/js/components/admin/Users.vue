@@ -33,7 +33,10 @@
 		<div class="content w-100 d-flex flex-row proj-bar">
 			<div class="content-top w-100 pt-2">
 				<div class="content-title float-left">
-					<span><img src="img/icons/course-48.png" class="mr-4">Users</span>
+					<span><img src="img/users.png" class="mr-2">Users</span>
+					<div class="search"><img src="/img/icons/search-icon.png">
+						<input type="text" v-model="search" placeholder="Search" class="search-input">
+					</div>
 				</div>
 				<div class="btn-group submenu">
 					<button type="button" class="btn btn-secondary dropdown-toggle xs-submenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -46,7 +49,6 @@
 			</div>
 		</div>
 		<div class="content pt-4 pr-4 pl-4 d-flex flex-column w-100 h-100 rel">
-			<input type="text" v-model="search" placeholder="search">
 			<div class="d-flex h-100 justify-content-center align-items-center" v-if="users === null">
 				<div>
 					<half-circle-spinner :animation-duration="1000" :size="120"/>
