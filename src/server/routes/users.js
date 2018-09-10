@@ -108,11 +108,13 @@ async function security(req, res, next) {
 
 privateApp.post('/edit', async function(req, res, next) {
 	var e;
-	if (req.body.firstname || req.body.lastName || req.body.email) {
+	var userId = req.user.userId;
+	var firstName = req.body.firstName;
+	var lastName = req.body.lastName;
+	var email = req.body.email;
+	if (firstName || lastName || email) {
 		try {
-			await db.user.edit(req.user.userId, req.body.email,
-				req.body.firstName, req.body.lastName);
-			debug(req.user.userId + 'changed his info');
+			await db.user.edit(userId, null, null, email, firstName, lastName);
 			res.status(200).send({ err: 0 });
 		} catch (err) {
 			debug(err.message);
@@ -265,6 +267,11 @@ adminApp.get('/list', async function(req, res, next) {
 	var e;
 	try {
 		var users = await db.user.listUsers();
+		for (var user of users) {
+			delete user.password;
+			delete user.__v;
+			delete user._id;
+		}
 		res.status(200).send({ err: 0, users });
 	} catch (err) {
 		debug('Error listing users');
@@ -295,6 +302,8 @@ adminApp.get('/get/:userId', async function(req, res, next) {
 	}
 	if (user) {
 		delete user.password;
+		delete user.__v;
+		delete user._id;
 		res.status(200).send({ err: 0, user });
 	} else {
 		res.status(200).send({ err: 0, message: 'User not found' });
@@ -332,10 +341,14 @@ adminApp.post('/create', async function(req, res, next) {
 			e = error.serverError(err);
 			return next(e);
 		}
-		res.status(200).send({
-			err: 0,
-			user: user
-		});
+		if (user) {
+			delete user._id;
+			res.status(200).send({
+				err: 0,
+				user: user
+			});
+
+		}
 	} catch (err) {
 		if (err.code !== 11000) {
 			debug('Creation failed', { requestId: req.requestId, error: err });

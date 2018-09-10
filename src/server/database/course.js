@@ -26,7 +26,7 @@ var courseSchema = mongoose.Schema({
 	teachers: {
 		type: [String],
 		required: true,
-		default: [],
+		default: []
 	},
 	students: {
 		type: [String],
@@ -75,13 +75,22 @@ function createCourse(name, students, teachers, imageId) {
 	return course.save();
 }
 
+async function editCourse(courseId, name) {
+	var editCourse = {};
+	if (name) {
+		editCourse.name = name;
+	}
+	let ret = await Course.updateOne({ courseId: courseId }, { $set: editCourse }).lean();
+	return ret;
+}
+
 
 function findByCourseId(courseId) {
 	return Course.findOne({ courseId: courseId }).lean();
 }
 
 function findByCourseIdAndTeacher(courseId, teacherId) {
-	return Course.findOne({ courseId: courseId ,teachers : teacherId}).lean();
+	return Course.findOne({ courseId: courseId, teachers: teacherId }).lean();
 }
 
 function findByName(courseName) {
@@ -92,49 +101,41 @@ function addStudent(courseId, studentId) {
 	return Course.findOneAndUpdate({ courseId: courseId, teachers: { $ne: studentId } }, { $addToSet: { students: studentId } }).lean();
 }
 
+function addStudents(courseId, students) {
+	return Course.findOneAndUpdate({ courseId: courseId, teachers: { $ne: students } }, { $addToSet: { students: students } }).lean();
+}
+
 function addTeacher(courseId, teacherId) {
 	return Course.findOneAndUpdate({ courseId: courseId, students: { $ne: teacherId } }, { $addToSet: { teachers: teacherId } }).lean();
 }
 
-async function deleteStudent(courseId, studentId) {
-	try {
-		var course = await Course.findOne({ courseId }).lean();
-	} catch (err) {
-		debug(err);
-		throw new Error('Got error querying database', err);
-	}
-
-	if (!course) {
-		return { err: 400 };
-	}
-
-	var index = course.students.indexOf(studentId);
-	if (index === -1) {
-		return { err: 400 };
-	}
-	course.students.splice(index, 1);
-	return course.save();
+function deleteStudents(courseId, studentIds) {
+	return Course.findOneAndUpdate({ courseId: courseId }, { $pull: { students: { $in: studentIds } } });
 }
 
-async function deleteTeacher(courseId, teacherId) {
-	try {
-		var course = await Course.findOne({ courseId }).lean();
-	} catch (err) {
-		debug(err);
-		throw new Error('Got error querying database', err);
-	}
-
-	if (!course) {
-		return { err: 400 };
-	}
-
-	var index = course.teachers.indexOf(teacherId);
-	if (index === -1) {
-		return { err: 400 };
-	}
-	course.teachers.splice(index, 1);
-	return course.save();
+function deleteTeachers(courseId, teacherIds) {
+	return Course.findOneAndUpdate({ courseId: courseId }, { $pull: { teachers: { $in: teacherIds } } });
 }
+
+// async function deleteTeacher(courseId, teacherId) {
+// 	try {
+// 		var course = await Course.findOne({ courseId }).lean();
+// 	} catch (err) {
+// 		debug(err);
+// 		throw new Error('Got error querying database', err);
+// 	}
+
+// 	if (!course) {
+// 		return { err: 400 };
+// 	}
+
+// 	var index = course.teachers.indexOf(teacherId);
+// 	if (index === -1) {
+// 		return { err: 400 };
+// 	}
+// 	course.teachers.splice(index, 1);
+// 	return course.save();
+// }
 
 function deleteByCourseId(courseId) {
 	return Course.remove({ courseId });
@@ -166,6 +167,9 @@ function findByCourseIdAndStudentId(courseId, studentId) {
 	return Course.findOne({ $and: [{ courseId: courseId }, { $or: [{ students: studentId }, { open: true }] }] }).lean();
 }
 
+function findByCourseAndUserId(courseId, userId) {
+	return Course.findOne({ $and: [{ courseId: courseId }, { $or: [{ students: userId }, { teachers: userId }] }] })
+}
 var course = {
 	createCourse,
 	findByCourseId,
@@ -174,12 +178,17 @@ var course = {
 	findByName,
 	getUserRole,
 	listAllCourses,
-	deleteStudent,
-	deleteTeacher,
+	// deleteStudent,
+	// deleteTeacher,
 	deleteByCourseId,
 	findByStudentId,
 	findByCourseIdAndStudentId,
-	findByCourseIdAndTeacher
+	findByCourseIdAndTeacher,
+	editCourse,
+	addStudents,
+	deleteStudents,
+	deleteTeachers,
+	findByCourseAndUserId
 };
 
 module.exports = course;
