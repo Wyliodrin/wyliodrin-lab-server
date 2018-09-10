@@ -70,6 +70,8 @@ build/
 
 # THIS SHOULD BE REMOVED LATER
 helper_docs/
+test.txt
 
 # Local session tokens
 tokens.json
+

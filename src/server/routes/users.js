@@ -112,7 +112,6 @@ privateApp.post('/edit', async function(req, res, next) {
 		try {
 			await db.user.edit(req.user.userId, req.body.email,
 				req.body.firstName, req.body.lastName);
-			debug(req.user.userId + 'changed his info');
 			res.status(200).send({ err: 0 });
 		} catch (err) {
 			debug(err.message);

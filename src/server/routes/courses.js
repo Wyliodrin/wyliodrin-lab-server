@@ -8,6 +8,17 @@ var error = require('../error.js');
 var privateApp = express.Router();
 var adminApp = express.Router();
 
+async function userCanAddStudents(user, courseId) {
+	if (user.role === 'admin') {
+		return true;
+	}
+	var course = await db.course.findByCourseIdAndTeacher(courseId, user.userId);
+	if (course) {
+		return true;
+	}
+	return false;
+}
+
 privateApp.get('/', async function(req, res, next) {
 	var e;
 	var userId = req.user.userId;
@@ -22,16 +33,78 @@ privateApp.get('/', async function(req, res, next) {
 	res.status(200).send({ err: 0, courses });
 });
 
+privateApp.post('/students/remove', async function(req, res, next) {
+	var e;
+	var studentId = req.body.studentId;
+	var courseId = req.body.courseId;
+
+	if (userCanAddStudents(req.user, courseId)) {
+		try {
+			var students = await db.user.findOneOrMoreByUserId(studentId);
+			if (!students) {
+				e = error.badRequest('Invalid student ID');
+				next(e);
+			} else {
+				var studentIds = [];
+				for (var student of students) {
+					studentIds.push(student.userId);
+				}
+				await db.course.deleteStudents(courseId, studentIds);
+				res.status(200).send({ err: 0 });
+			}
+		} catch (err) {
+			debug(err);
+			e = error.serverError(err);
+			next(e);
+		}
+	} else {
+		e = error.unauthorized('User cannot add students');
+		next(e);
+	}
+
+});
+
+privateApp.post('/students/add', async function(req, res, next) {
+	var e;
+	var studentId = req.body.studentId;
+	var courseId = req.body.courseId;
+
+	if (userCanAddStudents(req.user, courseId)) {
+		try {
+			var students = await db.user.findOneOrMoreByUserId(studentId);
+			if (!students) {
+				e = error.badRequest('Invalid student ID');
+				next(e);
+			} else {
+				var studentIds = [];
+				for (var student of students) {
+					studentIds.push(student.userId);
+				}
+				await db.course.addStudents(courseId, studentIds);
+				res.status(200).send({ err: 0 });
+			}
+		} catch (err) {
+			debug(err);
+			e = error.serverError(err);
+			next(e);
+		}
+	} else {
+		e = error.unauthorized('User cannot add students');
+		next(e);
+	}
+
+});
+
 adminApp.get('/all', async function(req, res, next) {
 	var e;
 	try {
 		var courses = await db.course.listAllCourses();
+		res.status(200).send({ err: 0, courses });
 	} catch (err) {
 		debug('Error listing courses');
 		e = error.serverError(err);
-		return next(e);
+		next(e);
 	}
-	res.status(200).send({ err: 0, courses });
 });
 
 adminApp.post('/add', async function(req, res, next) {
@@ -40,14 +113,18 @@ adminApp.post('/add', async function(req, res, next) {
 	var teachers = req.body.teachers;
 	var name = req.body.name;
 	try {
-		await db.course.createCourse(name, students, teachers);
+		var course = await db.course.createCourse(name, students, teachers);
+		if (course) {
+			res.status(200).send({ err: 0, course });
+		} else {
+			e = error.badRequest('User or user field already in use');
+			next(e);
+		}
 	} catch (err) {
 		debug(err);
 		e = error.serverError(err);
-		return next(e);
+		next(e);
 	}
-	//TODO: Send back the course 
-	res.status(200).send({ err: 0 });
 });
 
 adminApp.post('/remove', async function(req, res, next) {
@@ -55,49 +132,49 @@ adminApp.post('/remove', async function(req, res, next) {
 	var courseId = req.body.courseId;
 	try {
 		await db.course.deleteByCourseId(courseId);
+		res.status(200).send({ err: 0 });
 	} catch (err) {
 		debug(err);
 		e = error.serverError();
-		return next(e);
+		next(e);
 	}
-	res.status(200).send({ err: 0 });
 });
 
-//TODO: Make a /courses/update
+adminApp.post('/update', async function(req, res, next) {
+	var e;
+	var courseId = req.body.courseId;
+	var name = req.body.name;
+	if (courseId && name) {
+		try {
+			await db.course.editCourse(courseId, name);
+			res.status(200).send({ err: 0 });
+		} catch (err) {
+			debug(err.message);
+			e = error.serverError(err.message);
+			next(e);
+		}
+	} else {
+		e = error.badRequest('New name for the course is required');
+		next(e);
+	}
+});
 
 adminApp.get('/get/:courseId', async function(req, res, next) {
 	var e;
 	var courseId = req.params.courseId;
 	try {
 		var course = await db.course.findByCourseId(courseId);
+		if (course) {
+			res.status(200).send({ err: 0, course });
+		} else {
+			e = error.badRequest('Course not found');
+			next(e);
+		}
 	} catch (err) {
 		debug(err);
 		e = error.serverError(err);
-		return next(e);
+		next(e);
 	}
-	if (!course) {
-		e = error.badRequest('Course not found');
-		return next(e);
-	}
-
-	// var finalCourse = {};
-	// var students = [];
-	// var teachers = [];
-
-	// for (var studentId of course.students) {
-	// 	var student = await db.user.findByUserId(studentId);
-	// 	students.push(student);
-	// }
-
-	// for (var teacherId of course.teachers) {
-	// 	var teacher = await db.user.findByUserId(teacherId);
-	// 	teachers.push(teacher);
-	// }
-	// finalCourse.name = course.name;
-	// finalCourse.students = students;
-	// finalCourse.teachers = teachers;
-	// finalCourse.courseId = courseId;
-	res.status(200).send({ err: 0, course });
 });
 
 adminApp.post('/teachers/remove', async function(req, res, next) {
@@ -105,17 +182,18 @@ adminApp.post('/teachers/remove', async function(req, res, next) {
 	var teacherId = req.body.teacherId;
 	var courseId = req.body.courseId;
 	try {
-		var out = await db.course.deleteTeacher(courseId, teacherId);
+		var out = await db.course.deleteTeachers(courseId, teacherId);
+		if (out.err) {
+			e = error.badRequest('Invalid course or student');
+			next(e);
+		} else {
+			res.status(200).send({ err: 0 });
+		}
 	} catch (err) {
 		debug(err);
 		e = error.serverError(err);
-		return next(e);
+		next(e);
 	}
-	if (out.err) {
-		e = error.badRequest('Invalid course or student');
-		return next(e);
-	}
-	res.status(200).send({ err: 0 });
 });
 
 adminApp.post('/teachers/add', async function(req, res, next) {
@@ -124,64 +202,19 @@ adminApp.post('/teachers/add', async function(req, res, next) {
 	var courseId = req.body.courseId;
 	try {
 		var user = await db.user.findByUserId(teacherId);
-		if (!user) {
-			e = error.badRequest('Invalid teacher ID');
-			return next(e);
+		if (user) {
+			await db.course.addTeacher(courseId, teacherId);
+			res.status(200).send({ err: 0 });
+		} else {
+			e = error.badRequest('Invalid user Id');
+			next(e);
 		}
-		var out = await db.course.addTeacher(courseId, teacherId);
 	} catch (err) {
-		debug(err);
 		e = error.serverError(err);
-		return next(e);
+		next(e);
 	}
-	if (!out) {
-		e = error.badRequest();
-		return next(e);
-	}
-	res.status(200).send({ err: 0 });
 });
 
-adminApp.post('/students/remove', async function(req, res, next) {
-	var e;
-	var studentId = req.body.studentId;
-	var courseId = req.body.courseId;
-	try {
-		var out = await db.course.deleteStudent(courseId, studentId);
-	} catch (err) {
-		debug(err);
-		e = error.serverError(err);
-		return next(e);
-	}
-	if (out.err) {
-		e = error.badRequest('Invalid course or student');
-		return next(e);
-	}
-	res.status(200).send({ err: 0 });
-});
-
-adminApp.post('/students/add', async function(req, res, next) {
-	var e;
-	var studentId = req.body.studentId;
-	var courseId = req.body.courseId;
-
-	try {
-		var user = await db.user.findByUserId(studentId);
-		if (!user) {
-			e = error.badRequest('Invalid student ID');
-			return next(e);
-		}
-		var out = await db.course.addStudent(courseId, studentId);
-	} catch (err) {
-		debug(err);
-		e = error.serverError(err);
-		return next(e);
-	}
-	if (!out) {
-		e = error.badRequest();
-		return next(e);
-	}
-	res.status(200).send({ err: 0 });
-});
 
 module.exports.adminRoutes = adminApp;
 module.exports.privateRoutes = privateApp;

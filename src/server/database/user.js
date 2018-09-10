@@ -144,6 +144,12 @@ function listUsers() {
 	return User.find().lean();
 }
 
+function findOneOrMoreByUserId(users) {
+	return User.find({ userId: { $in: users } });
+}
+
+
+
 /**
  * Edit an user
  * @param {String} userId
@@ -212,7 +218,8 @@ var user = {
 	editPassword,
 	findByUserIdAndPassword,
 	resetPassword,
-	listUsers
+	listUsers,
+	findOneOrMoreByUserId
 };
 
 module.exports = user;
