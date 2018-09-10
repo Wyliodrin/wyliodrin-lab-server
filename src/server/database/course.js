@@ -167,6 +167,9 @@ function findByCourseIdAndStudentId(courseId, studentId) {
 	return Course.findOne({ $and: [{ courseId: courseId }, { $or: [{ students: studentId }, { open: true }] }] }).lean();
 }
 
+function findByCourseAndUserId(courseId, userId) {
+	return Course.findOne({ $and: [{ courseId: courseId }, { $or: [{ students: userId }, { teachers: userId }] }] })
+}
 var course = {
 	createCourse,
 	findByCourseId,
@@ -184,7 +187,8 @@ var course = {
 	editCourse,
 	addStudents,
 	deleteStudents,
-	deleteTeachers
+	deleteTeachers,
+	findByCourseAndUserId
 };
 
 module.exports = course;

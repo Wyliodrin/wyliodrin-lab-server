@@ -112,7 +112,7 @@ privateApp.post('/edit', async function(req, res, next) {
 	var firstName = req.body.firstName;
 	var lastName = req.body.lastName;
 	var email = req.body.email;
-	if (firstname || lastName || email) {
+	if (firstName || lastName || email) {
 		try {
 			await db.user.edit(userId, null, null, email, firstName, lastName);
 			res.status(200).send({ err: 0 });

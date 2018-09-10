@@ -5,13 +5,24 @@ var debug = require('debug')('wyliodrin-lab-server:boards-route');
 var db = require('../database/database.js');
 var error = require('../error.js');
 
-var boardApp = express.Router();
+var privateApp = express.Router();
 var remoteApp = express.Router();
 var adminApp = express.Router();
 
 debug.log = console.info.bind(console);
 
-boardApp.get('/get/:boardId', async function(req, res, next) {
+async function userIsValidForCourse(user, courseId) {
+	if (user.role === 'admin') {
+		return true;
+	}
+	var course = await db.course.findByCourseAndUserId(courseId, user.userId);
+	if (course) {
+		return true;
+	}
+	return false;
+}
+
+privateApp.get('/get/:boardId', async function(req, res, next) {
 	var e;
 	console.log('Aici');
 	var boardId = req.params.boardId;
@@ -23,6 +34,33 @@ boardApp.get('/get/:boardId', async function(req, res, next) {
 		return next(e);
 	}
 	res.status(200).send({ err: 0, board });
+});
+
+privateApp.get('/list/:courseId', async function(req, res, next) {
+	var e;
+	var courseId = req.params.courseId;
+	try {
+		var course = await db.course.findByCourseId(courseId);
+		if (course) {
+			if (userIsValidForCourse(user, courseId)) {
+				var boards = db.board.listBoardsByCourseId(courseId);
+				if (boards) {
+					res.status(200).send({ err: 0, boards });
+				} else {
+					res.status(200).send({ err: 0, message: 'No boards registered' });
+				}
+			} else {
+				e = error.unauthorized('Not authorized');
+				next(e);
+			}
+		} else {
+			e = error.badRequest('Invalid course ID');
+			next(e);
+		}
+	} catch (err) {
+		e = error.serverError();
+		next(e);
+	}
 });
 
 
@@ -76,5 +114,5 @@ adminApp.get('/list', async function(req, res, next) {
 });
 
 module.exports.remoteRoutes = remoteApp;
-module.exports.privateRoutes = boardApp;
+module.exports.privateRoutes = privateApp;
 module.exports.adminRoutes = adminApp;
