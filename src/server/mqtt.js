@@ -1,4 +1,4 @@
-var mosca = require ('mosca');
+/*var mosca = require ('mosca');
 
 log = {error:console.log, info:console.log}
 
@@ -100,4 +100,4 @@ server.on('clientConnected', function(client) {
 server.on('clientDisconnected', function(client) {
 	log.info('MQTT: Client Disconnected '+client.id);
 });
-
+*/
