@@ -36,6 +36,45 @@ privateApp.get('/get/:boardId', async function(req, res, next) {
 	res.status(200).send({ err: 0, board });
 });
 
+privateApp.get('/user', async function(req, res, next) {
+	var e;
+	console.log('Aici');
+	var userId = req.user.userId;
+	console.log('Test serial parms', userId);
+	try {
+		var board = await db.board.findByUserId(userId);
+	} catch (err) {
+		e = error.serverError(err);
+		return next(e);
+	}
+	res.status(200).send({ err: 0, board });
+});
+
+privateApp.post('/assign', async function(req, res, next) {
+	var e;
+	console.log('Aici');
+	var userId = req.user.userId;
+	var courseId = req.body.courseId;
+	var boardId = req.body.boardId;
+	console.log('Test serial parms', userId);
+	try {
+		// TODO verify course
+		var board = await db.board.assignCourseAndUser (boardId, userId, courseId);
+		if (board && board.userId === userId)
+		{
+			res.send ({err: 0});
+		}
+		else
+		{
+			error.sendError (res, error.unauthorized ('board is already assigned to a user'));
+		}
+	} catch (err) {
+		e = error.serverError(err);
+		return next(e);
+	}
+	res.status(200).send({ err: 0, board });
+});
+
 privateApp.get('/list/:courseId', async function(req, res, next) {
 	var e;
 	var courseId = req.params.courseId;

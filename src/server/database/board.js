@@ -106,7 +106,7 @@ function assignCourseToBoard(boardId, courseId) {
 }
 
 function assignCourseAndUser(boardId, userId, courseId) {
-	return Board.findOneAndUpdate({ boardId: boardId }, { $set: { userId: userId, courseId: courseId, command: 'reboot', lastInfo: Date.now() } }, { upsert: true, new: true }).lean();
+	return Board.findOneAndUpdate({ boardId: boardId, userId: null }, { $set: { userId: userId, courseId: courseId, command: 'reboot', lastInfo: Date.now() } }, { upsert: true, new: true }).lean();
 }
 
 function unsetCourseAndUser(boardId) {
