@@ -10,10 +10,11 @@ debug.log = console.info.bind(console);
 
 privateApp.post('/add', async(req, res, next) => {
 	var userId = req.user.userId;
-	var projectName = req.body.projectName;
-	var result = await db.workspace.createProject(userId, projectName);
+	var projectName = req.body.name;
+	var language = req.body.language;
+	var result = await db.workspace.createProject(userId, projectName, language);
 	if (result.success) {
-		res.status(200).send({});
+		res.status(200).send({err: 0});
 	} else {
 		debug(result.message);
 		var e = error.serverError();
@@ -21,7 +22,7 @@ privateApp.post('/add', async(req, res, next) => {
 	}
 });
 
-privateApp.post('/list', async(req, res, next) => {
+privateApp.get('/list', async(req, res, next) => {
 	var userId = req.user.userId;
 	try {
 		var projects = await db.workspace.listProjects(userId);
@@ -30,7 +31,7 @@ privateApp.post('/list', async(req, res, next) => {
 		var e = error.serverError(err);
 		return next(e);
 	}
-	res.status(200).send(projects);
+	res.status(200).send({err: 0, projects});
 });
 
 module.exports.privateRoutes = privateApp;

@@ -5,6 +5,7 @@ var debug = require('debug')('wyliodrin-lab-server:course-routes');
 var db = require('../database/database.js');
 var error = require('../error.js');
 
+var publicApp = express.Router();
 var privateApp = express.Router();
 var adminApp = express.Router();
 
@@ -18,6 +19,18 @@ async function userCanAddStudents(user, courseId) {
 	}
 	return false;
 }
+
+publicApp.get('/public', async function(req, res, next) {
+	var e;
+	try {
+		var courses = await db.course.listPublicCourses();
+		res.status(200).send({ err: 0, courses });
+	} catch (err) {
+		debug('Error listing courses');
+		e = error.serverError(err);
+		next(e);
+	}
+});
 
 privateApp.get('/', async function(req, res, next) {
 	var e;
@@ -215,6 +228,6 @@ adminApp.post('/teachers/add', async function(req, res, next) {
 	}
 });
 
-
+module.exports.publicRoutes = publicApp;
 module.exports.adminRoutes = adminApp;
 module.exports.privateRoutes = privateApp;
