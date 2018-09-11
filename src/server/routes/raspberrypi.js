@@ -47,10 +47,10 @@ adminApp.post('/download', function(req, res, next) {
 	res.status(200).send({ err: 0 });
 });
 
-adminApp.get('/delete/:id', function(req, res, next) {
+adminApp.get('/delete/:id', async function(req, res, next) {
 	try {
 		// TODO Delete image
-		// var images = await db.image.listImagesAsArray ();
+		await db.image.deleteImage (req.params.id);
 	} catch (err) {
 		let e = error.serverError(err);
 		return next(e);

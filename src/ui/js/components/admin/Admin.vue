@@ -79,6 +79,7 @@
 <script>
 
 var mapGetters = require('vuex').mapGetters;
+var md5 = require ('md5');
 
 module.exports = {
 	name: 'Admin',
@@ -94,7 +95,7 @@ module.exports = {
 			{
 				this.$store.dispatch ('settings/redirect', 'LOGIN');
 			}
-		},
+		}
 	},
 	created() {
 		
@@ -102,7 +103,11 @@ module.exports = {
 	computed: {
 		...mapGetters ({
 			user: 'user/user',
-		})
+		}),
+		gravatar ()
+		{
+			return 'https://www.gravatar.com/avatar/'+md5 (this.user.email)+'?d=mp';
+		}
 	}
 };
 

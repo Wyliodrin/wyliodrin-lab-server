@@ -141,6 +141,15 @@ function deleteByCourseId(courseId) {
 	return Course.remove({ courseId });
 }
 
+function removeImage (imageId)
+{
+	return Course.update ({imageId}, {$unset: {imageId:''}}, {multi: true}).lean ();
+}
+
+function listCoursesByImageId(imageId) {
+	return Course.find({imageId});
+}
+
 function listAllCourses() {
 	return Course.find();
 }
@@ -177,6 +186,8 @@ var course = {
 	addTeacher,
 	findByName,
 	getUserRole,
+	removeImage,
+	listCoursesByImageId,
 	listAllCourses,
 	// deleteStudent,
 	// deleteTeacher,
