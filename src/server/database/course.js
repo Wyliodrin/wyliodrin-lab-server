@@ -168,7 +168,7 @@ function findByCourseIdAndStudentId(courseId, studentId) {
 }
 
 function findByCourseAndUserId(courseId, userId) {
-	return Course.findOne({ $and: [{ courseId: courseId }, { $or: [{ students: userId }, { teachers: userId }] }] });
+	return Course.findOne({ $and: [{ courseId: courseId }, { $or: [{ students: { $in: userId } }, { teachers: { $in: userId } }] }] });
 }
 var course = {
 	createCourse,
