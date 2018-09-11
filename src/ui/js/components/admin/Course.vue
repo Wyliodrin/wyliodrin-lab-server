@@ -138,7 +138,7 @@
 								<tr v-for="student in students" :key="student.userId">
 									<!-- <td style="width:300px" @click="productSettings(product)" class="handpointer"><img v-if="product.options.restrictAccess" src="/img/icons/locked.png" class="status-icon" v-tooltip data-toggle="tooltip" data-placement="top" title="Restricted Access"><img v-if="product.actions.restart" src="/img/icons/sched-update.png" class="status-icon" v-tooltip data-toggle="tooltip" data-placement="top" title="Restart Scheduled"><img v-if="product.actions.distribute" src="/img/icons/sched-distribute.png" class="status-icon" v-tooltip data-toggle="tooltip" data-placement="top" title="Distribute Scheduled"><img v-if="product.options.restrictUpdate" src="/img/icons/no-update.png" class="status-icon" v-tooltip data-toggle="tooltip" data-placement="top" title="Restricted Update">{{product.name}}</td> -->
 									<td class="user-name"><h5>{{student.firstName+' '+student.lastName}}</h5></td>
-									<td class="user-pic"><img :src="gravatar(student)"></td>
+									<td class="user-pic"><img :src="gravatar(student, 128)"></td>
 									<td class="user-nick"><strong>{{student.username}}</strong></td>
 									<td class="user-email">{{student.email}}</td>
 									<a class="iconbtn user-del-btn" @click="del(student)" v-tooltip data-toggle="tooltip" data-placement="top" title="Delete"><img src="/img/icons/erase-16.png"></a>
@@ -200,7 +200,7 @@
 								<tr v-for="teacher in teachers" :key="teacher.userId">
 									<!-- <td style="width:300px" @click="productSettings(product)" class="handpointer"><img v-if="product.options.restrictAccess" src="/img/icons/locked.png" class="status-icon" v-tooltip data-toggle="tooltip" data-placement="top" title="Restricted Access"><img v-if="product.actions.restart" src="/img/icons/sched-update.png" class="status-icon" v-tooltip data-toggle="tooltip" data-placement="top" title="Restart Scheduled"><img v-if="product.actions.distribute" src="/img/icons/sched-distribute.png" class="status-icon" v-tooltip data-toggle="tooltip" data-placement="top" title="Distribute Scheduled"><img v-if="product.options.restrictUpdate" src="/img/icons/no-update.png" class="status-icon" v-tooltip data-toggle="tooltip" data-placement="top" title="Restricted Update">{{product.name}}</td> -->
 									<td class="user-name"><h5>{{teacher.firstName+' '+teacher.lastName}}</h5></td>
-									<td class="user-pic"><img :src="gravatar(teacher)"></td>
+									<td class="user-pic"><img :src="gravatar(teacher, 128)"></td>
 									<td class="user-nick"><strong>{{teacher.username}}</strong></td>
 									<td class="user-email">{{teacher.email}}</td>
 									<a class="iconbtn user-del-btn" @click="del(teacher)" v-tooltip data-toggle="tooltip" data-placement="top" title="Delete"><img src="/img/icons/erase-16.png"></a>
@@ -337,10 +337,10 @@ module.exports = {
 		{
 
 		},
-		gravatar (user)
+		gravatar (user, size)
 		{
 			console.log (user);
-			return 'https://www.gravatar.com/avatar/'+md5 (user.email)+'?d=mp';
+			return 'https://www.gravatar.com/avatar/'+md5 (user.email)+'?d=mp&s='+size;
 		}
 	}
 };
