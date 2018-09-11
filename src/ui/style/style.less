@@ -528,6 +528,13 @@ animation: half-circle-spinner-animation 1s infinite alternate;
 	.course-std-nbr {padding: 110px 0 20px;}
 }
 
+.users-list {
+	td{padding: 15px 0; vertical-align: initial !important;}
+	.user-pic { padding: 0;
+		img {border-radius: 300px; max-height: 32px;}
+	}
+}
+
 .users-table {background: transparent;
 	tbody {background: transparent !important;}
 	tr, tr:hover {float: left; background-color: @color-white !important; border:@color-grey solid 15px; max-width: 250px; position: relative;
@@ -541,8 +548,14 @@ animation: half-circle-spinner-animation 1s infinite alternate;
 	}
 	.user-nick {padding: 0;}
 	.user-email {padding: 10px 0 20px;}
-	.user-pic {padding-top: 0;
+	.user-pic {padding-top: 0; position: relative;
 		img {border-radius: 300px; border:@color-grey-4 20px solid;}
+	}
+	.user-connected {
+		img { border:@connected 20px solid !important;}
+	}
+	.connected-board {position: absolute; bottom: 20px; left: 20px; right: 20px; border-radius: 40px; padding: 5px 0; color: @color-white; background: @connected;
+		> span img {height: 24px; background: transparent; border: 0 !important; vertical-align: top;}
 	}
 	.user-del-btn {position: absolute; top: 0; right: 0; background: @color-white; border-radius: 100px;
 		-webkit-box-shadow: 0px 0px 0px 5px @color-grey;

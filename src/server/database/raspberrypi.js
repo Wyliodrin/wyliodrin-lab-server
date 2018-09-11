@@ -10,7 +10,7 @@ var URL = require ('url').URL;
 var request = require ('request');
 var progress = require ('request-progress');
 var unzipper = require ('unzipper');
-var os = require ('os');
+let db = require ('./database');
 
 var fsid = 0;
 
@@ -30,6 +30,7 @@ function spawnPrivileged() {
 }
 
 let STORAGE = path.resolve(__dirname, process.env.WYLIODRIN_LAB_STORAGE || 'storage');
+let DOWNLOAD = path.join (STORAGE, 'download');
 let IMAGES = path.join(STORAGE, 'images');
 
 let MOUNT = path.join(STORAGE, 'mount');
@@ -709,7 +710,7 @@ function defaultImageId() {
 	}
 }
 
-function downloadImage (link)
+async function downloadImage (link)
 {
 	let url = new URL (link);
 	console.log (url);
@@ -721,7 +722,8 @@ function downloadImage (link)
 	{
 		if (extension === '.zip')
 		{
-			archive = path.join (os.tmpdir (), filename);
+			await fs.mkdirs (DOWNLOAD);
+			archive = path.join (DOWNLOAD, filename);
 		}
 		filename = filename.substring (0, filename.length-4)+'.img';
 		filename = path.join (IMAGES, filename);
@@ -805,6 +807,48 @@ async function pathUser (userId, write = false)
 	return folder;
 }
 
+async function unmountImage (imageInfo)
+{
+	let courses = await db.course.listCoursesByImageId (imageInfo.id);
+	for (let course of courses)
+	{
+		let boards = await db.board.listBoardsByCourseId (course.courseId);
+		for (let board in boards)
+		{
+			await unsetup (board.boardId);
+		}
+	}
+	await db.course.removeImage (imageInfo.id);
+}
+
+async function deleteImage (imageId)
+{
+	let imageInfo = imagesList[imageId];
+	if (imageInfo)
+	{
+		let error = null;
+		if (imageInfo.status !== 'ok')
+		{
+			await fs.remove (imageInfo.filename);
+		}
+		else
+		{
+			await unmountImage (imageInfo);
+			if (await hasServerSetup (imageInfo))
+			{
+				let folderSetup = path.join(SETUP_SERVER, imageInfo.id);
+				await fs.remove (folderSetup);
+				await fs.remove (await setupFile (imageInfo));
+			}
+			await fs.remove (imageInfo.filename);
+		}
+		if (!error)
+		{
+			delete imagesList[imageId];
+		}
+	}
+}
+
 function pathHomes ()
 {
 	return HOME;
@@ -849,3 +893,5 @@ module.exports.pathHomes = pathHomes;
 module.exports.downloadImage = downloadImage;
 
 module.exports.hasSetup = hasSetup;
+
+module.exports.deleteImage = deleteImage;
