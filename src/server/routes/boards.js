@@ -43,7 +43,7 @@ privateApp.get('/list/:courseId', async function(req, res, next) {
 		var course = await db.course.findByCourseId(courseId);
 		if (course) {
 			if (userIsValidForCourse(req.user, courseId)) {
-				var boards = db.board.listBoardsByCourseId(courseId);
+				var boards = await db.board.listBoardsByCourseId(courseId);
 				if (boards) {
 					res.status(200).send({ err: 0, boards });
 				} else {
@@ -58,7 +58,7 @@ privateApp.get('/list/:courseId', async function(req, res, next) {
 			next(e);
 		}
 	} catch (err) {
-		e = error.serverError();
+		e = error.serverError(err);
 		next(e);
 	}
 });
