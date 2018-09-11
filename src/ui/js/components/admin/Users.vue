@@ -57,6 +57,8 @@
 			<table v-else class="table table-hover">
 				<thead>
 					<tr>
+						<th scope="col" style="width:70px">
+							<a href="#" class="sort-by"></a></th>
 						<th scope="col">Name
 							<a href="#" class="sort-by"></a></th>
 						<th scope="col" class="text-center">Username
@@ -70,8 +72,9 @@
 						<!-- <th scope="col" class="text-center" style="width:130px">Actions</th> -->
 					</tr>
 				</thead>
-				<tbody>
+				<tbody class="users-list">
 					<tr v-for="user in filterUsers" :key="user.userId" @click="editUser (user.userId)" class="handpointer">
+						<td class="user-pic" style="width:70px"><img src="img/pics/boy.png" class="ml-2"></td>
 						<td>{{user.firstName+' '+user.lastName}}</td>
 						<td class="text-center">{{user.username}}</td>
 						<td class="text-center">{{user.email}}</td>

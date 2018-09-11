@@ -42,7 +42,7 @@ privateApp.get('/list/:courseId', async function(req, res, next) {
 	try {
 		var course = await db.course.findByCourseId(courseId);
 		if (course) {
-			if (userIsValidForCourse(user, courseId)) {
+			if (userIsValidForCourse(req.user, courseId)) {
 				var boards = db.board.listBoardsByCourseId(courseId);
 				if (boards) {
 					res.status(200).send({ err: 0, boards });

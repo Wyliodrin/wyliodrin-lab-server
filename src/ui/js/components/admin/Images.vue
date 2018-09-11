@@ -4,7 +4,7 @@
 		<div class="content w-100 d-flex flex-row proj-bar">
 			<div class="content-top w-100 pt-2">
 				<div class="content-title float-left">
-					<span><img src="img/icons/course-48.png" class="mr-4">Images</span>
+					<span><img src="/img/raspberrypi.png" class="mr-2">Images</span>
 				</div>
 				<div class="btn-group submenu">
 					<button type="button" class="btn btn-secondary dropdown-toggle xs-submenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
