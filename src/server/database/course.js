@@ -75,10 +75,13 @@ function createCourse(name, students, teachers, imageId) {
 	return course.save();
 }
 
-async function editCourse(courseId, name) {
+async function editCourse(courseId, name, imageId) {
 	var editCourse = {};
 	if (name) {
 		editCourse.name = name;
+	}
+	if (imageId) {
+		editCourse.imageId = imageId;
 	}
 	let ret = await Course.updateOne({ courseId: courseId }, { $set: editCourse }).lean();
 	return ret;
@@ -172,7 +175,7 @@ async function getUserRole(courseId, userId) {
 }
 
 function findByStudentId(studentId) {
-	return Course.find({ students: studentId }).lean();
+	return Course.find({ students: studentId });
 }
 
 function findByCourseIdAndStudentId(courseId, studentId) {
