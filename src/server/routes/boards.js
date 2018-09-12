@@ -62,7 +62,7 @@ remoteApp.post('/exchange', async function(req, res /*, next*/ ) {
 				if (board.command) {
 					await db.board.resetCommand(boardId);
 				}
-				res.status(200).send({ command: board.command });
+				res.status(200).send({ err: 0, command: board.command });
 			}
 		} else {
 			error.sendError(res, error.unauthorized('The board should boot from this server'));
@@ -78,7 +78,14 @@ privateApp.get('/get/:boardId', async function(req, res, next) {
 	var boardId = req.params.boardId;
 	try {
 		var board = await db.board.findByBoardId(boardId);
-		res.status(200).send({ err: 0, board });
+		if (board) {
+			delete board.__v;
+			delete board._id;
+			res.status(200).send({ err: 0, board });
+		} else {
+			e = error.badRequest('Invalid boardId');
+			next(e);
+		}
 	} catch (err) {
 		e = error.serverError(err);
 		next(e);
