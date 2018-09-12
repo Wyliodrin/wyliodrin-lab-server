@@ -141,13 +141,12 @@ function deleteByCourseId(courseId) {
 	return Course.remove({ courseId });
 }
 
-function removeImage (imageId)
-{
-	return Course.update ({imageId}, {$unset: {imageId:''}}, {multi: true}).lean ();
+function removeImage(imageId) {
+	return Course.update({ imageId }, { $unset: { imageId: '' } }, { multi: true }).lean();
 }
 
 function listCoursesByImageId(imageId) {
-	return Course.find({imageId});
+	return Course.find({ imageId });
 }
 
 function listAllCourses() {
@@ -155,7 +154,7 @@ function listAllCourses() {
 }
 
 function listPublicCourses() {
-	return Course.find({}, {courseId: 1, name: 1});
+	return Course.find({}, { courseId: 1, name: 1 });
 }
 
 async function getUserRole(courseId, userId) {
@@ -173,7 +172,7 @@ async function getUserRole(courseId, userId) {
 }
 
 function findByStudentId(studentId) {
-	return Course.find({ students: studentId });
+	return Course.find({ students: studentId }).lean();
 }
 
 function findByCourseIdAndStudentId(courseId, studentId) {

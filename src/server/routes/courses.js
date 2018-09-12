@@ -108,6 +108,18 @@ privateApp.post('/students/add', async function(req, res, next) {
 
 });
 
+privateApp.get('/user', async function(req, res, next) {
+	var e;
+	var userId = req.user.userId;
+	try {
+		var courses = await db.course.findByStudentId(userId);
+		res.status(200).send({ err: 0, courses });
+	} catch (err) {
+		e = error.serverError(err);
+		next(e);
+	}
+});
+
 adminApp.get('/all', async function(req, res, next) {
 	var e;
 	try {
