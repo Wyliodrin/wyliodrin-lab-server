@@ -78,7 +78,7 @@ async function createUserHome(userId) {
 		await fs.mkdir(userProjects);
 	} catch (err) {
 		debug('Error making user project folder', err);
-		throw new Error('File System Error: \n', err);
+		throw new Error('File System Error', err);
 	}
 }
 
@@ -104,12 +104,11 @@ async function createProject(userId, projectName) {
 		debug(projectPath);
 		await fs.ensureDir(projectPath);
 		debug('Project created');
+		return { success: true };
 	} catch (err) {
 		debug('Error creating project', err);
-		return { success: false, message: 'File System Error: \n' + err };
+		return { success: false, message: 'File System Error', err };
 	}
-	debug('This should be after created');
-	return { success: true };
 }
 
 
@@ -124,7 +123,7 @@ async function setFile(filePath, userId, project, data) {
 	try {
 		var projectExists = await projectExists(userId, project);
 	} catch (err) {
-		throw new Error('File System Error', err);
+		return { success: false, message: 'File System Error', err: statusCodes.INTERNAL_SERVER_ERROR }
 	}
 
 	if (!projectExists) {
