@@ -186,6 +186,7 @@ All requests return errors in the following format:
 ### Add a new course
 
 `POST` /courses/add
+
 If students of teachers are not specified, the new course is created with empty arrays.
 
 > Note: Only an administrator can access this route
@@ -314,3 +315,36 @@ Remove a teacher from a course
 | --------- | -------- | ----------- |
 | `courseId` | yes | The ID of the course |
 | `teacherId` | yes | The ID of the teacher to be removed |
+
+#### Response
+
+200 OK
+````json
+{
+	"err":0
+}
+````
+
+### Add a teacher
+
+`POST` /courses/teachers/add
+
+Add a teacher to a course
+
+> Note: Only an administrator can access this route
+
+#### Parameters
+
+| Parameter | Required | Description |
+| --------- | -------- | ----------- |
+| `courseId` | yes | The ID of the course |
+| `teacherId` | yes | The ID of the teacher to be added |
+
+#### Response
+
+200 OK
+````json
+{
+	"err":0
+}
+````
