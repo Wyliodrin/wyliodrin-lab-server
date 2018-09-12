@@ -8,6 +8,7 @@ module.exports = function(grunt) {
 			ui: {
 				files: {
 					'build/ui/js/login.js': ['src/ui/js/login.js'],
+					'build/ui/js/lab.js': ['src/ui/js/lab.js'],
 					'build/ui/js/admin.js': ['src/ui/js/admin.js']
 				},
 				options: {

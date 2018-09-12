@@ -28,6 +28,7 @@ apiv1.use(bodyParser.json());
 
 
 apiv1.use('/users', users.publicRoutes);
+apiv1.use('/courses', courses.publicRoutes);
 apiv1.use('/remote', boards.remoteRoutes);
 
 apiv1.use(users.security);

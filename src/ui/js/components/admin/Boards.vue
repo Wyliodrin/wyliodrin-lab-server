@@ -55,6 +55,7 @@
 						<td class="text-center">{{board.userId}}</td>
 						<td class="text-center">{{board.courseId}}</td>
 						<td class="text-center">{{board.status}}</td>
+						<td class="text-center">{{board.IP}}</td>
 						<!-- <td class="text-center">17</td> -->
 						<!-- <td class="text-center" style="width:130px"></td> -->
 					</tr>

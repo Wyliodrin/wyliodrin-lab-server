@@ -12,8 +12,9 @@ privateApp.post('/add', async function(req, res, next) {
 	var e;
 	var userId = req.user.userId;
 	var projectName = req.body.projectName;
+	var language = req.body.language;
 	try {
-		var result = await db.workspace.createProject(userId, projectName);
+		var result = await db.workspace.createProject(userId, projectName, language);
 		if (result.success) {
 			res.status(200).send({ err: 0 });
 		} else {

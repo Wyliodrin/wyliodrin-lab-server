@@ -91,7 +91,7 @@ function isValidName(name) {
 
 }
 
-async function createProject(userId, projectName) {
+async function createProject(userId, projectName, language) {
 
 	if (!isValidName(projectName)) {
 		return { success: false, message: 'Invalid project name' };
@@ -99,10 +99,23 @@ async function createProject(userId, projectName) {
 	var userHome = await raspberrypi.pathUser(userId);
 	var userProjects = path.join(userHome, PROJECTS);
 	var projectPath = path.join(userProjects, projectName);
+	var propertiesFile = path.join(projectPath, 'wylioproject.json');
+
+	let mainFile = null;
+	if (language === 'python') mainFile = path.join(projectPath, 'main.py');
+	else
+	if (language === 'visual') mainFile = path.join(projectPath, 'main.visual');
 
 	try {
 		debug(projectPath);
 		await fs.ensureDir(projectPath);
+		await fs.writeFile(propertiesFile, JSON.stringify({
+			language: language
+		}));
+		// TODO use templates
+		if (mainFile !== null) {
+			await fs.writeFile(mainFile, '');
+		}
 		debug('Project created');
 		return { success: true };
 	} catch (err) {
@@ -123,7 +136,7 @@ async function setFile(filePath, userId, project, data) {
 	try {
 		var projectExists = await projectExists(userId, project);
 	} catch (err) {
-		return { success: false, message: 'File System Error', err: statusCodes.INTERNAL_SERVER_ERROR }
+		return { success: false, message: 'File System Error', err: statusCodes.INTERNAL_SERVER_ERROR };
 	}
 
 	if (!projectExists) {

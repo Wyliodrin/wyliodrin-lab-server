@@ -154,6 +154,10 @@ function listAllCourses() {
 	return Course.find();
 }
 
+function listPublicCourses() {
+	return Course.find({}, {courseId: 1, name: 1});
+}
+
 async function getUserRole(courseId, userId) {
 	try {
 		var course = await findByCourseId(courseId).lean();
@@ -189,6 +193,7 @@ var course = {
 	removeImage,
 	listCoursesByImageId,
 	listAllCourses,
+	listPublicCourses,
 	// deleteStudent,
 	// deleteTeacher,
 	deleteByCourseId,
