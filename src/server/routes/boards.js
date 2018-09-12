@@ -15,7 +15,7 @@ function userIsValidForCourse(user, course) {
 	if (user.role === 'admin') {
 		return true;
 	}
-	if ((course.students.indexOf(user.userId) > 0) || (course.teachers.indexOf(user.userId) > 0)) {
+	if ((course.students.indexOf(user.userId) > -1) || (course.teachers.indexOf(user.userId) > -1)) {
 		return true;
 	} else {
 		return false;
@@ -30,7 +30,7 @@ async function userCanDisconnectBoard(board, user) {
 	try {
 		// It is guaranteed that board contains courseId
 		var course = await db.course.findByCourseId(board.courseId);
-		if (course.teachers.indexOf(user.userId) > 0) {
+		if (course.teachers.indexOf(user.userId) > -1) {
 			return true;
 		} else {
 			return false;
@@ -75,55 +75,57 @@ remoteApp.post('/exchange', async function(req, res /*, next*/ ) {
 
 privateApp.get('/get/:boardId', async function(req, res, next) {
 	var e;
-	console.log('Aici');
 	var boardId = req.params.boardId;
-	console.log('Test serial parms', boardId);
 	try {
 		var board = await db.board.findByBoardId(boardId);
+		res.status(200).send({ err: 0, board });
 	} catch (err) {
 		e = error.serverError(err);
-		return next(e);
+		next(e);
 	}
-	res.status(200).send({ err: 0, board });
 });
 
 privateApp.get('/user', async function(req, res, next) {
 	var e;
-	console.log('Aici');
 	var userId = req.user.userId;
-	console.log('Test serial parms', userId);
 	try {
 		var board = await db.board.findByUserId(userId);
+		res.status(200).send({ err: 0, board });
 	} catch (err) {
 		e = error.serverError(err);
-		return next(e);
+		next(e);
 	}
-	res.status(200).send({ err: 0, board });
 });
 
 privateApp.post('/assign', async function(req, res, next) {
 	var e;
-	console.log('Aici');
 	var userId = req.user.userId;
 	var courseId = req.body.courseId;
 	var boardId = req.body.boardId;
-	console.log('Test serial parms', userId);
-	try {
-		// TODO verify course
-		var board = await db.board.assignCourseAndUser (boardId, userId, courseId);
-		if (board && board.userId === userId)
-		{
-			res.send ({err: 0});
+	if (courseId && boardId) {
+		try {
+			// TODO verify course
+			var course = await db.course.findByCourseAndUserId(courseId);
+			if (course) {
+				var board = await db.board.assignCourseAndUser(boardId, userId, courseId);
+				if (board && (board.userId === userId)) {
+					res.status(200).send({ err: 0, board });
+				} else {
+					e = error.unauthorized('Board is already assigned to a user');
+					next(e);
+				}
+			} else {
+				e = error.badRequest('Invalid course ID');
+				next(e);
+			}
+		} catch (err) {
+			e = error.serverError(err);
+			next(e);
 		}
-		else
-		{
-			error.sendError (res, error.unauthorized ('board is already assigned to a user'));
-		}
-	} catch (err) {
-		e = error.serverError(err);
-		return next(e);
+	} else {
+		e = error.badRequest('Please provide user and course ID');
+		next(e);
 	}
-	res.status(200).send({ err: 0, board });
 });
 
 privateApp.get('/list/:courseId', async function(req, res, next) {

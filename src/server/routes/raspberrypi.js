@@ -10,8 +10,8 @@ var adminApp = express.Router();
 
 privateApp.get('/list', async function(req, res, next) {
 	try {
-		debug ('List images');
-		var images = await db.image.listImagesAsArray ();
+		debug('List images');
+		var images = await db.image.listImagesAsArray();
 	} catch (err) {
 		let e = error.serverError(err);
 		return next(e);
@@ -23,8 +23,8 @@ privateApp.get('/list', async function(req, res, next) {
 privateApp.get('/setup/:id', function(req, res, next) {
 	try {
 		let id = req.params.id;
-		debug ('Setup image '+id);
-		db.image.setupServer (id);
+		debug('Setup image ' + id);
+		db.image.setupServer(id);
 	} catch (err) {
 		let e = error.serverError(err);
 		return next(e);
@@ -36,7 +36,7 @@ privateApp.get('/setup/:id', function(req, res, next) {
 adminApp.post('/download', function(req, res, next) {
 	try {
 		let link = req.body.link;
-		db.image.downloadImage (link);
+		db.image.downloadImage(link);
 		// TODO Delete image
 		// var images = await db.image.listImagesAsArray ();
 	} catch (err) {
@@ -50,7 +50,7 @@ adminApp.post('/download', function(req, res, next) {
 adminApp.get('/delete/:id', async function(req, res, next) {
 	try {
 		// TODO Delete image
-		await db.image.deleteImage (req.params.id);
+		await db.image.deleteImage(req.params.id);
 	} catch (err) {
 		let e = error.serverError(err);
 		return next(e);
