@@ -96,6 +96,7 @@ module.exports = function(grunt) {
 			vendor: {
 				files: {
 					'build/ui/style/wyliodrin.css': 'src/ui/style/style.less',
+					'build/ui/style/studio.css': 'src/ui/style/studio.less',
 					// 'build/ui/style/admin.css': 'src/ui/style/admin.less',
 					'build/ui/style/vendor.css': 'src/ui/style/vendor.less'
 				}

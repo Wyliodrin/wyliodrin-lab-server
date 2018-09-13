@@ -50,9 +50,17 @@
 					<option v-for="app in applications" :key="app.appId" :value="app.appId">{{app.name}}</option>
 				</select>
 			</div> -->
-			<img src="visual" @click="addVisual" width="100" height="100" alt="Visual">
-			<img src="python" @click="addPython" width="100" height="100" alt="Python">
-			(pune doua poze fain colorate aici, astea is butoanele pe care apesi sa faci proiectul)
+			<div class="col-md-12">
+				<button @click="addVisual" class="newprojbtn col-md-6 text-center">
+					<img src="img/vp-btn.png" alt="Visual">
+					<span class="w-100 pt-2">Visual Programming</span>
+				</button>
+				<button @click="addPython" class="newprojbtn col-md-6 text-center">
+					<img src="img/python-btn.png" alt="Python">
+					<span class="w-100 pt-2">Python</span>
+				</button>
+			</div>
+			
 			<!-- <div class="col-md-12 mb-3">
 				Language: 
 				<select v-model="language">

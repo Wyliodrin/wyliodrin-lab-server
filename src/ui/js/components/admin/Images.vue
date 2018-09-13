@@ -1,5 +1,5 @@
 <template>
-	<div class="content greybg w-100 d-flex flex-column h-top">
+	<div class="content w-100 h-100 d-flex flex-column">
 			
 		<div class="content w-100 d-flex flex-row proj-bar">
 			<div class="content-top w-100 pt-2">
