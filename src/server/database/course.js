@@ -75,10 +75,13 @@ function createCourse(name, students, teachers, imageId) {
 	return course.save();
 }
 
-async function editCourse(courseId, name) {
+async function editCourse(courseId, name, imageId) {
 	var editCourse = {};
 	if (name) {
 		editCourse.name = name;
+	}
+	if (imageId) {
+		editCourse.imageId = imageId;
 	}
 	let ret = await Course.updateOne({ courseId: courseId }, { $set: editCourse }).lean();
 	return ret;
@@ -141,13 +144,12 @@ function deleteByCourseId(courseId) {
 	return Course.remove({ courseId });
 }
 
-function removeImage (imageId)
-{
-	return Course.update ({imageId}, {$unset: {imageId:''}}, {multi: true}).lean ();
+function removeImage(imageId) {
+	return Course.update({ imageId }, { $unset: { imageId: '' } }, { multi: true }).lean();
 }
 
 function listCoursesByImageId(imageId) {
-	return Course.find({imageId});
+	return Course.find({ imageId });
 }
 
 function listAllCourses() {
@@ -155,7 +157,7 @@ function listAllCourses() {
 }
 
 function listPublicCourses() {
-	return Course.find({}, {courseId: 1, name: 1});
+	return Course.find({}, { courseId: 1, name: 1 });
 }
 
 async function getUserRole(courseId, userId) {
@@ -181,7 +183,7 @@ function findByCourseIdAndStudentId(courseId, studentId) {
 }
 
 function findByCourseAndUserId(courseId, userId) {
-	return Course.findOne({ $and: [{ courseId: courseId }, { $or: [{ students: userId }, { teachers: userId }] }] });
+	return Course.findOne({ $and: [{ courseId: courseId }, { $or: [{ students: { $in: userId } }, { teachers: { $in: userId } }] }] });
 }
 var course = {
 	createCourse,

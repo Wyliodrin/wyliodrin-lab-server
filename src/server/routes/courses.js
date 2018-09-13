@@ -24,6 +24,9 @@ publicApp.get('/public', async function(req, res, next) {
 	var e;
 	try {
 		var courses = await db.course.listPublicCourses();
+		for (var course of courses) {
+			delete course._id;
+		}
 		res.status(200).send({ err: 0, courses });
 	} catch (err) {
 		debug('Error listing courses');
@@ -38,12 +41,16 @@ privateApp.get('/', async function(req, res, next) {
 
 	try {
 		var courses = await db.course.findByStudentId(userId);
+		for (var course of courses) {
+			delete course.__v;
+			delete course._id;
+		}
+		res.status(200).send({ err: 0, courses });
 	} catch (err) {
 		e = error.serverError(err);
-		return next(e);
+		next(e);
 	}
 
-	res.status(200).send({ err: 0, courses });
 });
 
 privateApp.post('/students/remove', async function(req, res, next) {
@@ -97,7 +104,6 @@ privateApp.post('/students/add', async function(req, res, next) {
 				res.status(200).send({ err: 0 });
 			}
 		} catch (err) {
-			debug(err);
 			e = error.serverError(err);
 			next(e);
 		}
@@ -112,6 +118,10 @@ adminApp.get('/all', async function(req, res, next) {
 	var e;
 	try {
 		var courses = await db.course.listAllCourses();
+		for (var course of courses) {
+			delete course.__v;
+			delete course._id;
+		}
 		res.status(200).send({ err: 0, courses });
 	} catch (err) {
 		debug('Error listing courses');
@@ -125,12 +135,13 @@ adminApp.post('/add', async function(req, res, next) {
 	var students = req.body.students;
 	var teachers = req.body.teachers;
 	var name = req.body.name;
+	var imageId = req.body.imageId;
 	try {
-		var course = await db.course.createCourse(name, students, teachers);
+		var course = await db.course.createCourse(name, students, teachers, imageId);
 		if (course) {
 			res.status(200).send({ err: 0, course });
 		} else {
-			e = error.badRequest('User or user field already in use');
+			e = error.badRequest('One or more invalid fields');
 			next(e);
 		}
 	} catch (err) {
@@ -157,9 +168,10 @@ adminApp.post('/update', async function(req, res, next) {
 	var e;
 	var courseId = req.body.courseId;
 	var name = req.body.name;
+	var imageId = req.body.imageId;
 	if (courseId && name) {
 		try {
-			await db.course.editCourse(courseId, name);
+			await db.course.editCourse(courseId, name, imageId);
 			res.status(200).send({ err: 0 });
 		} catch (err) {
 			debug(err.message);

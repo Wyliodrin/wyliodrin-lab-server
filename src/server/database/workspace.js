@@ -78,7 +78,7 @@ async function createUserHome(userId) {
 		await fs.mkdir(userProjects);
 	} catch (err) {
 		debug('Error making user project folder', err);
-		throw new Error('File System Error: \n', err);
+		throw new Error('File System Error', err);
 	}
 }
 
@@ -99,31 +99,29 @@ async function createProject(userId, projectName, language) {
 	var userHome = await raspberrypi.pathUser(userId);
 	var userProjects = path.join(userHome, PROJECTS);
 	var projectPath = path.join(userProjects, projectName);
-	var propertiesFile = path.join (projectPath, 'wylioproject.json');
+	var propertiesFile = path.join(projectPath, 'wylioproject.json');
 
 	let mainFile = null;
-	if (language === 'python') mainFile = path.join (projectPath, 'main.py');
+	if (language === 'python') mainFile = path.join(projectPath, 'main.py');
 	else
-	if (language === 'visual') mainFile = path.join (projectPath, 'main.visual');
+	if (language === 'visual') mainFile = path.join(projectPath, 'main.visual');
 
 	try {
 		debug(projectPath);
 		await fs.ensureDir(projectPath);
-		await fs.writeFile (propertiesFile, JSON.stringify ({
+		await fs.writeFile(propertiesFile, JSON.stringify({
 			language: language
 		}));
 		// TODO use templates
-		if (mainFile !== null)
-		{
-			await fs.writeFile (mainFile, '');
+		if (mainFile !== null) {
+			await fs.writeFile(mainFile, '');
 		}
 		debug('Project created');
+		return { success: true };
 	} catch (err) {
 		debug('Error creating project', err);
-		return { success: false, message: 'File System Error: \n' + err };
+		return { success: false, message: 'File System Error', err };
 	}
-	debug('This should be after created');
-	return { success: true };
 }
 
 
@@ -138,7 +136,7 @@ async function setFile(filePath, userId, project, data) {
 	try {
 		var projectExists = await projectExists(userId, project);
 	} catch (err) {
-		throw new Error('File System Error', err);
+		return { success: false, message: 'File System Error', err: statusCodes.INTERNAL_SERVER_ERROR };
 	}
 
 	if (!projectExists) {

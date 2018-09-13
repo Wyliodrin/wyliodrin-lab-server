@@ -11,97 +11,34 @@ var adminApp = express.Router();
 
 debug.log = console.info.bind(console);
 
-async function userIsValidForCourse(user, courseId) {
+function userIsValidForCourse(user, course) {
 	if (user.role === 'admin') {
 		return true;
 	}
-	var course = await db.course.findByCourseAndUserId(courseId, user.userId);
-	if (course) {
+	if ((course.students.indexOf(user.userId) > -1) || (course.teachers.indexOf(user.userId) > -1)) {
 		return true;
+	} else {
+		return false;
 	}
-	return false;
 }
 
-privateApp.get('/get/:boardId', async function(req, res, next) {
-	var e;
-	console.log('Aici');
-	var boardId = req.params.boardId;
-	console.log('Test serial parms', boardId);
-	try {
-		var board = await db.board.findByBoardId(boardId);
-	} catch (err) {
-		e = error.serverError(err);
-		return next(e);
-	}
-	res.status(200).send({ err: 0, board });
-});
 
-privateApp.get('/user', async function(req, res, next) {
-	var e;
-	console.log('Aici');
-	var userId = req.user.userId;
-	console.log('Test serial parms', userId);
-	try {
-		var board = await db.board.findByUserId(userId);
-	} catch (err) {
-		e = error.serverError(err);
-		return next(e);
+async function userCanDisconnectBoard(board, user) {
+	if (user.role === 'admin') {
+		return true;
 	}
-	res.status(200).send({ err: 0, board });
-});
-
-privateApp.post('/assign', async function(req, res, next) {
-	var e;
-	console.log('Aici');
-	var userId = req.user.userId;
-	var courseId = req.body.courseId;
-	var boardId = req.body.boardId;
-	console.log('Test serial parms', userId);
 	try {
-		// TODO verify course
-		var board = await db.board.assignCourseAndUser (boardId, userId, courseId);
-		if (board && board.userId === userId)
-		{
-			res.send ({err: 0});
-		}
-		else
-		{
-			error.sendError (res, error.unauthorized ('board is already assigned to a user'));
-		}
-	} catch (err) {
-		e = error.serverError(err);
-		return next(e);
-	}
-	res.status(200).send({ err: 0, board });
-});
-
-privateApp.get('/list/:courseId', async function(req, res, next) {
-	var e;
-	var courseId = req.params.courseId;
-	try {
-		var course = await db.course.findByCourseId(courseId);
-		if (course) {
-			if (userIsValidForCourse(req.user, courseId)) {
-				var boards = await db.board.listBoardsByCourseId(courseId);
-				if (boards) {
-					res.status(200).send({ err: 0, boards });
-				} else {
-					res.status(200).send({ err: 0, message: 'No boards registered' });
-				}
-			} else {
-				e = error.unauthorized('Not authorized');
-				next(e);
-			}
+		// It is guaranteed that board contains courseId
+		var course = await db.course.findByCourseId(board.courseId);
+		if (course.teachers.indexOf(user.userId) > -1) {
+			return true;
 		} else {
-			e = error.badRequest('Invalid course ID');
-			next(e);
+			return false;
 		}
 	} catch (err) {
-		e = error.serverError(err);
-		next(e);
+		throw new Error('MongoDB error', err);
 	}
-});
-
+}
 
 remoteApp.post('/exchange', async function(req, res /*, next*/ ) {
 	// var e;
@@ -125,7 +62,7 @@ remoteApp.post('/exchange', async function(req, res /*, next*/ ) {
 				if (board.command) {
 					await db.board.resetCommand(boardId);
 				}
-				res.status(200).send({ command: board.command });
+				res.status(200).send({ err: 0, command: board.command });
 			}
 		} else {
 			error.sendError(res, error.unauthorized('The board should boot from this server'));
@@ -135,6 +72,121 @@ remoteApp.post('/exchange', async function(req, res /*, next*/ ) {
 	}
 
 });
+
+privateApp.get('/get/:boardId', async function(req, res, next) {
+	var e;
+	var boardId = req.params.boardId;
+	try {
+		var board = await db.board.findByBoardId(boardId);
+		if (board) {
+			delete board.__v;
+			delete board._id;
+			res.status(200).send({ err: 0, board });
+		} else {
+			e = error.badRequest('Invalid boardId');
+			next(e);
+		}
+	} catch (err) {
+		e = error.serverError(err);
+		next(e);
+	}
+});
+
+privateApp.get('/user', async function(req, res, next) {
+	var e;
+	var userId = req.user.userId;
+	try {
+		var board = await db.board.findByUserId(userId);
+		res.status(200).send({ err: 0, board });
+	} catch (err) {
+		e = error.serverError(err);
+		next(e);
+	}
+});
+
+privateApp.post('/assign', async function(req, res, next) {
+	var e;
+	var userId = req.user.userId;
+	var courseId = req.body.courseId;
+	var boardId = req.body.boardId;
+	if (courseId && boardId) {
+		try {
+			// TODO verify course
+			var course = await db.course.findByCourseAndUserId(courseId);
+			if (course) {
+				var board = await db.board.assignCourseAndUser(boardId, userId, courseId);
+				if (board && (board.userId === userId)) {
+					res.status(200).send({ err: 0, board });
+				} else {
+					e = error.unauthorized('Board is already assigned to a user');
+					next(e);
+				}
+			} else {
+				e = error.badRequest('Invalid course ID');
+				next(e);
+			}
+		} catch (err) {
+			e = error.serverError(err);
+			next(e);
+		}
+	} else {
+		e = error.badRequest('Please provide user and course ID');
+		next(e);
+	}
+});
+
+privateApp.get('/list/:courseId', async function(req, res, next) {
+	var e;
+	var courseId = req.params.courseId;
+	try {
+		var course = await db.course.findByCourseId(courseId);
+		if (course) {
+			if (userIsValidForCourse(req.user, course)) {
+				var boards = await db.board.listBoardsByCourseId(courseId);
+				res.status(200).send({ err: 0, boards });
+			} else {
+				e = error.unauthorized('Not authorized');
+				next(e);
+			}
+		} else {
+			e = error.badRequest('Invalid course ID');
+			next(e);
+		}
+	} catch (err) {
+		e = error.serverError(err);
+		next(e);
+	}
+});
+
+privateApp.post('/disconnect', async function(req, res, next) {
+	var e;
+	var boardId = req.body.boardId;
+
+	try {
+		var board = await db.board.findByBoardId(boardId);
+		if (board) {
+			if (board.courseId && board.userId) {
+				if (await userCanDisconnectBoard(board, req.user)) {
+					await db.board.unsetCourseAndUser(boardId);
+					res.status(200).send({ err: 0 });
+				} else {
+					e = error.unauthorized('User cannot disconnect board');
+					next(e);
+				}
+			} else {
+				res.status(200).send({ err: 0 });
+			}
+		} else {
+			e = error.badRequest('Invalid boardId');
+			next(e);
+		}
+	} catch (err) {
+		e = error.serverError(err);
+		next(e);
+	}
+});
+
+
 
 adminApp.get('/list', async function(req, res, next) {
 	var e;
@@ -151,6 +203,18 @@ adminApp.get('/list', async function(req, res, next) {
 		res.status(200).send({ err: 0, message: 'No boards' });
 	}
 });
+
+// adminApp.post('/disconnect', async function(req, res, next) {
+// 	var e;
+// 	var boardId = req.body.boardId;
+// 	try {
+// 		await db.board.unsetCourseAndUser(boardId);
+// 		res.status(200).send({ err: 0 });
+// 	} catch (err) {
+// 		e = error.serverError(err);
+// 		next(e);
+// 	}
+// });
 
 module.exports.remoteRoutes = remoteApp;
 module.exports.privateRoutes = privateApp;
