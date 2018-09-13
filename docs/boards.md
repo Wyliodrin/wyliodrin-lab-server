@@ -68,7 +68,7 @@ The route that all the boards will access every 10 seconds for status updates
 
 ### Get board
 
-`POST` /boards/get/:boardId
+`GET` /boards/get/:boardId
 
 Get the board with the ID boardId
 
@@ -85,5 +85,156 @@ Get the board with the ID boardId
 		"userId": "ID of the user",
 		"command": "the command of the board"
 	}
+}
+````
+
+### Get board for user
+
+`GET` /boards/user
+
+Get the board used by the logged in user. If the user doesn't use a board, the returned board is null.
+
+#### Response 
+
+200 OK
+````json
+{
+	"err": 0,
+	"board": {
+		"status": "the status of the board",
+		"lastInfo": "yyyy-mm-ddThh:mm:ss",
+		"courseId": "ID of the course",
+		"userId": "ID of the user",
+		"command": "the command of the board",
+		"boardId": "the serial of the board"
+	}
+}
+````
+
+### Disconnect a user
+
+`POST` /boards/disconnect
+
+Disconnect a user from the board
+
+> Note: Only an administrator or a teacher for the course can access this route.
+
+#### Parameters
+
+| Parameter | Required | Description |
+| --------- | -------- | ----------- |
+| `boardId` | yes | The ID of the board |
+
+
+#### Response 
+
+200 OK
+````json
+{
+	"err": 0
+}
+````
+
+### Assign a board to a user
+
+`POST` /boards/assign
+
+The board must not be assigned to another course or another user.
+
+> Note: Only an administrator can access this route.
+
+#### Parameters
+
+| Parameter | Required | Description |
+| --------- | -------- | ----------- |
+| `boardId` | yes | The ID of the board |
+| `courseId` | yes | The ID of the course |
+| `userId` | yes | The ID of the user |
+
+
+#### Response 
+
+200 OK
+````json
+{
+	"err": 0,
+	"board": {
+		"status": "the status of the board",
+		"lastInfo": "yyyy-mm-ddThh:mm:ss",
+		"courseId": "ID of the course",
+		"userId": "ID of the user",
+		"command": "the command of the board",
+		"boardId": "the serial of the board"
+	}
+}
+````
+
+### List boards assigned to course
+
+`GET` /boards/list/:courseId
+
+Lists the boards that are assigned to this course
+
+> Note: Only an administrator, a student or a teacher for the course can access this route.
+
+#### Response 
+
+200 OK
+````json
+{
+	"err": 0,
+	"boards": [
+		{
+		"status": "the status of board1",
+		"lastInfo": "yyyy-mm-ddThh:mm:ss",
+		"courseId": "ID of the course",
+		"userId": "ID of the user",
+		"command": "the command of board1",
+		"boardId": "the serial of board1"
+		},
+		{
+		"status": "the status of board2",
+		"lastInfo": "yyyy-mm-ddThh:mm:ss",
+		"courseId": "ID of the course",
+		"userId": "ID of the user",
+		"command": "the command of board2",
+		"boardId": "the serial of board2"
+		},
+		.......
+	]
+}
+````
+
+### List all boards
+
+`GET` /boards/list
+
+> Note: Only an administrator can access this route
+
+#### Response 
+
+200 OK
+````json
+{
+	"err": 0,
+	"boards": [
+		{
+		"status": "the status of board1",
+		"lastInfo": "yyyy-mm-ddThh:mm:ss",
+		"courseId": "ID of the course",
+		"userId": "ID of the user",
+		"command": "the command of board1",
+		"boardId": "the serial of board1"
+		},
+		{
+		"status": "the status of board2",
+		"lastInfo": "yyyy-mm-ddThh:mm:ss",
+		"courseId": "ID of the course",
+		"userId": "ID of the user",
+		"command": "the command of board2",
+		"boardId": "the serial of board2"
+		},
+		.......
+	]
 }
 ````
