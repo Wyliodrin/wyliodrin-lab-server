@@ -17,7 +17,7 @@
 				</div>
 				<input type="text" class="form-control" aria-label="Name" v-model="project.name">
 			</div>
-			<div class="input-group col-md-12 mb-3">
+			<!-- <div class="input-group col-md-12 mb-3">
 				<div class="input-group-prepend">
 					<span class="input-group-text" id="inputGroup-sizing-default">Language</span>
 				</div>
@@ -49,7 +49,7 @@
 					<option :value="'local.'+project.projectId">(do not assign an application)</option>
 					<option v-for="app in applications" :key="app.appId" :value="app.appId">{{app.name}}</option>
 				</select>
-			</div>
+			</div> -->
 			<!-- <div class="col-md-12 mb-3">
 				Language: 
 				<select v-model="language">
@@ -70,8 +70,8 @@ module.exports = {
 		return {
 			project: _.cloneDeep (this.$store.getters['project/project']),
 			working: false,
-			LANGUAGES: {},
-			PLATFORM_UI: {},
+			// LANGUAGES: {},
+			// PLATFORM_UI: {},
 			errors: {}
 		};
 	},
@@ -118,41 +118,41 @@ module.exports = {
 			APPLICATIONS: 'application/applications',
 			PLATFORM: 'settings/PLATFORM',
 		}),
-		applications ()
-		{
-			var that = this;
-			if (_.isArray (this.APPLICATIONS))
-			{
-				return this.APPLICATIONS.filter (function (app)
-				{
-					return that.project.platform === app.platform;
-				});
-			}
-			else 
-				return [];
-		},
-		hasApplication ()
-		{
-			return this.project.platform && this.PLATFORM[this.project.platform].docker.platform !== 'none';
-		}
+		// applications ()
+		// {
+		// 	var that = this;
+		// 	if (_.isArray (this.APPLICATIONS))
+		// 	{
+		// 		return this.APPLICATIONS.filter (function (app)
+		// 		{
+		// 			return that.project.platform === app.platform;
+		// 		});
+		// 	}
+		// 	else 
+		// 		return [];
+		// },
+		// hasApplication ()
+		// {
+		// 	return this.project.platform && this.PLATFORM[this.project.platform].docker.platform !== 'none';
+		// }
 	},
-	watch: {
-		'project.platform' ()
-		{
-			console.log (this.project.platform);
-			this.PLATFORM_UI = this.PLATFORM[this.project.platform].ui;
-			if (!this.PLATFORM_UI[this.project.ui])
-			{
-				this.ui = Object.keys (this.PLATFORM_UI)[0];
-			}
-			this.LANGUAGES = this.PLATFORM_UI[this.project.ui].language;
-			if (!this.PLATFORM_UI[this.project.ui].language[this.project.language])
-			{
-				console.log (Object.keys (this.PLATFORM_UI[this.project.ui].language));
-				this.project.language = Object.keys (this.PLATFORM_UI[this.project.ui].language)[0];
-			}
-		}
-	}
+	// watch: {
+	// 	'project.platform' ()
+	// 	{
+	// 		console.log (this.project.platform);
+	// 		this.PLATFORM_UI = this.PLATFORM[this.project.platform].ui;
+	// 		if (!this.PLATFORM_UI[this.project.ui])
+	// 		{
+	// 			this.ui = Object.keys (this.PLATFORM_UI)[0];
+	// 		}
+	// 		this.LANGUAGES = this.PLATFORM_UI[this.project.ui].language;
+	// 		if (!this.PLATFORM_UI[this.project.ui].language[this.project.language])
+	// 		{
+	// 			console.log (Object.keys (this.PLATFORM_UI[this.project.ui].language));
+	// 			this.project.language = Object.keys (this.PLATFORM_UI[this.project.ui].language)[0];
+	// 		}
+	// 	}
+	// }
 };
 </script>
 

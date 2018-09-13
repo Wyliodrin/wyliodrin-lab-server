@@ -16,6 +16,7 @@ module.exports = {
 		course: null,
 		courses: null,
 		publicCourses: null,
+		userCourses: [],
 	},
 	getters: {
 		// token(state) {
@@ -29,6 +30,10 @@ module.exports = {
 		},
 		publicCourses(state) {
 			return state.publicCourses;
+		},
+		userCourses (state)
+		{
+			return state.userCourses;
 		}
 	},
 	actions: {
@@ -69,6 +74,21 @@ module.exports = {
 				if (response.data.err === 0) {
 					console.log(response.data.courses);
 					store.commit('publicCourses', response.data.courses);
+					return true;
+				}
+				return false;
+			} catch (e) {
+				return false;
+			}
+		},
+
+		async listUserCourses(store) {
+			try {
+				store.commit('userCourses', []);
+				let response = await Vue.http.get(setup.API + '/courses/');
+				if (response.data.err === 0) {
+					console.log(response.data.courses);
+					store.commit('userCourses', response.data.courses);
 					return true;
 				}
 				return false;
@@ -202,5 +222,9 @@ module.exports = {
 		publicCourses(state, value) {
 			state.publicCourses = value;
 		},
+		userCourses (state, value)
+		{
+			state.userCourses = value;
+		}
 	}
 };

@@ -30,7 +30,7 @@
 						<select name="Course" v-model="courseId">
 							<option v-for="course in courses" :key="course.courseId" :value="course.courseId">{{course.name}}</option>
 						</select>
-						<input type="text" class="form-control" name="BoardId" placeholder="Board ID - se poate ascunde" required="" @keyup.enter="login" v-model="boardId" :readonly="originalBoardId!==''"/>
+						<input type="text" class="form-control" name="BoardId" placeholder="Board ID - se poate ascunde" required="" @keyup.enter="login" v-model="boardId" :readonly="originalBoardId"/>
 						<button class="btn btn-login btn-block" name="Submit" value="Login" @click="login">Start Lab</button>
 					</div>
 					<!-- <button class="btn btn-signup btn-block" value="Create account" @click="createAccount">Create account</button> -->
@@ -70,7 +70,8 @@ module.exports = {
 
 				if (login)
 				{
-					this.$store.dispatch ('user/updateUser');
+					await this.$store.dispatch ('user/updateUser');
+					await this.$store.dispatch ('user/updateUser');
 					this.lab ();
 				}
 				else {
@@ -85,11 +86,12 @@ module.exports = {
 		},
 		lab ()
 		{
-			if (this.user && this.courseId && this.boardId)
-			{
-				// TODO verify data
-				this.$store.dispatch ('settings/redirect', 'LAB');
-			}
+			// if (this.user && this.courseId && this.boardId)
+			// {
+			// 	// TODO verify data
+			// 	this.$store.dispatch ('settings/redirect', 'LAB');
+			// }
+
 		},
 		async logout () {
 			await this.$store.dispatch ('user/logout');
@@ -98,11 +100,13 @@ module.exports = {
 	},
 	computed: mapGetters ({
 		user: 'user/user',
-		courses: 'course/publicCourses'
+		courses: 'course/userCourses',
+		board: 'board/board',
 	}),
-	created ()
+	async created ()
 	{
-		this.$store.dispatch ('course/listPublicCourses');
+		await this.$store.dispatch ('course/listUserCourses');
+		await this.$store.dispatch ('board/getBoard');
 	}
 };
 
