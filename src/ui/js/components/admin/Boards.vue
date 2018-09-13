@@ -54,10 +54,14 @@
 						<td>{{board.boardId}}</td>
 						<td class="text-center">{{board.userId}}</td>
 						<td class="text-center">{{board.courseId}}</td>
+						<td class="text-center">{{board.ip}}</td>
 						<td class="text-center">{{board.status}}</td>
-						<td class="text-center">{{board.IP}}</td>
+						<td class="text-center">{{lastSeen (board)}}</td>
 						<!-- <td class="text-center">17</td> -->
-						<!-- <td class="text-center" style="width:130px"></td> -->
+						<td class="text-center" style="width:130px">
+							<a class="iconbtn" @click="reboot(board)" v-tooltip data-toggle="tooltip"  data-placement="top" title="Reboot"><img src="/img/icons/restart-16.png"></a>
+							<a class="iconbtn" @click="disconnect(board)" v-tooltip data-toggle="tooltip" data-placement="top" title="Disconnect"><img src="/img/icons/disconnect-16.png"></a>
+						</td>
 					</tr>
 				</tbody>
 			</table>
@@ -66,8 +70,100 @@
 </template>
 
 <script>
+var HalfCircleSpinner = require ('epic-spinners/dist/lib/epic-spinners.min.js').HalfCircleSpinner;
+
+var mapGetters = require('vuex').mapGetters;
+var Vue = require ('vue');
+var moment = require ('moment');
+var timeout = null;
+var _ = require ('lodash');
 module.exports = {
-	name: 'Boards'
+	name: 'Boards',
+	components: {
+		HalfCircleSpinner
+	},
+	computed: {
+		...mapGetters ({
+			users: 'user/users',
+			courses: 'course/courses',
+			boards: 'board/boards'
+		})
+	},
+	created ()
+	{
+		this.updateBoards ();
+		this.$store.dispatch ('user/users');
+		this.$store.dispatch ('course/updateCourses');
+		// this.$store.dispatch ('board/listBoards');
+	},
+	destroyed ()
+	{
+		clearTimeout (timeout);
+	},
+	methods: {
+		reboot (board)
+		{
+			board;
+		},
+		disconnect (board)
+		{
+			var that = this;
+			Vue.bootbox.confirm ('Are you sure you want to disconnect?', function (result)
+			{
+				if (result)
+				{
+					that.$store.dispatch ('board/disconnect', board.boardId);
+				}
+			});
+		},
+		lastSeen (board)
+		{
+			// console.log (deployment);
+			// console.log (product.latestStatus);
+			if (board.lastInfo)
+			{
+				return new moment (board.lastInfo).format ('MMMM Do YYYY, h:mm:ss a');
+			}
+			else
+			{
+				return 'never';
+			}
+		},
+		async updateBoards ()
+		{
+			await this.$store.dispatch ('board/listBoards');
+			timeout = setTimeout (this.updateBoards, 5000);
+		},
+		user (userId)
+		{
+			if (this.users)
+			{
+				let user = _.find (this.users, function (user)
+				{
+					if (user.userId === user) return true;
+				});
+				return user.firstName+' '+user.lastName;
+			}
+			else
+			{
+				return userId;
+			}
+		},
+		course (courseId)
+		{
+			if (this.users)
+			{
+				let user = _.find (this.users, function (user)
+				{
+					if (user.userId === user) return true;
+				});
+			}
+			else
+			{
+				return userId;
+			}
+		}
+	}
 };
 </script>
 

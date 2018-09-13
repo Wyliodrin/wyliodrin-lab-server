@@ -76,8 +76,12 @@ function createBoard(boardId, userId, courseId, command, ip) {
 	return board.save();
 }
 
-function boardStatus(boardId, status) {
-	return Board.findOneAndUpdate({ boardId }, { $set: { status: status }, lastInfo: Date.now() }, { upsert: true, new: true }).lean();
+function boardStatus(boardId, status, ip) {
+	let update = {
+		status
+	};
+	if (ip) update.ip = ip;
+	return Board.findOneAndUpdate({ boardId }, { $set: update, lastInfo: Date.now() }, { upsert: true, setDefaultsOnInsert: true, new: true }).lean();
 }
 
 function resetCommand(boardId) {
@@ -106,11 +110,11 @@ function assignCourseToBoard(boardId, courseId) {
 }
 
 function assignCourseAndUser(boardId, userId, courseId) {
-	return Board.findOneAndUpdate({ boardId: boardId, userId: null }, { $set: { userId: userId, courseId: courseId, command: 'reboot', lastInfo: Date.now() } }, { upsert: true, new: true }).lean();
+	return Board.findOneAndUpdate({ boardId: boardId, userId: null }, { $set: { userId: userId, courseId: courseId, lastInfo: Date.now() } }, { upsert: true, new: true }).lean();
 }
 
 function unsetCourseAndUser(boardId) {
-	return Board.findOneAndUpdate({ boardId: boardId }, { $unset: { courseId: '', userId: '' }, $set: { command: 'reboot' }, lastInfo: Date.now() }).lean();
+	return Board.findOneAndUpdate({ boardId: boardId }, { $unset: { courseId: '', userId: '' }, lastInfo: Date.now() }).lean();
 }
 
 function issueCommand(boardId, command) {

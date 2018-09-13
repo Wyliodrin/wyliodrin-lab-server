@@ -86,7 +86,7 @@ module.exports = {
 		},
 		async connect(store, data) {
 			try {
-				let response = await Vue.http.post(setup.API + '/users/connnect', data);
+				let response = await Vue.http.post(setup.API + '/users/connect', data);
 				if (response.data.err === 0) {
 					return true;
 				} else {

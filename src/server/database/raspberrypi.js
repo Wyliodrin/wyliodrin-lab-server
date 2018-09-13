@@ -689,7 +689,7 @@ async function cmdline(courseId, imageId, boardId, userId, parameters) {
 	if (!parameters) parameters = {};
 	if (!parameters.server) parameters.server = 'http://'+ip.address();
 	if (!parameters.nfsServer) parameters.nfsServer = ip.address ();
-	let str = 'root=/dev/nfs nfsroot=' + parameters.nfsServer + ':' + path.join(ROOT_FS, boardId) + ',vers=3 rw ip=dhcp rootwait elevator=deadline userId='+userId+' server='+parameters.server+' courseId='+courseId;
+	let str = 'root=/dev/nfs nfsroot=' + parameters.nfsServer + ':' + path.join(ROOT_FS, boardId) + ',vers=3 rw ip=dhcp rootwait elevator=deadline '+(userId?'userId='+userId:'')+' server='+parameters.server+' '+(courseId?'courseId='+courseId:'');
 	let folderBoot = path.join(BOOT, imageId);
 	let cmdline = (await fs.readFile(path.join(folderBoot, 'cmdline.txt'))).toString();
 	let pos = cmdline.indexOf('root=');

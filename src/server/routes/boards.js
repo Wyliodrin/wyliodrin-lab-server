@@ -51,10 +51,13 @@ remoteApp.post('/exchange', async function(req, res /*, next*/ ) {
 		var courseId = req.body.courseId;
 		var userId = req.body.userId;
 		var status = req.body.status;
+		var ip = req.body.ip;
 
-		let board = await db.board.boardStatus(boardId, status);
+		let board = await db.board.boardStatus(boardId, status, ip);
 
 		if (board) {
+			console.log (req.body);
+			console.log (board);
 			if (board.courseId !== courseId || board.userId !== userId) {
 				await db.board.boardStatus(boardId, 'desync');
 				res.send({ err: 0, command: 'reboot' });

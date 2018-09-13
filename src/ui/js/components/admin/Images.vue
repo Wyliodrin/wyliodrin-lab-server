@@ -119,7 +119,7 @@ module.exports = {
 	created () {
 		this.updateImages ();
 	},
-	destroy ()
+	destroyed ()
 	{
 		clearTimeout (timeout);
 	},

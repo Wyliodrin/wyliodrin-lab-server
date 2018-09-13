@@ -29,7 +29,10 @@
 						<button class="btn btn-login btn-block" name="Submit" value="Login" @click="login">Sign In</button>
 					</div>
 					<div v-else>
-						<div class="input-group mb-3">
+						<div v-if="!courses">
+							You have no course assigned, please contact the teacher.
+						</div>
+						<div v-else class="input-group mb-3" v-show="courses.length>1">
 							<div class="input-group-prepend">
 								<span class="input-group-text" id="inputGroup-sizing-default">Course</span>
 							</div>
@@ -105,14 +108,14 @@ module.exports = {
 					courseId: this.courseId
 				}))
 				{
-					this.$store.dispatch ('user/getBoard');
+					this.$store.dispatch ('board/getBoard');
 				}
 			}
 
 		},
 		async logout () {
 			await this.$store.dispatch ('user/logout');
-			this.$store.dispatch ('user/updateUser');
+			this.$store.dispatch ('board/updateUser');
 		}
 	},
 	computed: mapGetters ({
@@ -124,6 +127,16 @@ module.exports = {
 	{
 		await this.$store.dispatch ('course/listUserCourses');
 		await this.$store.dispatch ('board/getBoard');
+	},
+	watch: {
+		courses ()
+		{
+			if (this.courses && this.courses.length === 1) 
+			{
+				this.courseId = this.courses[0].courseId;
+				this.lab ();
+			}
+		}
 	}
 };
 
