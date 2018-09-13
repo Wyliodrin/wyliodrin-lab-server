@@ -15,6 +15,7 @@
 						</a>
 					</div>
 				</div> -->
+				<div class="nav navbar-nav nav-switch mr-auto" ></div>
 				<div class="nav navbar-nav nav-btns">
 					<div style="float: left">
 						<!--<div class="run-proj right">
@@ -26,7 +27,7 @@
 						</div>-->
 						<div class="my-boards right">
 							<a href="#" data-toggle="modal" data-target="#myRunModal" class="menu-last-dist">
-								<img src="img/my-boards.png">
+								<img src="img/run-project.png">
 								<span> Run</span>
 								<div class="triangle"></div>
 							</a>
@@ -40,7 +41,7 @@
 						</div>
 					</div>
 					<div class="user right connected" style="float: right">
-						<a href="#">{{user.name}}</a><span class="user-image">
+						<a href="#">{{user.name}}Username</a><span class="user-image">
 						<img :src="gravatar"></span>
 						<div class="triangle"></div>
 						<div class="options-list">

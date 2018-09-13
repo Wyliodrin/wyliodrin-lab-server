@@ -67,7 +67,7 @@
 			</div>
 		</nav>
 
-		<div class="admin-page">
+		<div class="admin-page content greybg w-100 d-flex flex-column h-top">
 			<!-- <p> Bun venit in pagina de admin </p> -->
 
 			<router-view></router-view>

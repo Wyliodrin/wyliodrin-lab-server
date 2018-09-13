@@ -142,7 +142,7 @@ a:hover,a:active,a:focus {text-decoration: none; outline: none;}
 		.modal-body {padding:0 15px; background: @color-grey;}
 		.modal-footer {background: @color-grey;}
 		.close {position: absolute; z-index: 100; right: 0; top: 0; height: 60px; width: 60px; background: @dark-color-1; margin: 0; opacity: 1; filter: "alpha(opacity=100)"; -ms-filter: "alpha(opacity=100)"; color:@color-white; text-shadow: 0px 0px 0px #000000;}
-		.close:hover {background: @color-hover;}
+		.close:hover {background: @color-hover; color: @color-white;}
 		.pointer {display: block; position: absolute; right: 370px; top: -15px; }
 		.new-proj { position: absolute; z-index: 100; right: 80px; top: 0; height: 80px; width: 80px; background: @dark-color-1; margin: 0; opacity: 1; filter: "alpha(opacity=100)"; -ms-filter: "alpha(opacity=100)"; border: 0; cursor: pointer;}
 		.resume-proj { position: absolute; z-index: 100; right: 160px; top: 0; height: 80px; width: 80px; background: @dark-color-1; margin: 0; opacity: 1; filter: "alpha(opacity=100)"; -ms-filter: "alpha(opacity=100)"; border: 0; cursor: pointer;}
@@ -165,6 +165,13 @@ a:hover,a:active,a:focus {text-decoration: none; outline: none;}
 	:last-child { border-right: 0 !important;}
 	.proj-box {margin: 16px 0;}
 	.proj-box:hover {background: none !important;}
+}
+
+.newprojbtn {border: 0; float: left; background: transparent; padding: 15px;
+	span {display: inline-block; color: @color-black; text-align: center; font-size: 18px; font-weight: 400;}
+}
+.newprojbtn:hover {background: @device-bg; cursor: pointer; border-radius:3px; 
+	span { color: @color-white;}
 }
 
 .myicon-settings-black {width: 12px; height: 13px; background-image: url('../img/settings-small-dark.png');}
