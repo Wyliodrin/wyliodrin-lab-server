@@ -23,6 +23,14 @@ module.exports = function(grunt) {
 					require: libs
 				},
 			},
+			freeboard : {
+				files: {
+					'build/ui/js/freeboard/wyliodrinData.js': 'src/ui/js/freeboard/wyliodrinData.js'
+				},
+				options: {
+					external: null
+				}
+			},
 			options: {
 				external: libs
 			},
@@ -68,7 +76,14 @@ module.exports = function(grunt) {
 					cwd: 'src/ui',
 					src: ['*.html'],
 					dest: 'build/ui'
-				}]
+				},
+				{
+					expand: true,
+					cwd:'src/ui/freeboard',
+					src:['**/*'],
+					dest: 'build/ui/freeboard',
+					extDot: 'first'
+				},]
 			}
 		},
 		//clean the build folder
@@ -90,7 +105,7 @@ module.exports = function(grunt) {
 		eslint: {
 			gruntfile: 'Gruntfile.js',
 			server: ['src/server/**/*.js', '!src/server/server-tftp/**/*.js'],
-			ui: ['src/ui/**/*.js', 'src/ui/**/*.vue']
+			ui: ['src/ui/**/*.js', 'src/ui/**/*.vue', '!src/ui/freeboard/**/*']
 		}
 	};
 
@@ -104,7 +119,7 @@ module.exports = function(grunt) {
 	grunt.registerTask('server', ['eslint:server', 'copy:server']);
 
 	grunt.registerTask('ui', ['eslint:ui', 'browserify', 'less', 'copy:ui']);
-	grunt.registerTask('fastui', ['eslint:ui', 'browserify:ui']);
+	grunt.registerTask('fastui', ['eslint:ui', 'browserify:ui', 'browserify:freeboard']);
 
 	grunt.registerTask('default', ['server', 'ui']);
 };
