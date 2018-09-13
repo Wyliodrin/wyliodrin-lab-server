@@ -69,9 +69,9 @@ module.exports = {
 
 		async updateCourse(store) {
 			try {
-				if (store.course)
+				if (store.state.course)
 				{
-					let response = await Vue.http.get(setup.API + '/courses/get/' + store.course.courseId);
+					let response = await Vue.http.get(setup.API + '/courses/get/' + store.state.course.courseId);
 					if (response.data.err === 0) {
 						console.log(response.data.course);
 						store.commit('course', response.data.course);
