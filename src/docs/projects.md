@@ -70,3 +70,48 @@ List all the projects of the logged in user
 	]
 }
 ````
+
+### Save file
+
+`POST` /projects/files/save
+
+Save a file to the project. The path cannot contain ../.. 
+
+#### Parameters
+
+| Parameter | Required | Description |
+| --------- | -------- | ----------- |
+| `project` | yes | The name of the project |
+| `file` | yes | The name of the file meaning the relative path to the project |
+| `data` | yes | The data to be saved in the file |
+
+#### Response 
+
+200 OK
+````json
+{
+	"err": 0
+}
+````
+
+### Load file
+
+`POST` /projects/files/load
+
+Load a file from the project. The path cannot contain ../.. 
+
+#### Parameters
+
+| Parameter | Required | Description |
+| --------- | -------- | ----------- |
+| `project` | yes | The name of the project |
+| `file` | yes | The name of the file meaning the relative path to the project |
+
+#### Response 
+
+200 OK
+````json
+{
+	"err": 0
+}
+````

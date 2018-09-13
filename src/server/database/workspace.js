@@ -148,7 +148,7 @@ async function setFile(filePath, userId, project, data) {
 		return { success: false, message: 'Invalid path', err: statusCodes.BAD_REQUEST };
 	}
 
-	var fileData = new Buffer(data.data, 'base64');
+	var fileData = new Buffer(data, 'base64');
 	var normalized_path = pathIsValid.normalizedPath;
 	try {
 		await fs.outputFile(normalized_path, fileData);
