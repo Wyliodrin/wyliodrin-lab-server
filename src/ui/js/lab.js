@@ -44,7 +44,7 @@ new Vue ({
 	{
 		// console.log ('render');\
 		if (this.loading) return render (Loading);
-		else if (this.user)
+		else if (this.user && this.board && this.board.boardId && this.board)
 		{
 			return render (Lab);
 		}
@@ -59,6 +59,7 @@ new Vue ({
 	{
 		// await this.$store.dispatch ('settings/init');	
 		await this.$store.dispatch ('user/updateUser');
+		await this.$store.dispatch ('board/getBoard');
 		this.loading = false;
 		// if (!this.$store.getters ['user/token']) 
 		// {
@@ -73,7 +74,8 @@ new Vue ({
 	
 	computed: {
 		...mapGetters ({
-			user: 'user/user'
+			user: 'user/user',
+			board: 'board/board'
 		})
 	}
 });

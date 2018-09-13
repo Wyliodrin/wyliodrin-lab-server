@@ -11,7 +11,13 @@
 			<div class="form-signin">
 				<center><img src="/img/logo.png" class="m-3"></center>
 				<hr class="colorgraph">
-				<h5 class="form-signin-heading">Welcome! Please sign in</h5>
+				<div v-if="user === null">
+					<h5 class="form-signin-heading">Welcome! Please sign in</h5>
+				</div>
+				<div v-else>
+					<h5 class="form-signin-heading">Welcome <strong>{{user.firstName}} {{user.lastName}}</strong>!</h5>
+					<button @click="logout" class="changeuser">(change user)</button>
+				</div>
 				<br>
 				<div v-if="working" class="d-flex justify-content-center align-items-center">
 					<img src="/img/loading-white.gif">
@@ -20,17 +26,30 @@
 					<div v-if="user === null">
 						<input type="text" class="form-control" name="Username" placeholder="Username" required="" autofocus="" @keyup.enter="login" v-model="username"/>
 						<input type="password" class="form-control" name="Password" placeholder="Password" required="" @keyup.enter="login" v-model="password"/>
-						<button class="btn btn-login btn-block" name="Submit" value="Login" @click="login">SignIn</button>
+						<button class="btn btn-login btn-block" name="Submit" value="Login" @click="login">Sign In</button>
 					</div>
 					<div v-else>
-						Welcome {{user.firstName}} {{user.lastName}}! <a @click="logout">Change User</a>
-						<br>
-						Please select a class (si asta se poate ascunde daca user-ul e la un singur curs):
-						<br>
-						<select name="Course" v-model="courseId">
-							<option v-for="course in courses" :key="course.courseId" :value="course.courseId">{{course.name}}</option>
-						</select>
-						<input type="text" class="form-control" name="BoardId" placeholder="Board ID - se poate ascunde" required="" @keyup.enter="login" v-model="boardId" :readonly="originalBoardId!==''"/>
+						<div class="input-group mb-3">
+							<div class="input-group-prepend">
+								<span class="input-group-text" id="inputGroup-sizing-default">Course</span>
+							</div>
+							<select name="Course" class="custom-select" v-model="courseId">
+								<option v-for="course in courses" :key="course.courseId" :value="course.courseId">{{course.name}}</option>
+								<option>Course 1</option>
+								<option>Course 2</option>
+								<option>Course 3</option>
+								<option>Course 4</option>
+								<option>Course 5</option>
+								<option>Course 6</option>
+								<option>Course 7</option>
+							</select>
+						</div>
+						<div class="input-group mb-3">
+							<div class="input-group-prepend">
+								<span class="input-group-text" id="inputGroup-sizing-default">Board ID</span>
+							</div>
+							<input type="text" class="form-control bradius" name="BoardId" required="" @keyup.enter="login" v-model="boardId" :readonly="originalBoardId"/>
+						</div>
 						<button class="btn btn-login btn-block" name="Submit" value="Login" @click="login">Start Lab</button>
 					</div>
 					<!-- <button class="btn btn-signup btn-block" value="Create account" @click="createAccount">Create account</button> -->
@@ -70,7 +89,8 @@ module.exports = {
 
 				if (login)
 				{
-					this.$store.dispatch ('user/updateUser');
+					await this.$store.dispatch ('user/updateUser');
+					await this.$store.dispatch ('user/updateUser');
 					this.lab ();
 				}
 				else {
@@ -85,11 +105,12 @@ module.exports = {
 		},
 		lab ()
 		{
-			if (this.user && this.courseId && this.boardId)
-			{
-				// TODO verify data
-				this.$store.dispatch ('settings/redirect', 'LAB');
-			}
+			// if (this.user && this.courseId && this.boardId)
+			// {
+			// 	// TODO verify data
+			// 	this.$store.dispatch ('settings/redirect', 'LAB');
+			// }
+
 		},
 		async logout () {
 			await this.$store.dispatch ('user/logout');
@@ -98,11 +119,13 @@ module.exports = {
 	},
 	computed: mapGetters ({
 		user: 'user/user',
-		courses: 'course/publicCourses'
+		courses: 'course/userCourses',
+		board: 'board/board',
 	}),
-	created ()
+	async created ()
 	{
-		this.$store.dispatch ('course/listPublicCourses');
+		await this.$store.dispatch ('course/listUserCourses');
+		await this.$store.dispatch ('board/getBoard');
 	}
 };
 

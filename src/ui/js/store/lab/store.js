@@ -14,12 +14,15 @@ var course = require ('../modules/course');
 
 var project = require ('../modules/project');
 
+var board = require ('../modules/board');
+
 module.exports = new Vuex.Store ({
 	modules: {
 		settings,
 		user,
 		course,
-		project
+		project,
+		board
 	},
 	strict: process.env.NODE_ENV !== 'production'
 });
