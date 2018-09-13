@@ -13,7 +13,6 @@ privateApp.post('/add', async function(req, res, next) {
 	var userId = req.user.userId;
 	var projectName = req.body.name;
 	var language = req.body.language;
-	debug('THIS IS PROJECT NAME: ', projectName);
 	try {
 		var result = await db.workspace.createProject(userId, projectName, language);
 		if (result.success) {
