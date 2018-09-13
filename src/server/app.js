@@ -12,7 +12,7 @@ var projects = require('./routes/projects');
 var admin = require('./routes/admin');
 var boards = require('./routes/boards');
 var courses = require('./routes/courses');
-var images = require ('./routes/raspberrypi');
+var images = require('./routes/raspberrypi');
 var statusCodes = require('http-status-codes');
 
 debug.log = console.info.bind(console);
@@ -22,12 +22,12 @@ if (process.env.NODE_ENV !== 'production') app.use(logger('dev'));
 
 var apiv1 = express.Router();
 
-apiv1.use(bodyParser());
 apiv1.use(bodyParser.urlencoded({ extended: false }));
 apiv1.use(bodyParser.json());
 
 
 apiv1.use('/users', users.publicRoutes);
+apiv1.use('/courses', courses.publicRoutes);
 apiv1.use('/remote', boards.remoteRoutes);
 
 apiv1.use(users.security);
@@ -46,10 +46,11 @@ apiv1.use('/images', images.adminRoutes);
 apiv1.use('/courses', courses.adminRoutes);
 apiv1.use('/boards', boards.adminRoutes);
 
-apiv1.use (function (req, res) {
-	error.sendError (res, error.notFound ('Link not found'));
+apiv1.use(function(req, res) {
+	error.sendError(res, error.notFound('Link not found'));
 });
 
+app.use('/docs', express.static(path.join(__dirname, '/../docs')));
 app.use('/api/v1', apiv1);
 
 app.use(express.static(path.join(__dirname, '../ui')));
@@ -61,15 +62,11 @@ app.get('/', function(req, res) {
 /** */
 app.use(function(err, req, res, next) {
 	next;
-	if (err.status) {
-		if (err.status === statusCodes.INTERNAL_SERVER_ERROR) {
-			error.sendError(res, error.serverError('Something went wrong with your request. Try again later!'));
-			console.error(err);
-		} else {
-			error.sendError(res, err);
-		}
+	if (err.status === statusCodes.INTERNAL_SERVER_ERROR) {
+		error.sendError(res, error.serverError('Something went wrong with your request. Try again later!'));
+		debug(err);
 	} else {
-		error.sendError(res, error.notFound('Page not found'));
+		error.sendError(res, err);
 	}
 });
 

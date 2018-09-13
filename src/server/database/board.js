@@ -106,7 +106,7 @@ function assignCourseToBoard(boardId, courseId) {
 }
 
 function assignCourseAndUser(boardId, userId, courseId) {
-	return Board.findOneAndUpdate({ boardId: boardId }, { $set: { userId: userId, courseId: courseId, command: 'reboot', lastInfo: Date.now() } }, { upsert: true, new: true }).lean();
+	return Board.findOneAndUpdate({ boardId: boardId, userId: null }, { $set: { userId: userId, courseId: courseId, command: 'reboot', lastInfo: Date.now() } }, { upsert: true, new: true }).lean();
 }
 
 function unsetCourseAndUser(boardId) {
@@ -125,6 +125,10 @@ function listBoardsByCourseId(courseId) {
 	return Board.find({ courseId: courseId });
 }
 
+function listAvailable() {
+	return Board.find({ userId: null, status: 'online' }).lean();
+}
+
 var board = {
 	createBoard,
 	findByBoardId,
@@ -138,7 +142,8 @@ var board = {
 	unsetCourseAndUser,
 	findByUserIdAndBoardId,
 	listBoards,
-	listBoardsByCourseId
+	listBoardsByCourseId,
+	listAvailable
 };
 
 module.exports = board;

@@ -304,78 +304,7 @@ table {font-size:0.875rem; line-height:26px;
 
 }
 
-.login {background:url(../img/login-bg.jpg) no-repeat center center fixed @dark-color-1!important; background-size: cover;
-	.courseinfo {position: absolute; margin: 70px; max-width: 50%;
-		h1 {margin-bottom: 15px; font-weight: 400;
-			img { vertical-align: sub; margin-right: 10px;}
-		}
-		> span { margin-top: 25px; font-size: 16px; font-weight: 300; color: @color-grey; background-color: rgba(2,9,21,0.7); padding:30px; display: inline-block;}
-	}
-}
 
-.login-box {max-width:600px; height: 100%; right: 0; position: absolute;
-
-	.triangle {width: 0;height: 0;position: absolute;left: -40px;top: 0;background: none !important;border-top: 1300px solid rgba(2,9,21,0.95);border-left: 40px solid transparent;}
-
-	.form-signin {
-	  width: 100%;
-	  height: 100%;
-	  padding: 40px 100px;
-	  margin: 0 auto;
-	  background-color: rgba(2,9,21,0.95);  
-	}
-
-	.form-signin-heading {
-	  text-align:center;
-	  margin-top:20px;
-	  margin-bottom: 0px;
-	  font-family:'Roboto', 'Open Sans', Tahoma, Geneva, sans-serif;
-	  color:@color-white;
-	  font-weight:300;
-	}
-
-	.form-control {
-	  position: relative;
-	  font-size:1rem;
-	  height: auto;
-	  padding: 10px;
-	}
-
-	input[type="text"] {
-	  margin-bottom: 0px;
-	  border-bottom-left-radius: 0;
-	  border-bottom-right-radius: 0;
-	  font-family:'Open Sans', Tahoma, Geneva, sans-serif; font-size:0.875rem;
-	}
-
-	input[type="password"] {
-	  margin-bottom: 20px;
-	  border-top-left-radius: 0;
-	  border-top-right-radius: 0;
-	  font-family:'Open Sans', Tahoma, Geneva, sans-serif; font-size:0.875rem;
-	}
-
-	.colorgraph {
-	  height: 3px;
-	  border-top: 0;
-	  background: #c4e17f;
-	  border-radius: 5px;
-	  background-image: -webkit-linear-gradient(left, #c4e17f, #c4e17f 12.5%, #f7fdca 12.5%, #f7fdca 25%, #fecf71 25%, #fecf71 37.5%, #f0776c 37.5%, #f0776c 50%, #db9dbe 50%, #db9dbe 62.5%, #c49cde 62.5%, #c49cde 75%, #669ae1 75%, #669ae1 87.5%, #62c2e4 87.5%, #62c2e4);
-	  background-image: -moz-linear-gradient(left, #c4e17f, #c4e17f 12.5%, #f7fdca 12.5%, #f7fdca 25%, #fecf71 25%, #fecf71 37.5%, #f0776c 37.5%, #f0776c 50%, #db9dbe 50%, #db9dbe 62.5%, #c49cde 62.5%, #c49cde 75%, #669ae1 75%, #669ae1 87.5%, #62c2e4 87.5%, #62c2e4);
-	  background-image: -o-linear-gradient(left, #c4e17f, #c4e17f 12.5%, #f7fdca 12.5%, #f7fdca 25%, #fecf71 25%, #fecf71 37.5%, #f0776c 37.5%, #f0776c 50%, #db9dbe 50%, #db9dbe 62.5%, #c49cde 62.5%, #c49cde 75%, #669ae1 75%, #669ae1 87.5%, #62c2e4 87.5%, #62c2e4);
-	  background-image: linear-gradient(to right, #c4e17f, #c4e17f 12.5%, #f7fdca 12.5%, #f7fdca 25%, #fecf71 25%, #fecf71 37.5%, #f0776c 37.5%, #f0776c 50%, #db9dbe 50%, #db9dbe 62.5%, #c49cde 62.5%, #c49cde 75%, #669ae1 75%, #669ae1 87.5%, #62c2e4 87.5%, #62c2e4);
-	}
-	
-	.btn-login {text-decoration:none; border:@color-hover 1px solid; background:@color-hover; color:@color-white; font-family:'Open Sans', Tahoma, Geneva, sans-serif; font-size:0.875rem;}
-	.btn-login:hover {text-decoration:none; border:@green-color 1px solid; background:@green-color; color:@color-white;}
-	
-	.btn-signup {text-decoration:none; border:@color-hover 1px solid; background:transparent; color:@color-white; font-family:'Open Sans', Tahoma, Geneva, sans-serif; font-size:0.875rem;}
-	.btn-signup:hover {text-decoration:none; border:@green-color 1px solid; background:@green-color; color:@color-white;}
-
-	.recoverpass {font-size: 14px; text-align: center; width: 100%; display: block; padding-top: 10px; color: @color-grey-2; text-decoration: none;}
-	.recoverpass:hover {color:@color-hover; text-decoration: underline;}
-
-}
 .modal-dialog {margin: 6% auto 0 auto;}
 .modal-content {background-color:@color-grey; font-family:'Open Sans', Tahoma, Geneva, sans-serif; font-size:0.875rem; color: @color-black;
 	.modal-header {background-color:@color-white;}
@@ -528,6 +457,13 @@ animation: half-circle-spinner-animation 1s infinite alternate;
 	.course-std-nbr {padding: 110px 0 20px;}
 }
 
+.users-list {
+	td{padding: 15px 0; vertical-align: initial !important;}
+	.user-pic { padding: 0;
+		img {border-radius: 300px; max-height: 32px;}
+	}
+}
+
 .users-table {background: transparent;
 	tbody {background: transparent !important;}
 	tr, tr:hover {float: left; background-color: @color-white !important; border:@color-grey solid 15px; max-width: 250px; position: relative;
@@ -541,8 +477,14 @@ animation: half-circle-spinner-animation 1s infinite alternate;
 	}
 	.user-nick {padding: 0;}
 	.user-email {padding: 10px 0 20px;}
-	.user-pic {padding-top: 0;
+	.user-pic {padding-top: 0; position: relative;
 		img {border-radius: 300px; border:@color-grey-4 20px solid;}
+	}
+	.user-connected {
+		img { border:@connected 20px solid !important;}
+	}
+	.connected-board {position: absolute; bottom: 20px; left: 20px; right: 20px; border-radius: 40px; padding: 5px 0; color: @color-white; background: @connected;
+		> span img {height: 24px; background: transparent; border: 0 !important; vertical-align: top;}
 	}
 	.user-del-btn {position: absolute; top: 0; right: 0; background: @color-white; border-radius: 100px;
 		-webkit-box-shadow: 0px 0px 0px 5px @color-grey;

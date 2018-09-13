@@ -67,7 +67,7 @@
 			</div>
 		</nav>
 
-		<div class="admin-page">
+		<div class="admin-page content greybg w-100 d-flex flex-column h-top">
 			<!-- <p> Bun venit in pagina de admin </p> -->
 
 			<router-view></router-view>
@@ -79,6 +79,7 @@
 <script>
 
 var mapGetters = require('vuex').mapGetters;
+var md5 = require ('md5');
 
 module.exports = {
 	name: 'Admin',
@@ -94,7 +95,7 @@ module.exports = {
 			{
 				this.$store.dispatch ('settings/redirect', 'LOGIN');
 			}
-		},
+		}
 	},
 	created() {
 		
@@ -102,7 +103,11 @@ module.exports = {
 	computed: {
 		...mapGetters ({
 			user: 'user/user',
-		})
+		}),
+		gravatar ()
+		{
+			return 'https://www.gravatar.com/avatar/'+md5 (this.user.email)+'?d=mp';
+		}
 	}
 };
 

@@ -84,6 +84,20 @@ module.exports = {
 				return false;
 			}
 		},
+		async connect(store, data) {
+			try {
+				let response = await Vue.http.post(setup.API + '/users/connnect', data);
+				if (response.data.err === 0) {
+					return true;
+				} else {
+					return false;
+				}
+			} catch (e) {
+				console.log('Connect user ' + e);
+				console.log(e);
+				return false;
+			}
+		},
 		// async editUser (store, user)
 		// {
 		// 	try

@@ -78,7 +78,7 @@ async function createUserHome(userId) {
 		await fs.mkdir(userProjects);
 	} catch (err) {
 		debug('Error making user project folder', err);
-		throw new Error('File System Error: \n', err);
+		throw new Error('File System Error', err);
 	}
 }
 
@@ -91,7 +91,7 @@ function isValidName(name) {
 
 }
 
-async function createProject(userId, projectName) {
+async function createProject(userId, projectName, language) {
 
 	if (!isValidName(projectName)) {
 		return { success: false, message: 'Invalid project name' };
@@ -99,17 +99,29 @@ async function createProject(userId, projectName) {
 	var userHome = await raspberrypi.pathUser(userId);
 	var userProjects = path.join(userHome, PROJECTS);
 	var projectPath = path.join(userProjects, projectName);
+	var propertiesFile = path.join(projectPath, 'wylioproject.json');
+
+	let mainFile = null;
+	if (language === 'python') mainFile = path.join(projectPath, 'main.py');
+	else
+	if (language === 'visual') mainFile = path.join(projectPath, 'main.visual');
 
 	try {
 		debug(projectPath);
 		await fs.ensureDir(projectPath);
+		await fs.writeFile(propertiesFile, JSON.stringify({
+			language: language
+		}));
+		// TODO use templates
+		if (mainFile !== null) {
+			await fs.writeFile(mainFile, '');
+		}
 		debug('Project created');
+		return { success: true };
 	} catch (err) {
 		debug('Error creating project', err);
-		return { success: false, message: 'File System Error: \n' + err };
+		return { success: false, message: 'File System Error', err };
 	}
-	debug('This should be after created');
-	return { success: true };
 }
 
 
@@ -122,12 +134,12 @@ async function createProject(userId, projectName) {
  */
 async function setFile(filePath, userId, project, data) {
 	try {
-		var projectExists = await projectExists(userId, project);
+		var projExists = await projectExists(userId, project);
 	} catch (err) {
-		throw new Error('File System Error', err);
+		return { success: false, message: 'File System Error' + err, err: statusCodes.INTERNAL_SERVER_ERROR };
 	}
 
-	if (!projectExists) {
+	if (!projExists) {
 		return { success: false, message: 'Project not found', err: statusCodes.BAD_REQUEST };
 	}
 
@@ -142,7 +154,7 @@ async function setFile(filePath, userId, project, data) {
 		await fs.outputFile(normalized_path, fileData);
 	} catch (err) {
 		debug('Got error writing file: ', err);
-		return { success: false, message: 'File system error', err: statusCodes.INTERNAL_SERVER_ERROR };
+		return { success: false, message: 'File system error' + err, err: statusCodes.INTERNAL_SERVER_ERROR };
 	}
 
 	return { success: true, err: 0 };

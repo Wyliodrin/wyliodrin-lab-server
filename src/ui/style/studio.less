@@ -142,7 +142,7 @@ a:hover,a:active,a:focus {text-decoration: none; outline: none;}
 		.modal-body {padding:0 15px; background: @color-grey;}
 		.modal-footer {background: @color-grey;}
 		.close {position: absolute; z-index: 100; right: 0; top: 0; height: 60px; width: 60px; background: @dark-color-1; margin: 0; opacity: 1; filter: "alpha(opacity=100)"; -ms-filter: "alpha(opacity=100)"; color:@color-white; text-shadow: 0px 0px 0px #000000;}
-		.close:hover {background: @color-hover;}
+		.close:hover {background: @color-hover; color: @color-white;}
 		.pointer {display: block; position: absolute; right: 370px; top: -15px; }
 		.new-proj { position: absolute; z-index: 100; right: 80px; top: 0; height: 80px; width: 80px; background: @dark-color-1; margin: 0; opacity: 1; filter: "alpha(opacity=100)"; -ms-filter: "alpha(opacity=100)"; border: 0; cursor: pointer;}
 		.resume-proj { position: absolute; z-index: 100; right: 160px; top: 0; height: 80px; width: 80px; background: @dark-color-1; margin: 0; opacity: 1; filter: "alpha(opacity=100)"; -ms-filter: "alpha(opacity=100)"; border: 0; cursor: pointer;}
@@ -165,6 +165,13 @@ a:hover,a:active,a:focus {text-decoration: none; outline: none;}
 	:last-child { border-right: 0 !important;}
 	.proj-box {margin: 16px 0;}
 	.proj-box:hover {background: none !important;}
+}
+
+.newprojbtn {border: 0; float: left; background: transparent; padding: 15px;
+	span {display: inline-block; color: @color-black; text-align: center; font-size: 18px; font-weight: 400;}
+}
+.newprojbtn:hover {background: @device-bg; cursor: pointer; border-radius:3px; 
+	span { color: @color-white;}
 }
 
 .myicon-settings-black {width: 12px; height: 13px; background-image: url('../img/settings-small-dark.png');}
@@ -234,7 +241,7 @@ a:hover,a:active,a:focus {text-decoration: none; outline: none;}
 .projects-container .proj-lastedited { font-size: 12px; color: @dark-color-2; position: absolute; left: 118px; right: 11px; bottom: 20px;}
 
 .app-bg {background-color: lighten(desaturate(spin(@device-bg, -118.0220), 0.4301), 51.3725);
-	> div {width: 300px; position: absolute; left: 0; right: 0; margin: auto; margin-top: 10%;}
+	> div {width: 400px; position: absolute; left: 0; right: 0; margin: auto; margin-top: 10%;}
 	h3 {font-size: 30px; color: @device-bg; text-align: center; width: 100%;}
 	ul {list-style: none; margin: 25px 0 0 0; padding:0;
 		li {width: 100%; text-align: center; font-size: 16px; color: @device-bg; background: lighten(desaturate(spin(@device-bg, -118.0220), 0.4301), 60); line-height: 60px; cursor: pointer; margin-top: 15px;}

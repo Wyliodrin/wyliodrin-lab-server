@@ -1,10 +1,10 @@
 <template>
-	<div class="content greybg w-100 d-flex flex-column h-top">
+	<div class="content w-100 h-100 d-flex flex-column">
 			
 		<div class="content w-100 d-flex flex-row proj-bar">
 			<div class="content-top w-100 pt-2">
 				<div class="content-title float-left">
-					<span><img src="img/icons/course-48.png" class="mr-4">Images</span>
+					<span><img src="/img/raspberrypi.png" class="mr-2">Images</span>
 				</div>
 				<div class="btn-group submenu">
 					<button type="button" class="btn btn-secondary dropdown-toggle xs-submenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -47,6 +47,7 @@
 						<!-- <td class="text-center">17</td> -->
 						<td class="text-center" style="width:130px">
 							<a class="iconbtn" v-show="image.status==='downloaded'" @click="setup(image)" v-tooltip data-toggle="tooltip" data-placement="top" title="Setup"><img src="/img/icons/erase-16.png"></a>
+							<a class="iconbtn" @click="del(image)" v-tooltip data-toggle="tooltip" data-placement="top" title="Delete"><img src="/img/icons/erase-16.png"></a>
 						</td>
 					</tr>
 				</tbody>
@@ -99,6 +100,17 @@ module.exports = {
 		{
 			await this.$store.dispatch ('image/listImages');
 			timeout = setTimeout (this.updateImages, 5000);
+		},
+		del (image)
+		{
+			var that = this;
+			Vue.bootbox.confirm ('Are you sure you want to delete the image?', function (result)
+			{
+				if (result)
+				{
+					that.$store.dispatch ('image/deleteImage', image.id);
+				}
+			});
 		}
 	},
 	components: {

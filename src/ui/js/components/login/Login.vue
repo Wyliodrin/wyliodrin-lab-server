@@ -13,13 +13,20 @@
 				<hr class="colorgraph">
 				<h5 class="form-signin-heading">Welcome! Please sign in</h5>
 				<br>
-				<div v-if="working" class="d-flex justify-content-center align-items-center">
-					<img src="/img/loading-white.gif">
+				
+				<div class="d-flex h-100 justify-content-center align-items-center" v-if="waitingForLogin">
+				<div>
+					<half-circle-spinner :animation-duration="1000" :size="120"/>
 				</div>
-				<div v-else>
+				</div>
+
+
+				<div v-else id="abc" >
+
 					<input type="text" class="form-control" name="Username" placeholder="Username" required="" autofocus="" @keyup.enter="login" v-model="username"/>
 					<input type="password" class="form-control" name="Password" placeholder="Password" required="" @keyup.enter="login" v-model="password"/>
-					<button class="btn btn-login btn-block" name="Submit" value="Login" @click="login">Login</button>
+					<button class="btn btn-login btn-block" name="Submit" value="Login"  @click="login"  >Login</button>
+					
 					<!-- <button class="btn btn-signup btn-block" value="Create account" @click="createAccount">Create account</button> -->
 					<!-- <button class="btn btn-signup btn-block" value="Create account" @click="requestDemo">Request demo account</button> -->
 					<!-- <a href="#" class="recoverpass" @click="recoverPassword">Forgot password</a> -->
@@ -32,6 +39,7 @@
 
 <script>
 
+var HalfCircleSpinner = require ('epic-spinners/dist/lib/epic-spinners.min.js').HalfCircleSpinner;
 var mapGetters = require('vuex').mapGetters;
 
 module.exports = {
@@ -39,15 +47,24 @@ module.exports = {
 	data() {
 		return {
 			username: '',
-			password: ''
+			password: '',
+			waitingForLogin : false
 		};
+	},
+	components: {
+		HalfCircleSpinner
 	},
 	methods: {
 		async login () {
+			
+			this.waitingForLogin = true;
+
 			let login = await this.$store.dispatch ('user/login', {
 				username: this.username,
 				password: this.password
 			});
+
+			this.waitingForLogin = false;
 
 			if (login)
 			{

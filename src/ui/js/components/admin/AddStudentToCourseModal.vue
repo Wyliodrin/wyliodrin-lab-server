@@ -5,7 +5,14 @@
 			<p>Selecteaza un user pentru a-l adauga: </p>
 			<input type="text" v-model="search">
 			<br>
-			<table border="1">
+			<div class="content greybg w-100 d-flex flex-column" v-if="users === null">
+				<div class="d-flex h-100 justify-content-center align-items-center">
+					<div>
+						<half-circle-spinner :animation-duration="1000" :size="120"/>
+					</div>
+				</div>
+			</div>
+			<table border="1" v-else>
 				<tr>
 					<th>Name</th>
 					<th>Username</th>
@@ -15,7 +22,7 @@
 					<td>{{user.firstName+' '+user.lastName}}</td>
 					<td>{{user.username}}</td>
 					<td>
-						<a v-tooltip data-toggle="tooltip" data-placement="top" title="Add Student"><img src="img/icons/add.png"></a>
+						<a v-tooltip data-toggle="tooltip" data-placement="top" title="Add Student" @click="add(user)"><img src="img/icons/add.png"></a>
 					</td>
 				</tr>
 			</table>
@@ -35,15 +42,19 @@
 <script>
 
 var mapGetters = require('vuex').mapGetters;
+var HalfCircleSpinner = require ('epic-spinners/dist/lib/epic-spinners.min.js').HalfCircleSpinner;
 
 module.exports = {
 	name: 'AddStudentToCourseModal',
-	props: ['dialog', 'courseId', 'studentIds', 'teacherIds'],
+	props: ['dialog'],
 	data () {
 		return {
 			userName: '',
 			userId: null
 		};
+	},
+	components: {
+		HalfCircleSpinner
 	},
 	methods: {
 		selectUsername(user) {
@@ -58,14 +69,14 @@ module.exports = {
 				console.log('Could not get users...');
 		},
 
-		async add ()
+		async add (user)
 		{
 			let res = await this.$store.dispatch ('course/addStudentToCourse', {
-				courseId: this.courseId,
-				studentId: this.userId
+				courseId: this.course.courseId,
+				studentId: user.userId
 			});
 			if (res)
-				return true;
+				await this.$store.dispatch ('course/updateCourse');
 			else
 				return false;
 		}
@@ -78,7 +89,8 @@ module.exports = {
 	},
 	computed: {
 		...mapGetters ({
-			users: 'user/users'
+			users: 'user/users',
+			course: 'course/course',
 		}),
 		displayedUserName () {
 			if (this.userName === '')
@@ -87,8 +99,8 @@ module.exports = {
 				return this.userName;
 		},
 		filteredUsers () {
-			return this.users.filter(user => (this.studentIds.includes(user.userId) === false) 
-				&& (this.teacherIds.includes(user.userId) === false));
+			return this.users.filter(user => (this.course.students.includes(user.userId) === false) 
+				&& (this.course.teachers.includes(user.userId) === false));
 		}
 	}
 };

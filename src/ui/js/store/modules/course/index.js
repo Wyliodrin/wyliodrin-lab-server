@@ -14,7 +14,9 @@ module.exports = {
 	state: {
 		// token: window.localStorage.getItem(KEY_TOKEN),
 		course: null,
-		courses: null
+		courses: null,
+		publicCourses: null,
+		userCourses: [],
 	},
 	getters: {
 		// token(state) {
@@ -25,6 +27,13 @@ module.exports = {
 		},
 		courses(state) {
 			return state.courses;
+		},
+		publicCourses(state) {
+			return state.publicCourses;
+		},
+		userCourses (state)
+		{
+			return state.userCourses;
 		}
 	},
 	actions: {
@@ -50,6 +59,56 @@ module.exports = {
 				if (response.data.err === 0) {
 					console.log(response.data.course);
 					store.commit('course', response.data.course);
+					return true;
+				}
+				return false;
+			} catch (e) {
+				return false;
+			}
+		},
+
+		async updateCourse(store) {
+			try {
+				if (store.state.course)
+				{
+					let response = await Vue.http.get(setup.API + '/courses/get/' + store.state.course.courseId);
+					if (response.data.err === 0) {
+						console.log(response.data.course);
+						store.commit('course', response.data.course);
+						return true;
+					}
+				}
+				else
+				{
+					return false;
+				}
+			} catch (e) {
+				return false;
+			}
+		},
+
+		async listPublicCourses(store) {
+			try {
+				store.commit('publicCourses', null);
+				let response = await Vue.http.get(setup.API + '/courses/public');
+				if (response.data.err === 0) {
+					console.log(response.data.courses);
+					store.commit('publicCourses', response.data.courses);
+					return true;
+				}
+				return false;
+			} catch (e) {
+				return false;
+			}
+		},
+
+		async listUserCourses(store) {
+			try {
+				store.commit('userCourses', []);
+				let response = await Vue.http.get(setup.API + '/courses/');
+				if (response.data.err === 0) {
+					console.log(response.data.courses);
+					store.commit('userCourses', response.data.courses);
 					return true;
 				}
 				return false;
@@ -104,7 +163,7 @@ module.exports = {
 				let response = await Vue.http.post(setup.API + '/courses/students/remove', courseUserQuery);
 				if (response.data.err === 0) {
 					await store.dispatch('listCourses');
-					await store.dispatch('getCourse', courseUserQuery.courseId);
+					await store.dispatch('updateCourse', courseUserQuery.courseId);
 					return true;
 				} else {
 					console.log(response);
@@ -121,7 +180,7 @@ module.exports = {
 				let response = await Vue.http.post(setup.API + '/courses/students/add', courseUserQuery);
 				if (response.data.err === 0) {
 					await store.dispatch('listCourses');
-					await store.dispatch('getCourse', courseUserQuery.courseId);
+					await store.dispatch('updateCourse', courseUserQuery.courseId);
 					return true;
 				} else {
 					console.log(response);
@@ -138,7 +197,7 @@ module.exports = {
 				let response = await Vue.http.post(setup.API + '/courses/teachers/remove', courseTeacherQuery);
 				if (response.data.err === 0) {
 					await store.dispatch('listCourses');
-					await store.dispatch('getCourse', courseTeacherQuery.courseId);
+					await store.dispatch('updateCourse', courseTeacherQuery.courseId);
 					return true;
 				} else
 					return false;
@@ -153,7 +212,7 @@ module.exports = {
 				let response = await Vue.http.post(setup.API + '/courses/teachers/add', courseTeacherQuery);
 				if (response.data.err === 0) {
 					await store.dispatch('listCourses');
-					await store.dispatch('getCourse', courseTeacherQuery.courseId);
+					await store.dispatch('updateCourse', courseTeacherQuery.courseId);
 					return true;
 				} else {
 					console.log(response);
@@ -179,6 +238,13 @@ module.exports = {
 		},
 		courses(state, value) {
 			state.courses = value;
+		},
+		publicCourses(state, value) {
+			state.publicCourses = value;
+		},
+		userCourses (state, value)
+		{
+			state.userCourses = value;
 		}
 	}
 };

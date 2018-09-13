@@ -8,6 +8,7 @@ Vue.use (Vuex);
 
 var settings = require ('../modules/settings');
 var user = require ('../modules/user');
+var board = require ('../modules/board');
 var course = require ('../modules/course');
 var image = require ('../modules/image');
 
@@ -15,6 +16,7 @@ module.exports = new Vuex.Store ({
 	modules: {
 		settings, 
 		user,
+		board,
 		image,
 		course
 	},

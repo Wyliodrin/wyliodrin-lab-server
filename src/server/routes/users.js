@@ -187,22 +187,22 @@ privateApp.post('/connect', async function(req, res, next) {
 			next(e);
 		}
 		if (board && course) {
-			if (typeof(board.userId) === 'undefined' || (board.userId === userId)) {
+			if (!board.userId || (board.userId === userId)) {
 
-				if (typeof(board.courseId) === 'undefined' || (board.courseId === courseId)) {
-					try {
-						await db.board.assignCourseAndUser(boardId, userId, courseId);
-						res.status(200).send({ err: 0 });
+				// if (!board.courseId || (board.courseId === courseId)) {
+				try {
+					await db.board.assignCourseAndUser(boardId, userId, courseId);
+					res.status(200).send({ err: 0 });
 
-					} catch (err) {
-						e = error.serverError(err);
-						next(e);
-					}
-
-				} else {
-					e = error.unauthorized('Board assigned to another course');
+				} catch (err) {
+					e = error.serverError(err);
 					next(e);
 				}
+
+				// } else {
+				// 	e = error.unauthorized('Board assigned to another course');
+				// 	next(e);
+				// }
 			} else {
 				e = error.unauthorized('Board assigned to another user');
 				next(e);
