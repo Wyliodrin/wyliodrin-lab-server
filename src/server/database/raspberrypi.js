@@ -6,16 +6,15 @@ var crypto = require('crypto');
 var pty = require('pty.js');
 var _ = require('lodash');
 var ip = require('ip');
-var URL = require ('url').URL;
-var request = require ('request');
-var progress = require ('request-progress');
-var unzipper = require ('unzipper');
-let db = require ('./database');
+var URL = require('url').URL;
+var request = require('request');
+var progress = require('request-progress');
+var unzipper = require('unzipper');
+let db = require('./database');
 
 var fsid = 0;
 
-function nextFsId ()
-{
+function nextFsId() {
 	fsid++;
 	return fsid;
 }
@@ -30,7 +29,7 @@ function spawnPrivileged() {
 }
 
 let STORAGE = path.resolve(__dirname, process.env.WYLIODRIN_LAB_STORAGE || 'storage');
-let DOWNLOAD = path.join (STORAGE, 'download');
+let DOWNLOAD = path.join(STORAGE, 'download');
 let IMAGES = path.join(STORAGE, 'images');
 
 let MOUNT = path.join(STORAGE, 'mount');
@@ -39,7 +38,7 @@ let BOOT = path.join(MOUNT, 'boot');
 let FS = path.join(MOUNT, 'fs');
 let ROOT_FS = path.join(MOUNT, 'rootfs');
 
-let HOME = path.join (STORAGE, 'home');
+let HOME = path.join(STORAGE, 'home');
 
 let RAM_FS_SIZE = process.env.WYLIDORIN_LAB_RAM_FS_SIZE || '100M';
 
@@ -112,12 +111,11 @@ async function unmount(folder) {
 	return umount;
 }
 
-async function mountRamFs (boardId)
-{
-	let folder = path.join (RAM_FS, boardId);
-	await fs.mkdirs (folder); 
-	await spawnPrivileged ('umount', [folder]);
-	await spawnPrivileged ('mount', ['-t', 'tmpfs', '-o', 'size='+RAM_FS_SIZE, 'none', folder]);
+async function mountRamFs(boardId) {
+	let folder = path.join(RAM_FS, boardId);
+	await fs.mkdirs(folder);
+	await spawnPrivileged('umount', [folder]);
+	await spawnPrivileged('mount', ['-t', 'tmpfs', '-o', 'size=' + RAM_FS_SIZE, 'none', folder]);
 }
 
 async function mountPartition(imageInfo, partition, folder, unmountIfMounted = false) {
@@ -215,26 +213,25 @@ async function readImageInfo(filename) {
 					imageInfo.id = newImageId(filename);
 					imageInfo.filename = filename;
 					imageInfo.status = 'downloaded';
-					if (await hasServerSetup (imageInfo)) imageInfo.status = 'ok';
+					if (await hasServerSetup(imageInfo)) imageInfo.status = 'ok';
 				} else {
 					error = 'Image does not have an MBR, FAT and EXT3 partition';
-					console.error('ERROR: '+error);
+					console.error('ERROR: ' + error);
 					// TODO load image with status error?
 				}
 			} else {
 				error = 'Image file ' + filename + ' is not a Raspberry Pi Image ' + data.stderr;
-				console.error('ERROR: '+error);
+				console.error('ERROR: ' + error);
 			}
 		} else {
 			error = 'Image file ' + filename + ' does not exist';
-			console.error('ERROR: '+error);
+			console.error('ERROR: ' + error);
 		}
 	} catch (e) {
 		error = 'Image file ' + filename + ' is not a Raspberry Pi Image ' + data.stderr;
-		console.error('ERROR: '+error);
+		console.error('ERROR: ' + error);
 	}
-	if (error)
-	{
+	if (error) {
 		imageInfo = {
 			filename: filename,
 			id: newImageId(filename),
@@ -310,39 +307,34 @@ async function serverStack(imageInfo) {
 	return [folderServer, fsFolder];
 }
 
-function setupFile (imageInfo)
-{
-	console.log (path.join (path.dirname (imageInfo.filename), '.'+imageInfo.id+'.setup'));
-	return path.join (path.dirname (imageInfo.filename), '.'+imageInfo.id+'.setup');
+function setupFile(imageInfo) {
+	console.log(path.join(path.dirname(imageInfo.filename), '.' + imageInfo.id + '.setup'));
+	return path.join(path.dirname(imageInfo.filename), '.' + imageInfo.id + '.setup');
 }
 
-function hasServerSetup (imageInfo)
-{
-	console.log (setupFile(imageInfo));
-	return fs.pathExists (setupFile(imageInfo));
+function hasServerSetup(imageInfo) {
+	console.log(setupFile(imageInfo));
+	return fs.pathExists(setupFile(imageInfo));
 }
 
-function makeServerSetup (imageInfo)
-{
-	return fs.writeFile (setupFile (imageInfo), JSON.stringify ({data: new Date()}));
+function makeServerSetup(imageInfo) {
+	return fs.writeFile(setupFile(imageInfo), JSON.stringify({ data: new Date() }));
 }
 
 async function setupServer(imageInfo, ignoreSetup) {
-	if (_.isString (imageInfo)) imageInfo = imagesList[imageInfo];
-	if (imageInfo)
-	{
-		if (await hasServerSetup (imageInfo) && !ignoreSetup)
-		{
+	if (_.isString(imageInfo)) imageInfo = imagesList[imageInfo];
+	if (imageInfo) {
+		if (await hasServerSetup(imageInfo) && !ignoreSetup) {
 			return;
 		}
-		await fs.remove (setupFile(imageInfo));
+		await fs.remove(setupFile(imageInfo));
 		imageInfo.status = 'setup';
 		let folderStack = await serverStack(imageInfo);
 		let folderSetup = path.join(SETUP_SERVER, imageInfo.id);
 		// await fs.mkdirs (folderSetup);
 		// TODO if is mounted
-		if (await isMounted(folderSetup)){
-			await unmount (folderSetup);
+		if (await isMounted(folderSetup)) {
+			await unmount(folderSetup);
 		}
 		try {
 			if (await mountAufs(folderStack, folderSetup, ['suid'])) {
@@ -367,7 +359,7 @@ async function setupServer(imageInfo, ignoreSetup) {
 						process.stderr.write(data);
 					});
 					await install;
-					await makeServerSetup (imageInfo);
+					await makeServerSetup(imageInfo);
 				} else {
 					throw new Error('setup: ' + setup.stderr.toString());
 				}
@@ -410,7 +402,7 @@ async function unmountSetupCourse(courseId) {
 	return await unmount(folderSetupCourse);
 }
 
-async function setupCourse(courseId, imageInfo, userList, emitString ,cmd = 'bash', cols = 80, rows = 24) {
+async function setupCourse(courseId, imageInfo, userList, emitString, cmd = 'bash', cols = 80, rows = 24) {
 	if (!imageInfo) {
 		debug('mount root fs using default image id ' + defaultImage.id);
 		imageInfo = defaultImage;
@@ -431,21 +423,19 @@ async function setupCourse(courseId, imageInfo, userList, emitString ,cmd = 'bas
 			USERNAME: 'pi'
 		});
 		run.on('exit', async function(exitCode) {
-			let toSend = {t:'s', a:'c', b:courseId};
+			let toSend = { t: 's', a: 'c', b: courseId };
 			userList.emit(emitString, toSend);
 
 			debug('setup course ' + exitCode);
 			await unmountSetupCourse(courseId);
 		});
-		run.on('data', function(data){
-			let toSend = {t:'s', a:'k', b:courseId, c:data};
+		run.on('data', function(data) {
+			let toSend = { t: 's', a: 'k', b: courseId, c: data };
 			userList.emit(emitString, toSend);
 		});
-		run.on ('error', function (error)
-		{
-			if (error.message.indexOf ('EIO') === -1)
-			{
-				console.log ('SHELL '+error.message);
+		run.on('error', function(error) {
+			if (error.message.indexOf('EIO') === -1) {
+				console.log('SHELL ' + error.message);
 			}
 		});
 		return run;
@@ -496,10 +486,10 @@ async function unmountRootFs(boardId) {
 	let folderRamFs = path.join(RAM_FS, boardId);
 	let folderRootFs = path.join(ROOT_FS, boardId);
 	// umount /proc
-	if (isMounted(folderRootFs)){
+	if (isMounted(folderRootFs)) {
 		await unmount(folderRootFs);
 	}
-	if (isMounted(folderRamFs)){
+	if (isMounted(folderRamFs)) {
 		await unmount(folderRamFs);
 	}
 	// TODO modify this
@@ -525,16 +515,12 @@ async function listExportFs() {
 		if (run.exitCode === 0) {
 			let rawData = run.stdout.toString().split('\n');
 			let data = [];
-			for (let index = 0; index < rawData.length; index ++)
-			{
+			for (let index = 0; index < rawData.length; index++) {
 				let rawItem = rawData[index];
-				if (rawItem[0] === '\t' || rawItem[0]===' ' && data.length>0)
-				{
-					data[data.length-1] = data[data.length-1]+' '+rawItem;
-				}
-				else
-				{
-					data.push (rawItem);
+				if (rawItem[0] === '\t' || rawItem[0] === ' ' && data.length > 0) {
+					data[data.length - 1] = data[data.length - 1] + ' ' + rawItem;
+				} else {
+					data.push(rawItem);
 				}
 			}
 			for (let item of data) {
@@ -562,6 +548,7 @@ async function listExportFs() {
 
 async function readImages() {
 	imagesList = {};
+	var posDefaultImg = null;
 	try {
 		await fs.mkdirs(IMAGES);
 		let list = await fs.readdir(IMAGES);
@@ -571,9 +558,8 @@ async function readImages() {
 				try {
 					let imageInfo = await readImageInfo(path.join(IMAGES, file));
 					imagesList[imageInfo.id] = imageInfo;
-					if (imageInfo.status !== 'error')
-					{
-						if (!defaultImage) defaultImage = imageInfo;
+					if (imageInfo.status !== 'error') {
+						if (!posDefaultImg) posDefaultImg = imageInfo;
 						if (file.indexOf('default') >= 0) defaultImage = imageInfo;
 						mountImage(imageInfo);
 					}
@@ -582,6 +568,9 @@ async function readImages() {
 				}
 			}
 		}
+		defaultImage = getDefaultImage();
+		if (!defaultImage && posDefaultImg) setDefaultImage(posDefaultImg);
+
 	} catch (e) {
 		console.error('ERROR: read images (' + e.message + ')');
 	}
@@ -598,9 +587,8 @@ function listImagesAsArray() {
 	for (let image in imagesList) {
 		list.push(imagesList[image]);
 	}
-	return list.map (function (image)
-	{
-		image.filename = path.basename (image.filename);
+	return list.map(function(image) {
+		image.filename = path.basename(image.filename);
 		return image;
 	});
 }
@@ -627,8 +615,8 @@ async function setup(boardId, userId, courseId, imageId) {
 			if (mount) {
 				let read = 'rw';
 				// if (!userId || !courseId) read = 'ro';
-				if (userId) await exportFs (await pathUser (userId, true), ['fsid='+nextFsId(), read, 'all_squash', 'anonuid=1000', 'anongid=1000']);
-				let exp = await exportFs(folder, ['fsid='+nextFsId(), read, 'no_root_squash']);
+				if (userId) await exportFs(await pathUser(userId, true), ['fsid=' + nextFsId(), read, 'all_squash', 'anonuid=1000', 'anongid=1000']);
+				let exp = await exportFs(folder, ['fsid=' + nextFsId(), read, 'no_root_squash']);
 				if (!exp) {
 					await unmountRootFs(boardId);
 					throw new Error('Failed to export rootfs for image ' + imageId);
@@ -687,9 +675,9 @@ async function cmdline(courseId, imageId, boardId, userId, parameters) {
 	// TODO debug using default image
 	if (!imageId) imageId = defaultImageId();
 	if (!parameters) parameters = {};
-	if (!parameters.server) parameters.server = 'http://'+ip.address();
-	if (!parameters.nfsServer) parameters.nfsServer = ip.address ();
-	let str = 'root=/dev/nfs nfsroot=' + parameters.nfsServer + ':' + path.join(ROOT_FS, boardId) + ',vers=3 rw ip=dhcp rootwait elevator=deadline userId='+userId+' server='+parameters.server+' courseId='+courseId;
+	if (!parameters.server) parameters.server = 'http://' + ip.address();
+	if (!parameters.nfsServer) parameters.nfsServer = ip.address();
+	let str = 'root=/dev/nfs nfsroot=' + parameters.nfsServer + ':' + path.join(ROOT_FS, boardId) + ',vers=3 rw ip=dhcp rootwait elevator=deadline userId=' + userId + ' server=' + parameters.server + ' courseId=' + courseId;
 	let folderBoot = path.join(BOOT, imageId);
 	let cmdline = (await fs.readFile(path.join(folderBoot, 'cmdline.txt'))).toString();
 	let pos = cmdline.indexOf('root=');
@@ -710,147 +698,120 @@ function defaultImageId() {
 	}
 }
 
-async function downloadImage (link)
-{
-	let url = new URL (link);
-	console.log (url);
-	let filename = path.basename (url.pathname);
+async function downloadImage(link) {
+	let url = new URL(link);
+	console.log(url);
+	let filename = path.basename(url.pathname);
 	let archive = null;
-	let extension = path.extname (filename).toLowerCase ();
+	let extension = path.extname(filename).toLowerCase();
 	let writeStream;
-	if (extension === '.zip' || extension === '.img')
-	{
-		if (extension === '.zip')
-		{
-			await fs.mkdirs (DOWNLOAD);
-			archive = path.join (DOWNLOAD, filename);
+	if (extension === '.zip' || extension === '.img') {
+		if (extension === '.zip') {
+			await fs.mkdirs(DOWNLOAD);
+			archive = path.join(DOWNLOAD, filename);
 		}
-		filename = filename.substring (0, filename.length-4)+'.img';
-		filename = path.join (IMAGES, filename);
-		console.log (extension);
-		if (extension === '.zip') writeStream = fs.createWriteStream (archive);
-		else writeStream = fs.createWriteStream (filename);
-	}
-	else
-	{
+		filename = filename.substring(0, filename.length - 4) + '.img';
+		filename = path.join(IMAGES, filename);
+		console.log(extension);
+		if (extension === '.zip') writeStream = fs.createWriteStream(archive);
+		else writeStream = fs.createWriteStream(filename);
+	} else {
 		return false;
 	}
-	let imageId = newImageId (filename);
-	if (!imagesList[imageId] || imagesList[imageId].status === 'error')
-	{
+	let imageId = newImageId(filename);
+	if (!imagesList[imageId] || imagesList[imageId].status === 'error') {
 		imagesList[imageId] = {
 			filename: filename,
 			id: imageId,
 			status: 'downloading',
 			progress: 0
 		};
-		progress (request (url.toString ()), {
-			
-		}).on ('progress', function (progress) {
+		progress(request(url.toString()), {
+
+		}).on('progress', function(progress) {
 			imagesList[imageId].progress = progress;
-		}).on ('error', function (err) {
+		}).on('error', function(err) {
 			imagesList[imageId].status = 'error';
 			imagesList[imageId].error = err.message;
-		}).on ('end', async function () {
-			if (archive)
-			{
+		}).on('end', async function() {
+			if (archive) {
 				let zip = unzipper.ParseOne(/\.img$/);
 				let outStream = fs.createWriteStream(filename);
-				zip.on ('end', async function ()
-				{
+				zip.on('end', async function() {
 					imagesList[imageId].status = 'download';
-					imagesList[imageId] = await readImageInfo (filename);
-					if (imagesList[imageId].status !== 'error') setupServer (imagesList[imageId]);
-				}).on ('error', function (err) {
+					imagesList[imageId] = await readImageInfo(filename);
+					if (imagesList[imageId].status !== 'error') setupServer(imagesList[imageId]);
+				}).on('error', function(err) {
 					imagesList[imageId].status = 'error';
 					imagesList[imageId].error = err.message;
 				});
 				fs.createReadStream(archive)
 					.pipe(zip)
 					.pipe(outStream);
-			}
-			else
-			{
+			} else {
 				imagesList[imageId].status = 'download';
-				imagesList[imageId] = await readImageInfo (filename);
-				if (imagesList[imageId].status !== 'error') setupServer (imagesList[imageId]);
+				imagesList[imageId] = await readImageInfo(filename);
+				if (imagesList[imageId].status !== 'error') setupServer(imagesList[imageId]);
 			}
-		}).pipe (writeStream);
-	}
-	else
-	{
+		}).pipe(writeStream);
+	} else {
 		return false;
 	}
 	return true;
 }
 
-async function setupUser (userId)
-{
-	let folderFs = path.join (FS, defaultImageId ());
-	let folderUser = path.join (HOME, userId);
-	await spawnPrivileged ('bash', ['-c', 'cp '+folderFs+'/home/pi/* '+folderUser+' && chown -R 1000:1000 *']);
+async function setupUser(userId) {
+	let folderFs = path.join(FS, defaultImageId());
+	let folderUser = path.join(HOME, userId);
+	await spawnPrivileged('bash', ['-c', 'cp ' + folderFs + '/home/pi/* ' + folderUser + ' && chown -R 1000:1000 *']);
 }
 
-async function pathUser (userId, write = false)
-{
-	let folder = path.join (HOME, userId);
-	if (write) 
-	{
-		await fs.mkdirs (folder);
-		if (!await fs.exists (path.join (HOME, '.profile'))) 
-		{
-			await setupUser (userId);
+async function pathUser(userId, write = false) {
+	let folder = path.join(HOME, userId);
+	if (write) {
+		await fs.mkdirs(folder);
+		if (!await fs.exists(path.join(HOME, '.profile'))) {
+			await setupUser(userId);
 		}
 		// TODO is recursive useful?
-		await spawnPrivileged ('chown', ['-R', '1000:1000', folder]);
+		await spawnPrivileged('chown', ['-R', '1000:1000', folder]);
 	}
 	return folder;
 }
 
-async function unmountImage (imageInfo)
-{
-	let courses = await db.course.listCoursesByImageId (imageInfo.id);
-	for (let course of courses)
-	{
-		let boards = await db.board.listBoardsByCourseId (course.courseId);
-		for (let board in boards)
-		{
-			await unsetup (board.boardId);
+async function unmountImage(imageInfo) {
+	let courses = await db.course.listCoursesByImageId(imageInfo.id);
+	for (let course of courses) {
+		let boards = await db.board.listBoardsByCourseId(course.courseId);
+		for (let board in boards) {
+			await unsetup(board.boardId);
 		}
 	}
-	await db.course.removeImage (imageInfo.id);
+	await db.course.removeImage(imageInfo.id);
 }
 
-async function deleteImage (imageId)
-{
+async function deleteImage(imageId) {
 	let imageInfo = imagesList[imageId];
-	if (imageInfo)
-	{
+	if (imageInfo && (imageInfo !== defaultImage)) {
 		let error = null;
-		if (imageInfo.status !== 'ok')
-		{
-			await fs.remove (imageInfo.filename);
-		}
-		else
-		{
-			await unmountImage (imageInfo);
-			if (await hasServerSetup (imageInfo))
-			{
+		if (imageInfo.status !== 'ok') {
+			await fs.remove(imageInfo.filename);
+		} else {
+			await unmountImage(imageInfo);
+			if (await hasServerSetup(imageInfo)) {
 				let folderSetup = path.join(SETUP_SERVER, imageInfo.id);
-				await fs.remove (folderSetup);
-				await fs.remove (await setupFile (imageInfo));
+				await fs.remove(folderSetup);
+				await fs.remove(await setupFile(imageInfo));
 			}
-			await fs.remove (imageInfo.filename);
+			await fs.remove(imageInfo.filename);
 		}
-		if (!error)
-		{
+		if (!error) {
 			delete imagesList[imageId];
 		}
 	}
 }
 
-function pathHomes ()
-{
+function pathHomes() {
 	return HOME;
 }
 
@@ -864,6 +825,27 @@ function pathRootFs(id) {
 	// TODO debug using default image
 	if (!id) id = defaultImage.id;
 	return path.join(ROOT_FS, id);
+}
+
+async function setDefaultImage(imageId) {
+	var defaultPath = path.join(IMAGES, '.img.default');
+	if (imagesList[imageId]) {
+		await fs.outputFile(defaultPath, JSON.stringify({ id: imageId }));
+		defaultImage = imagesList[imageId];
+		return true;
+	}
+	return false;
+}
+
+async function getDefaultImage() {
+	var defaultPath = path.join(IMAGES, '.img.default');
+	var exists = await fs.pathExists(defaultPath);
+	if (exists) {
+		var config = JSON.parse(await fs.readFile(defaultPath));
+		return imagesList[config.id];
+	} else {
+		return null;
+	}
 }
 
 run();
@@ -895,3 +877,5 @@ module.exports.downloadImage = downloadImage;
 module.exports.hasSetup = hasSetup;
 
 module.exports.deleteImage = deleteImage;
+module.exports.setDefaultImage = setDefaultImage;
+module.exports.getDefaultImage = getDefaultImage;

@@ -70,6 +70,7 @@ privateApp.post('/students/remove', async function(req, res, next) {
 					studentIds.push(student.userId);
 				}
 				await db.course.deleteStudents(courseId, studentIds);
+				await db.board.deleteUsersFromBoards(studentIds);
 				res.status(200).send({ err: 0 });
 			}
 		} catch (err) {
@@ -206,17 +207,35 @@ adminApp.post('/teachers/remove', async function(req, res, next) {
 	var e;
 	var teacherId = req.body.teacherId;
 	var courseId = req.body.courseId;
-	try {
-		var out = await db.course.deleteTeachers(courseId, teacherId);
-		if (out.err) {
-			e = error.badRequest('Invalid course or student');
+	if (teacherId && courseId) {
+		try {
+			var course = await db.course.findByCourseId(courseId);
+			if (course) {
+
+				var teachers = await db.user.findOneOrMoreByUserId(teacherId);
+				if (!teachers) {
+					e = error.badRequest('Invalid teacher ID');
+					next(e);
+				} else {
+					var teacherIds = [];
+					for (var teacher of teachers) {
+						teacherIds.push(teacher.userId);
+					}
+					await db.course.deleteTeachers(courseId, teacherIds);
+					await db.board.deleteUsersFromBoards(teacherIds);
+					res.status(200).send({ err: 0 });
+				}
+			} else {
+				e = error.badRequest('Invalid courseId');
+				next(e);
+			}
+		} catch (err) {
+			debug(err);
+			e = error.serverError(err);
 			next(e);
-		} else {
-			res.status(200).send({ err: 0 });
 		}
-	} catch (err) {
-		debug(err);
-		e = error.serverError(err);
+	} else {
+		e = error.badRequest('One or more fields missing');
 		next(e);
 	}
 });
