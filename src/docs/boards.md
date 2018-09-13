@@ -238,3 +238,47 @@ Lists the boards that are assigned to this course
 	]
 }
 ````
+
+### Reboot a board
+
+`POST` /boards/reboot
+
+> Note: Only an administrator a teacher for the course, or the user assigned can access this route.
+
+#### Parameters
+
+| Parameter | Required | Description |
+| --------- | -------- | ----------- |
+| `boardId` | yes | The ID of the board |
+
+
+#### Response 
+
+200 OK
+````json
+{
+	"err": 0
+}
+````
+
+### Remove a board
+
+`POST` /boards/remove
+
+> Note: Only an administrator can access this route.
+
+#### Parameters
+
+| Parameter | Required | Description |
+| --------- | -------- | ----------- |
+| `boardId` | yes | The ID of the board |
+
+
+#### Response 
+
+200 OK
+````json
+{
+	"err": 0
+}
+````
