@@ -133,6 +133,14 @@ function listAvailable() {
 	return Board.find({ userId: null, status: 'online' }).lean();
 }
 
+function deleteUsersFromBoards(userIds) {
+	return Board.findOneAndUpdate({ userId: { $in: userIds } }, { $unset: { userId: '' }, $set: { command: 'reboot' }, lastInfo: Date.now() }).lean();
+}
+
+function deleteByBoardId(boardId) {
+	return Board.remove({ boardId });
+}
+
 var board = {
 	createBoard,
 	findByBoardId,
@@ -147,7 +155,9 @@ var board = {
 	findByUserIdAndBoardId,
 	listBoards,
 	listBoardsByCourseId,
-	listAvailable
+	listAvailable,
+	deleteUsersFromBoards,
+	deleteByBoardId
 };
 
 module.exports = board;

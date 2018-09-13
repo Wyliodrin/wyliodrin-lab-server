@@ -22,6 +22,20 @@ function userIsValidForCourse(user, course) {
 	}
 }
 
+function userCanRebootBoard(user, course, board) {
+	if (user.role === 'admin') {
+		return true;
+	}
+	if (user.userId === board.userId) {
+		return true;
+	}
+	if (course && (course.teachers.indexOf(user.userId) > -1) && (board.courseId === course.courseId)) {
+		return true;
+	}
+
+	return false;
+}
+
 
 async function userCanDisconnectBoard(board, user) {
 	if (user.role === 'admin') {
@@ -105,6 +119,49 @@ privateApp.get('/user', async function(req, res, next) {
 		e = error.serverError(err);
 		next(e);
 	}
+});
+
+privateApp.post('/reboot', async function(req, res, next) {
+	var e;
+	var boardId = req.body.boardId;
+	if (boardId) {
+		try {
+			var board = await db.board.findByBoardId(boardId);
+			if (board) {
+				var course = await db.course.findByCourseId(board.courseId);
+				if (userCanRebootBoard(req.user, course, board)) {
+					await db.board.issueCommand(boardId, 'reboot');
+					res.status(200).send({ err: 0 });
+				} else {
+					e = error.unauthorized('User cannot reboot board');
+					next(e);
+				}
+			} else {
+				e = error.badRequest('Invalid board ID');
+				next(e);
+			}
+		} catch (err) {
+			e = error.serverError(err);
+			next(e);
+		}
+	} else {
+		e = error.badRequest('One or more fields missing');
+		next(e);
+	}
+});
+
+adminApp.post('/remove', async function(req, res, next) {
+	var e;
+	var boardId = req.body.boardId;
+
+	try {
+		await db.board.deleteByBoardId(boardId);
+		res.status(200).send({ err: 0 });
+	} catch (err) {
+		e = error.serverError(err);
+		next(e);
+	}
+
 });
 
 adminApp.post('/assign', async function(req, res, next) {

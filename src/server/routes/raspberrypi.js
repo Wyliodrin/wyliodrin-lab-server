@@ -59,5 +59,38 @@ adminApp.get('/delete/:id', async function(req, res, next) {
 	res.status(200).send({ err: 0 });
 });
 
+privateApp.get('/default', async function(req, res, next) {
+	var e;
+	try {
+		let image = await db.image.getDefaultImage();
+		if (image) {
+			res.status(200).send({ err: 0, image });
+		} else {
+			e = error.notFound('Default image not found');
+			next(e);
+		}
+	} catch (err) {
+		e = error.serverError(err);
+		next(e);
+	}
+});
+
+adminApp.post('/default', async function(req, res, next) {
+	var e;
+	var id = req.body.id;
+	try {
+		let valid = await db.image.setDefaultImage(id);
+		if (valid) {
+			res.status(200).send({ err: 0 });
+		} else {
+			e = error.badRequest('Invalid image ID');
+			next(e);
+		}
+	} catch (err) {
+		e = error.serverError(err);
+		next(e);
+	}
+});
+
 module.exports.privateRoutes = privateApp;
 module.exports.adminRoutes = adminApp;
