@@ -50,6 +50,7 @@ apiv1.use(function(req, res) {
 	error.sendError(res, error.notFound('Link not found'));
 });
 
+app.use('/docs', express.static(path.join(__dirname, '/../docs')));
 app.use('/api/v1', apiv1);
 
 app.use(express.static(path.join(__dirname, '../ui')));

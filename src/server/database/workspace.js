@@ -134,12 +134,12 @@ async function createProject(userId, projectName, language) {
  */
 async function setFile(filePath, userId, project, data) {
 	try {
-		var projectExists = await projectExists(userId, project);
+		var projExists = await projectExists(userId, project);
 	} catch (err) {
-		return { success: false, message: 'File System Error', err: statusCodes.INTERNAL_SERVER_ERROR };
+		return { success: false, message: 'File System Error' + err, err: statusCodes.INTERNAL_SERVER_ERROR };
 	}
 
-	if (!projectExists) {
+	if (!projExists) {
 		return { success: false, message: 'Project not found', err: statusCodes.BAD_REQUEST };
 	}
 
@@ -154,7 +154,7 @@ async function setFile(filePath, userId, project, data) {
 		await fs.outputFile(normalized_path, fileData);
 	} catch (err) {
 		debug('Got error writing file: ', err);
-		return { success: false, message: 'File system error', err: statusCodes.INTERNAL_SERVER_ERROR };
+		return { success: false, message: 'File system error' + err, err: statusCodes.INTERNAL_SERVER_ERROR };
 	}
 
 	return { success: true, err: 0 };

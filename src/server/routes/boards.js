@@ -192,7 +192,6 @@ privateApp.post('/disconnect', async function(req, res, next) {
 });
 
 
-
 adminApp.get('/list', async function(req, res, next) {
 	var e;
 	try {

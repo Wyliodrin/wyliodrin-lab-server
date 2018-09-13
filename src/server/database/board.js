@@ -125,6 +125,10 @@ function listBoardsByCourseId(courseId) {
 	return Board.find({ courseId: courseId });
 }
 
+function listAvailable() {
+	return Board.find({ userId: null, status: 'online' }).lean();
+}
+
 var board = {
 	createBoard,
 	findByBoardId,
@@ -138,7 +142,8 @@ var board = {
 	unsetCourseAndUser,
 	findByUserIdAndBoardId,
 	listBoards,
-	listBoardsByCourseId
+	listBoardsByCourseId,
+	listAvailable
 };
 
 module.exports = board;
