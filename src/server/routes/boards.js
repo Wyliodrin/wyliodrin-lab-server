@@ -104,25 +104,30 @@ privateApp.get('/user', async function(req, res, next) {
 	}
 });
 
-privateApp.post('/assign', async function(req, res, next) {
+adminApp.post('/assign', async function(req, res, next) {
 	var e;
-	var userId = req.user.userId;
+	var userId = req.body.userId;
 	var courseId = req.body.courseId;
 	var boardId = req.body.boardId;
-	if (courseId && boardId) {
+	if (courseId && boardId && userId) {
 		try {
-			// TODO verify course
-			var course = await db.course.findByCourseAndUserId(courseId);
-			if (course) {
-				var board = await db.board.assignCourseAndUser(boardId, userId, courseId);
-				if (board && (board.userId === userId)) {
-					res.status(200).send({ err: 0, board });
+			var board = await db.board.findByBoardId(boardId);
+			if (board) {
+				var course = await db.course.findByCourseAndUserId(courseId, userId);
+				if (course) {
+					var boardOut = await db.board.assignCourseAndUser(boardId, userId, courseId);
+					if (boardOut && (boardOut.userId === userId)) {
+						res.status(200).send({ err: 0, boardOut });
+					} else {
+						e = error.unauthorized('Board is already assigned to a user');
+						next(e);
+					}
 				} else {
-					e = error.unauthorized('Board is already assigned to a user');
+					e = error.badRequest('Invalid course or user ID');
 					next(e);
 				}
 			} else {
-				e = error.badRequest('Invalid course ID');
+				e = error.badRequest('Invalid board ID');
 				next(e);
 			}
 		} catch (err) {
@@ -130,7 +135,7 @@ privateApp.post('/assign', async function(req, res, next) {
 			next(e);
 		}
 	} else {
-		e = error.badRequest('Please provide user and course ID');
+		e = error.badRequest('Please provide all required fields');
 		next(e);
 	}
 });
@@ -185,7 +190,6 @@ privateApp.post('/disconnect', async function(req, res, next) {
 		next(e);
 	}
 });
-
 
 
 adminApp.get('/list', async function(req, res, next) {

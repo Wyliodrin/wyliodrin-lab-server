@@ -15,6 +15,14 @@ module.exports = function(grunt) {
 					transform: ['vueify']
 				}
 			},
+			docs: {
+				files: {
+					'build/docs/js/script.js': ['src/docs/js/script.js'],
+				},
+				options: {
+					external: null
+				}
+			},
 			vendor: {
 				src: [],
 				dest: 'build/ui/js/vendor.js',
@@ -23,7 +31,7 @@ module.exports = function(grunt) {
 					require: libs
 				},
 			},
-			freeboard : {
+			freeboard: {
 				files: {
 					'build/ui/js/freeboard/wyliodrinData.js': 'src/ui/js/freeboard/wyliodrinData.js'
 				},
@@ -39,51 +47,62 @@ module.exports = function(grunt) {
 		copy: {
 			server: {
 				files: [{
-					expand: true,
-					cwd: 'src/server',
-					src: ['**/*'],
-					dest: 'build/server/'
-				},
-				// {
-				// 	expand: true,
-				// 	cwd: 'src/server/bin',
-				// 	src: ['*'],
-				// 	dest: 'build/server/bin/'
-				// },
-				// {
-				// 	expand: true,
-				// 	cwd: 'src/server/database',
-				// 	src: ['*'],
-				// 	dest: 'build/server/database/'
-				// },
-				// {
-				// 	expand: true,
-				// 	cwd: 'src/server/routes',
-				// 	src: ['*'],
-				// 	dest: 'build/server/routes/'
-				// }
+						expand: true,
+						cwd: 'src/server',
+						src: ['**/*'],
+						dest: 'build/server/'
+					},
+					// {
+					// 	expand: true,
+					// 	cwd: 'src/server/bin',
+					// 	src: ['*'],
+					// 	dest: 'build/server/bin/'
+					// },
+					// {
+					// 	expand: true,
+					// 	cwd: 'src/server/database',
+					// 	src: ['*'],
+					// 	dest: 'build/server/database/'
+					// },
+					// {
+					// 	expand: true,
+					// 	cwd: 'src/server/routes',
+					// 	src: ['*'],
+					// 	dest: 'build/server/routes/'
+					// }
 				]
 			},
 			ui: {
 				files: [{
+						expand: true,
+						cwd: 'src/ui/img',
+						src: ['**/*'],
+						dest: 'build/ui/img/'
+					},
+					{
+						expand: true,
+						cwd: 'src/ui',
+						src: ['*.html'],
+						dest: 'build/ui'
+					},
+					{
+						expand: true,
+						cwd: 'src/ui/freeboard',
+						src: ['**/*'],
+						dest: 'build/ui/freeboard',
+						extDot: 'first'
+					},
+				]
+			},
+
+			docs: {
+				files: [{
 					expand: true,
-					cwd: 'src/ui/img',
-					src: ['**/*'],
-					dest: 'build/ui/img/'
-				},
-				{
-					expand: true,
-					cwd: 'src/ui',
-					src: ['*.html'],
-					dest: 'build/ui'
-				},
-				{
-					expand: true,
-					cwd:'src/ui/freeboard',
-					src:['**/*'],
-					dest: 'build/ui/freeboard',
+					cwd: 'src/docs/',
+					src: ['**/*', '!**/*.js'],
+					dest: 'build/docs/',
 					extDot: 'first'
-				},]
+				}, ]
 			}
 		},
 		//clean the build folder
@@ -91,8 +110,14 @@ module.exports = function(grunt) {
 			all: 'build',
 			client: 'build/client',
 			server: 'build/server',
+			docs: 'build/docs'
 		},
 		less: {
+			docs: {
+				files: {
+					'build/docs/css/docs.css': 'src/docs/css/docs.less'
+				}
+			},
 			vendor: {
 				files: {
 					'build/ui/style/wyliodrin.css': 'src/ui/style/style.less',
@@ -119,7 +144,9 @@ module.exports = function(grunt) {
 	grunt.registerTask('server', ['eslint:server', 'copy:server']);
 
 	grunt.registerTask('ui', ['eslint:ui', 'browserify', 'less', 'copy:ui']);
+
+	grunt.registerTask('docs', ['browserify:docs', 'copy:docs', 'less:docs']);
 	grunt.registerTask('fastui', ['eslint:ui', 'browserify:ui', 'browserify:freeboard']);
 
-	grunt.registerTask('default', ['server', 'ui']);
+	grunt.registerTask('default', ['server', 'ui', 'docs']);
 };
