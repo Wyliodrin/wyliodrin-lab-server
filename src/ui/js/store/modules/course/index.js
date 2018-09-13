@@ -67,6 +67,26 @@ module.exports = {
 			}
 		},
 
+		async updateCourse(store) {
+			try {
+				if (store.state.course)
+				{
+					let response = await Vue.http.get(setup.API + '/courses/get/' + store.state.course.courseId);
+					if (response.data.err === 0) {
+						console.log(response.data.course);
+						store.commit('course', response.data.course);
+						return true;
+					}
+				}
+				else
+				{
+					return false;
+				}
+			} catch (e) {
+				return false;
+			}
+		},
+
 		async listPublicCourses(store) {
 			try {
 				store.commit('publicCourses', null);
@@ -143,7 +163,7 @@ module.exports = {
 				let response = await Vue.http.post(setup.API + '/courses/students/remove', courseUserQuery);
 				if (response.data.err === 0) {
 					await store.dispatch('listCourses');
-					await store.dispatch('getCourse', courseUserQuery.courseId);
+					await store.dispatch('updateCourse', courseUserQuery.courseId);
 					return true;
 				} else {
 					console.log(response);
@@ -160,7 +180,7 @@ module.exports = {
 				let response = await Vue.http.post(setup.API + '/courses/students/add', courseUserQuery);
 				if (response.data.err === 0) {
 					await store.dispatch('listCourses');
-					await store.dispatch('getCourse', courseUserQuery.courseId);
+					await store.dispatch('updateCourse', courseUserQuery.courseId);
 					return true;
 				} else {
 					console.log(response);
@@ -177,7 +197,7 @@ module.exports = {
 				let response = await Vue.http.post(setup.API + '/courses/teachers/remove', courseTeacherQuery);
 				if (response.data.err === 0) {
 					await store.dispatch('listCourses');
-					await store.dispatch('getCourse', courseTeacherQuery.courseId);
+					await store.dispatch('updateCourse', courseTeacherQuery.courseId);
 					return true;
 				} else
 					return false;
@@ -192,7 +212,7 @@ module.exports = {
 				let response = await Vue.http.post(setup.API + '/courses/teachers/add', courseTeacherQuery);
 				if (response.data.err === 0) {
 					await store.dispatch('listCourses');
-					await store.dispatch('getCourse', courseTeacherQuery.courseId);
+					await store.dispatch('updateCourse', courseTeacherQuery.courseId);
 					return true;
 				} else {
 					console.log(response);

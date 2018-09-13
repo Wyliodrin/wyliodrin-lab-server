@@ -44,7 +44,7 @@ new Vue ({
 	{
 		// console.log ('render');\
 		if (this.loading) return render (Loading);
-		else if (this.user && this.board && this.board.boardId && this.board)
+		else if (this.user && this.board && this.board.boardId && this.board.courseId)
 		{
 			return render (Lab);
 		}

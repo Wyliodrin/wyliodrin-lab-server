@@ -93,8 +93,6 @@
 <script>
 var Vue = require ('vue');
 var AddCourseModal = require ('./AddCourseModal.vue');
-var AddStudentToCourseModal = require ('./AddStudentToCourseModal.vue');
-var AddTeacherToCourseModal = require ('./AddTeacherToCourseModal.vue');
 var EditCourseNameModal = require ('./EditCourseNameModal.vue');
 var HalfCircleSpinner = require ('epic-spinners/dist/lib/epic-spinners.min.js').HalfCircleSpinner;
 
@@ -169,78 +167,9 @@ module.exports = {
 				console.log('Could not delete course...');
 		},
 
-		
-
-		addNewStudent () {
-			Vue.bootbox.dialog (AddStudentToCourseModal, {
-				courseId: this.course.courseId,
-				studentIds: this.course.students.map(student => student.userId),
-				teacherIds: this.course.teachers.map(teacher => teacher.userId)
-			}, {
-				title: 'Add new Student',
-				buttons: {
-					add: {
-						label: 'Done',
-						className: 'wyliodrin-active'
-					},
-					back: {
-						label: 'Cancel',
-						className: 'wyliodrin-back'
-					}
-				}
-			});
-		},
-
-		async deleteStudentFromCourse(studentId){
-			let courseId = this.course.courseId;
-
-			console.log(studentId);
-			console.log(courseId);
-
-			let recvDelStudent = await this.$store.dispatch ('course/deleteStudentFromCourse', {
-				courseId: courseId,
-				studentId: studentId
-			});
-
-			if (!recvDelStudent)
-				console.log('Could not delete student from course..');
-		},
-
 		linkCourse (cousreId)
 		{
 			this.$router.push ('/courses/'+cousreId);
-		},
-
-		addNewTeacher () {
-			Vue.bootbox.dialog (AddTeacherToCourseModal, {
-				courseId: this.course.courseId,
-				studentIds: this.course.students.map(student => student.userId),
-				teacherIds: this.course.teachers.map(teacher => teacher.userId)
-			}, {
-				title: 'Add new Teacher',
-				buttons: {
-					add: {
-						label: 'Done',
-						className: 'wyliodrin-active'
-					},
-					back: {
-						label: 'Cancel',
-						className: 'wyliodrin-back'
-					}
-				}
-			});
-		},
-
-		async deleteTeacherFromCourse(teacherId){
-			let courseId = this.course.courseId;
-
-			let recvDelTeacher = await this.$store.dispatch ('course/deleteTeacherFromCourse', {
-				courseId: courseId,
-				teacherId: teacherId
-			});
-
-			if (!recvDelTeacher)
-				console.log('Could not delete teacher from course..');
 		},
 	},
 	created () {

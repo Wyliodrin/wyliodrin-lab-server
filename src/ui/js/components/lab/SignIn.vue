@@ -35,13 +35,6 @@
 							</div>
 							<select name="Course" class="custom-select" v-model="courseId">
 								<option v-for="course in courses" :key="course.courseId" :value="course.courseId">{{course.name}}</option>
-								<option>Course 1</option>
-								<option>Course 2</option>
-								<option>Course 3</option>
-								<option>Course 4</option>
-								<option>Course 5</option>
-								<option>Course 6</option>
-								<option>Course 7</option>
 							</select>
 						</div>
 						<div class="input-group mb-3">
@@ -90,7 +83,7 @@ module.exports = {
 				if (login)
 				{
 					await this.$store.dispatch ('user/updateUser');
-					await this.$store.dispatch ('user/updateUser');
+					await this.$store.dispatch ('board/getBoard');
 					this.lab ();
 				}
 				else {
@@ -103,13 +96,18 @@ module.exports = {
 				this.lab ();
 			}
 		},
-		lab ()
+		async lab ()
 		{
-			// if (this.user && this.courseId && this.boardId)
-			// {
-			// 	// TODO verify data
-			// 	this.$store.dispatch ('settings/redirect', 'LAB');
-			// }
+			if (this.user && this.courseId && this.boardId)
+			{
+				if (await this.$store.dispatch ('user/connect', {
+					boardId: this.boardId,
+					courseId: this.courseId
+				}))
+				{
+					this.$store.dispatch ('user/getBoard');
+				}
+			}
 
 		},
 		async logout () {
@@ -120,7 +118,7 @@ module.exports = {
 	computed: mapGetters ({
 		user: 'user/user',
 		courses: 'course/userCourses',
-		board: 'board/board',
+		board: 'board/userBoard',
 	}),
 	async created ()
 	{
