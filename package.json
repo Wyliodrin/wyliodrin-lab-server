@@ -9,6 +9,7 @@
         "start": "grunt && nodemon ./build/server/bin/server.js"
     },
     "dependencies": {
+        "async-redis": "^1.1.4",
         "child-process-async": "^1.0.1",
         "debug": "^2.6.9",
         "dotenv": "^6.0.0",

@@ -12,34 +12,6 @@
 | `imageId` | String | no | user/server | The ID of the image which will be used on the Raspberry Pi's for the course |
 | `open` | Boolean | yes | user/server | The property that defines if the enrollment to the course is open or not |
 
-
-## API
-
-All links are prefixed with `/api/v1`. All data is passed as JSON.
-
-The examples have all the possible parameters. Some are optional, please look at the parameters table.
-
-All requests, except the ones that say otherwise, have to provide the following headers:
-
-| Header | Required | Format | Description |
-| ------ | -------- | ------ |-------------| 
-| `authorization` | yes | Bearer `token` | The token received from login |
-
-Some requests can only be made by a user with `admin` role
-
-All requests return errors in the following format:
-
-
-
-4xx/500 Error
-````json
-{
-	"statusError": "type of error",
-	"err":"error text"
-}
-````
-
-
 ### List public courses
 
 `GET` /courses/public
@@ -227,6 +199,8 @@ If students of teachers are not specified, the new course is created with empty 
 
 > Note: Only an administrator can access this route
 
+All boards must be disconnected from the course before a course can be deleted.
+
 #### Parameters
 
 | Parameter | Required | Description |
@@ -346,5 +320,50 @@ Add a teacher to a course
 ````json
 {
 	"err":0
+}
+````
+
+### List by imageId
+`GET` /courses/:imageId
+
+List the courses that use the image with the ID imageId
+
+#### Response
+
+200 OK
+````json
+{
+	"err":0,
+	"courses": [
+		{ 
+			"name": "name of course1",
+			"teachers": [
+				"teacher1 ID",
+				"teacher2 ID"
+			],
+			"students": [
+				"student1 ID",
+				"student2 ID"
+			],
+			"courseId": "ID of the course1",
+			"imageId": "The requested imageId",
+			"open": "True or False",
+		},
+		{ 
+			"name": "name of course2",
+			"teachers": [
+				"teacher1 ID",
+				"teacher2 ID"
+			],
+			"students": [
+				"student1 ID",
+				"student2 ID"
+			],
+			"courseId": "ID of the course2",
+			"imageId": "The requested imageId",
+			"open": "True or False",
+		}
+		...
+		]
 }
 ````

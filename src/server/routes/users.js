@@ -5,32 +5,29 @@ var debug = require('debug')('wyliodrin-lab-server:user-routes');
 var uuid = require('uuid');
 var db = require('../database/database.js');
 var error = require('../error.js');
-var fs = require('fs-extra');
+var redis = require('redis');
+var { promisify } = require('util');
+
 var publicApp = express.Router();
 var privateApp = express.Router();
 var adminApp = express.Router();
 
+var client = redis.createClient();
+
+// redis functions for login tokens
+const getAsync = promisify(client.get).bind(client);
+const setAsync = promisify(client.set).bind(client);
+const delAsync = promisify(client.del).bind(client);
+const KEY = 'wyliodrin-lab-server:';
+
+client.on('error', function(err) {
+	console.log('Error' + err);
+});
+
 debug.log = console.info.bind(console);
-
-var localTokens = process.env.LOCAL_TOKENS || __dirname + './local_tokens.json';
-
-var tokens = {};
 
 function createToken() {
 	return uuid.v4() + uuid.v4() + uuid.v4() + uuid.v4();
-}
-
-async function initTokens() {
-
-	await fs.ensureFile(localTokens);
-	tokens = JSON.parse(fs.readFileSync(localTokens, 'utf8'));
-}
-
-initTokens();
-
-function updateLocalTokens() {
-	var out = JSON.stringify(tokens);
-	fs.writeFile(localTokens, out);
 }
 
 publicApp.post('/login', async function(req, res, next) {
@@ -43,8 +40,7 @@ publicApp.post('/login', async function(req, res, next) {
 		if (user) {
 			debug('Found user ' + user);
 			var token = createToken();
-			tokens[token] = user.userId;
-			updateLocalTokens();
+			await setAsync(KEY + token, user.userId);
 			debug('User ' + user.username + ':' + user.userId + ' logged in');
 
 			try {
@@ -63,7 +59,6 @@ publicApp.post('/login', async function(req, res, next) {
 			}
 
 			res.status(200).send({ err: 0, token: token, role: user.role });
-			debug(tokens);
 		} else {
 			e = error.unauthorized('User or password are not correct');
 			next(e);
@@ -94,7 +89,7 @@ async function security(req, res, next) {
 	let user;
 	if (token) {
 		debug('got token', token);
-		var userId = tokens[token];
+		var userId = await getAsync(KEY + token);
 		user = await db.user.findByUserId(userId);
 	}
 	if (user) {
@@ -163,10 +158,10 @@ privateApp.post('/password/edit', async function(req, res, next) {
 });
 
 
-privateApp.get('/logout', function(req, res) {
-	delete tokens[req.token];
+privateApp.get('/logout', async function(req, res) {
 	debug(req.user.userId + ' logged out');
-	updateLocalTokens();
+	await delAsync(KEY + req.token);
+
 	res.status(200).send({ err: 0 });
 });
 
@@ -228,7 +223,7 @@ privateApp.post('/disconnect', async function(req, res, next) {
 		if (course) {
 			try {
 				await db.board.unsetCourseAndUser(board.boardId);
-				db.image.unsetupDelay (board.boardId, 20000);
+				db.image.unsetupDelay(board.boardId, 20000);
 				res.status(200).send({ err: 0 });
 			} catch (err) {
 				e = error.serverError(err);

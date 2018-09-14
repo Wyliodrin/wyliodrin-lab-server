@@ -186,6 +186,11 @@ function findByCourseIdAndStudentId(courseId, studentId) {
 function findByCourseAndUserId(courseId, userId) {
 	return Course.findOne({ $and: [{ courseId: courseId }, { $or: [{ students: { $in: userId } }, { teachers: { $in: userId } }] }] });
 }
+
+function findByImageId(imageId) {
+	return Course.find({ imageId: imageId }).lean();
+}
+
 var course = {
 	createCourse,
 	findByCourseId,
@@ -207,7 +212,8 @@ var course = {
 	addStudents,
 	deleteStudents,
 	deleteTeachers,
-	findByCourseAndUserId
+	findByCourseAndUserId,
+	findByImageId
 };
 
 module.exports = course;
