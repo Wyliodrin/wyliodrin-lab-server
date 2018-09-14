@@ -92,5 +92,12 @@ adminApp.post('/default', async function(req, res, next) {
 	}
 });
 
+// adminApp.post('/reload', async function(req, res, next) {
+// 	var e;
+// 	try {
+
+// 	}
+// });
+
 module.exports.privateRoutes = privateApp;
 module.exports.adminRoutes = adminApp;
