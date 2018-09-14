@@ -182,6 +182,7 @@ adminApp.post('/remove', async function(req, res, next) {
 	var e;
 	var courseId = req.body.courseId;
 	try {
+		await db.image.removeSetupCourse (courseId);
 		await db.course.deleteByCourseId(courseId);
 		res.status(200).send({ err: 0 });
 	} catch (err) {

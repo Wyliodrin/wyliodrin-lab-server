@@ -46,6 +46,7 @@
 						<!-- <td class="text-center">{{latestVersion(application)}}</td> -->
 						<!-- <td class="text-center">17</td> -->
 						<td class="text-center" style="width:130px">
+							<a class="iconbtn" v-show="image.status==='ok'" @click="update(image)" v-tooltip data-toggle="tooltip" data-placement="top" title="Update Software"><img src="/img/icons/erase-16.png"></a>
 							<a class="iconbtn" v-show="image.status==='downloaded'" @click="setup(image)" v-tooltip data-toggle="tooltip" data-placement="top" title="Setup"><img src="/img/icons/erase-16.png"></a>
 							<a class="iconbtn" @click="del(image)" v-tooltip data-toggle="tooltip" data-placement="top" title="Delete"><img src="/img/icons/erase-16.png"></a>
 						</td>
@@ -100,6 +101,17 @@ module.exports = {
 		{
 			await this.$store.dispatch ('image/listImages');
 			timeout = setTimeout (this.updateImages, 5000);
+		},
+		update (image)
+		{
+			var that = this;
+			Vue.bootbox.confirm ('Are you sure you want to update the image?', function (result)
+			{
+				if (result)
+				{
+					that.$store.dispatch ('image/updateImage', image.id);
+				}
+			});
 		},
 		del (image)
 		{

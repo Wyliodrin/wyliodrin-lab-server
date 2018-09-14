@@ -52,6 +52,20 @@ module.exports = {
 				return false;
 			}
 		},
+		async updateImage(store, id) {
+			try {
+				// store.commit('images', null);
+				let response = await Vue.http.get(setup.API + '/images/update/'+id);
+				if (response.data.err === 0) {
+					// console.log(response.data.images);
+					store.dispatch ('listImages');
+					return true;
+				}
+				return false;
+			} catch (e) {
+				return false;
+			}
+		},
 		async deleteImage(store, id) {
 			try {
 				// store.commit('images', null);

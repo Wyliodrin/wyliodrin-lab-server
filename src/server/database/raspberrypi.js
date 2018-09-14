@@ -644,7 +644,7 @@ async function setup(boardId, userId, courseId, imageId) {
 	} else throw new Error('Image ' + imageId + ' does not exist');
 }
 
-async function unsetup(boardId, userId) {
+async function unsetup(boardId) {
 	clearTimeout (unsetupReqests[boardId]);
 	let folder = path.join(ROOT_FS, boardId);
 	// root
@@ -652,16 +652,7 @@ async function unsetup(boardId, userId) {
 		await unexportFs(folder);
 		await unmountRootFs(boardId);
 	} else {
-		// throw new Error('Board ' + boardId + ' is not setup');
-	}
-	if (userId)
-	{
-		let userFolder = pathUser (userId);
-		if (await isExported(userFolder)) {
-			await unexportFs(userFolder);
-		} else {
-			// TODO
-		}
+		throw new Error('Board ' + boardId + ' is not setup');
 	}
 	return true;
 }
@@ -883,12 +874,23 @@ async function unsetupDelay (boardId, userId, timeout = 8000)
 	console.log ('unsetup');
 	if (await hasSetup (boardId))
 	{
-		console.log ('unsetup scheduled');
 		clearTimeout (unsetupReqests[boardId]);
+		console.log ('unsetup scheduled');
+
+		if (userId)
+		{
+			let userFolder = pathUser (userId);
+			if (await isExported(userFolder)) {
+				await unexportFs(userFolder);
+			} else {
+				// TODO
+			}
+		}
+
 		unsetupReqests[boardId] = setTimeout (function ()
 		{
 			console.log ('unsetup schedule start');
-			unsetup (boardId, userId);
+			unsetup (boardId);
 		}, timeout);
 	}
 }

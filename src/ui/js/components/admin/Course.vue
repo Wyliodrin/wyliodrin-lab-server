@@ -292,10 +292,6 @@ module.exports = {
 		},
 	},
 	methods: {
-		deleteCourse ()
-		{
-
-		},
 		gravatar (user, size)
 		{
 			console.log (user);
@@ -413,7 +409,35 @@ module.exports = {
 		changeImage ()
 		{
 
-		}
+		},
+		deleteCourse () {
+			var that = this;
+			if (this.boards && this.boards.length === 0)
+			{
+				Vue.bootbox.confirm ('Are you sure you want to delete the course? This will delete all the setup files', async function (result)
+				{
+					if (result)
+					{
+						console.log(that.course.courseId);
+						that.courseIndex = null;
+						let recvDelete = await that.$store.dispatch ('course/deleteCourse',{
+							courseId: that.course.courseId
+						});
+
+						if (!recvDelete)
+							console.log('Could not delete course...');
+						else
+						{
+							that.$router.push ('/courses');
+						}
+					}
+				});
+			}
+			else
+			{
+				Vue.bootbox.alert ('Please disconnect all the boards before deleteing the course');
+			}
+		},
 	},
 	destroyed ()
 	{
