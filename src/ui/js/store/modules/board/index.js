@@ -13,7 +13,8 @@ module.exports = {
 	namespaced: true,
 	state: {
 		boards: null,
-		board: null
+		board: null,
+		courseBoards: null,
 	},
 	getters: {
 		board(state) {
@@ -21,6 +22,9 @@ module.exports = {
 		},
 		boards (state) {
 			return state.boards;
+		},
+		courseBoards (state) {
+			return state.courseBoards;
 		}
 	},
 	actions: {
@@ -68,6 +72,21 @@ module.exports = {
 				return false;
 			}
 		},
+		async listCourseBoards (store, courseId)
+		{
+			try {
+				// store.commit ('boards', null);
+				let response = await Vue.http.get(setup.API + '/boards/list/'+courseId);
+				// console.log(response.data.role);
+				if (response.data.err === 0) {
+					store.commit('courseBoards', response.data.boards);
+				}
+				return true;
+			} catch (e) {
+				// console.log('Login fail ' + e);
+				return false;
+			}
+		},
 	},
 	mutations: {
 		boards(state, value) {
@@ -75,6 +94,9 @@ module.exports = {
 		},
 		board(state, value) {
 			state.board = value;
+		},
+		courseBoards(state, value) {
+			state.courseBoards = value;
 		},
 	}
 };

@@ -228,6 +228,7 @@ privateApp.post('/disconnect', async function(req, res, next) {
 		if (course) {
 			try {
 				await db.board.unsetCourseAndUser(board.boardId);
+				db.image.unsetupDelay (board.boardId, 20000);
 				res.status(200).send({ err: 0 });
 			} catch (err) {
 				e = error.serverError(err);

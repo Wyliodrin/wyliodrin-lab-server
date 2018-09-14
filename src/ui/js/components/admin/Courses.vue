@@ -80,6 +80,7 @@
 					<tr v-for="course in courses" :key="course.name" @click="linkCourse (course.courseId)" class="handpointer col-lg-2 col-md-3 col-sm-4 c-science">
 						<td class="course-name"><h5>{{course.name}}</h5></td>
 						<td class="course-std-nbr"><img src="img/students-group.png"> {{course.students.length}}</td>
+						<a class="iconbtn user-del-btn" @click="deleteCourse(course)" v-tooltip data-toggle="tooltip" data-placement="top" title="Delete"><img src="/img/icons/erase-16.png"></a>
 						<!-- <td class="text-center">{{latestVersion(application)}}</td> -->
 						<!-- <td class="text-center">17</td>
 						<td class="text-center" style="width:130px"><router-link :to="'/courses/'+course.courseId" class="iconbtn" v-tooltip data-toggle="tooltip" data-placement="top" title="View details"><img src="img/icons/view-16.png"></router-link></td> -->

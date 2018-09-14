@@ -34,7 +34,8 @@ var courseSchema = mongoose.Schema({
 		default: []
 	},
 	imageId: {
-		type: String
+		type: String,
+		required: true
 	},
 	open: {
 		type: Boolean,

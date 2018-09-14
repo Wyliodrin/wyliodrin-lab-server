@@ -11,12 +11,15 @@ var request = require('request');
 var progress = require('request-progress');
 var unzipper = require('unzipper');
 let db = require('./database');
+var uuid = require ('uuid');
 
-var fsid = 0;
+// var fsid = 0;
+
+let unsetupReqests = {};
 
 function nextFsId() {
-	fsid++;
-	return fsid;
+	// fsid++;
+	return uuid.v4 ();
 }
 
 function spawnPrivileged() {
@@ -395,6 +398,12 @@ async function mountSetupCourse(courseId, imageInfo) {
 	return mount;
 }
 
+function removeSetupCourse (courseId)
+{
+	let folderCourse = path.join(COURSE, courseId);
+	return fs.remove(folderCourse);
+}
+
 async function unmountSetupCourse(courseId) {
 	let folderSetupCourse = path.join(SETUP_COURSE, courseId);
 	// umount /proc
@@ -568,8 +577,11 @@ async function readImages() {
 				}
 			}
 		}
-		defaultImage = getDefaultImage();
-		if (!defaultImage && posDefaultImg) setDefaultImage(posDefaultImg);
+		defaultImage = await loadDefaultImage();
+		console.log (defaultImage);
+		console.log (posDefaultImg);
+		if (!defaultImage && posDefaultImg) await saveDefaultImage(posDefaultImg.id);
+		console.log (defaultImage);
 
 	} catch (e) {
 		console.error('ERROR: read images (' + e.message + ')');
@@ -632,15 +644,26 @@ async function setup(boardId, userId, courseId, imageId) {
 	} else throw new Error('Image ' + imageId + ' does not exist');
 }
 
-async function unsetup(boardId) {
+async function unsetup(boardId, userId) {
+	clearTimeout (unsetupReqests[boardId]);
 	let folder = path.join(ROOT_FS, boardId);
+	// root
 	if (await isExported(folder)) {
 		await unexportFs(folder);
 		await unmountRootFs(boardId);
-		return true;
 	} else {
-		throw new Error('Board ' + boardId + ' is not setup');
+		// throw new Error('Board ' + boardId + ' is not setup');
 	}
+	if (userId)
+	{
+		let userFolder = pathUser (userId);
+		if (await isExported(userFolder)) {
+			await unexportFs(userFolder);
+		} else {
+			// TODO
+		}
+	}
+	return true;
 }
 
 
@@ -690,6 +713,7 @@ async function cmdline(courseId, imageId, boardId, userId, parameters) {
 }
 
 function defaultImageId() {
+	console.log (defaultImage);
 	if (!defaultImage) {
 		console.error('ERROR: there is no default image');
 		return null;
@@ -827,7 +851,7 @@ function pathRootFs(id) {
 	return path.join(ROOT_FS, id);
 }
 
-async function setDefaultImage(imageId) {
+async function saveDefaultImage(imageId) {
 	var defaultPath = path.join(IMAGES, '.img.default');
 	if (imagesList[imageId]) {
 		await fs.outputFile(defaultPath, JSON.stringify({ id: imageId }));
@@ -837,7 +861,7 @@ async function setDefaultImage(imageId) {
 	return false;
 }
 
-async function getDefaultImage() {
+async function loadDefaultImage() {
 	var defaultPath = path.join(IMAGES, '.img.default');
 	var exists = await fs.pathExists(defaultPath);
 	if (exists) {
@@ -845,6 +869,27 @@ async function getDefaultImage() {
 		return imagesList[config.id];
 	} else {
 		return null;
+	}
+}
+
+function existsImageId (imageId)
+{
+	if (imagesList[imageId]) return true;
+	else return false;
+}
+
+async function unsetupDelay (boardId, userId, timeout = 8000)
+{
+	console.log ('unsetup');
+	if (await hasSetup (boardId))
+	{
+		console.log ('unsetup scheduled');
+		clearTimeout (unsetupReqests[boardId]);
+		unsetupReqests[boardId] = setTimeout (function ()
+		{
+			console.log ('unsetup schedule start');
+			unsetup (boardId, userId);
+		}, timeout);
 	}
 }
 
@@ -861,6 +906,7 @@ module.exports.listImages = listImages;
 module.exports.listImagesAsArray = listImagesAsArray;
 module.exports.setup = setup;
 module.exports.unsetup = unsetup;
+module.exports.unsetupDelay = unsetupDelay;
 module.exports.setupCourse = setupCourse;
 
 module.exports.cmdline = cmdline;
@@ -877,5 +923,8 @@ module.exports.downloadImage = downloadImage;
 module.exports.hasSetup = hasSetup;
 
 module.exports.deleteImage = deleteImage;
-module.exports.setDefaultImage = setDefaultImage;
-module.exports.getDefaultImage = getDefaultImage;
+module.exports.saveDefaultImage = saveDefaultImage;
+module.exports.loadDefaultImage = loadDefaultImage;
+
+module.exports.removeSetupCourse = removeSetupCourse;
+module.exports.existsImageId = existsImageId;

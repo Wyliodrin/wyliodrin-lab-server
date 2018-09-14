@@ -82,6 +82,9 @@
 					<li class="nav-item">
 						<a class="nav-link" id="boards-tab" data-toggle="tab" href="#boards" role="tab" aria-controls="boards" aria-selected="false">Boards</a>
 					</li>
+					<li class="nav-item">
+						<a class="nav-link" id="software-tab" data-toggle="tab" href="#software" role="tab" aria-controls="software" aria-selected="false">Software</a>
+					</li>
 				</ul>
 				<div class="tab-content" id="myTabContent">
 					<div class="tab-pane fade show active" id="students" role="tabpanel" aria-labelledby="studets-tab">
@@ -159,11 +162,13 @@
 										<a href="#" class="sort-by"></a></th>
 									<th scope="col" class="text-center">Status
 										<a href="#" class="sort-by"></a></th>
+									<th scope="col" class="text-center">Last Seen
+										<a href="#" class="sort-by"></a></th>
 									<th scope="col" class="text-center" style="width:190px">Actions</th>
 								</tr>
 							</thead>
 							<tbody>
-								<tr class="handpointer">
+								<!-- <tr class="handpointer">
 									<td>Board 5657688</td>
 									<td class="text-center">192.168.1.45</td>
 									<td class="text-center">Ovidiu</td>
@@ -182,12 +187,13 @@
 										<a class="iconbtn"  v-tooltip data-toggle="tooltip" data-placement="top" title="Reboot"><img src="/img/icons/restart-16.png"></a>
 										<a class="iconbtn"  v-tooltip data-toggle="tooltip" data-placement="top" title="Disconnect"><img src="/img/icons/disconnect-16.png"></a>
 									</td>
-								</tr>
-								<tr class="handpointer">
-									<td>Board 5657688</td>
-									<td class="text-center">192.168.1.45</td>
-									<td class="text-center">Ovidiu</td>
-									<td class="text-center offline">Offline</td>
+								</tr> -->
+								<tr class="handpointer" v-for="board in boards" :key="board.boardId">
+									<td>{{board.boardId}}</td>
+									<td class="text-center">{{board.ip}}</td>
+									<td class="text-center">{{user(board.userId)}}</td>
+									<td class="text-center" :class="board.status">{{board.status}}</td>
+									<td class="text-center">{{lastSeen(board)}}</td>
 									<td class="text-center" style="width:190px">
 										<a class="iconbtn"  v-tooltip data-toggle="tooltip" data-placement="top" title="Reboot"><img src="/img/icons/restart-16.png"></a>
 										<a class="iconbtn"  v-tooltip data-toggle="tooltip" data-placement="top" title="Disconnect"><img src="/img/icons/disconnect-16.png"></a>
@@ -195,6 +201,20 @@
 								</tr>
 							</tbody>
 						</table>
+					</div>
+					<div class="tab-pane fade" id="software" role="tabpanel" aria-labelledby="software-tab">
+						<h4>Software</h4>
+						<div>
+							<div class="input-group mb-3">
+								<div class="input-group-prepend">
+									<span class="input-group-text" id="inputGroup-sizing-default">Image</span>
+								</div>
+								<select name="image" class="custom-select" v-model="imageId">
+									<option v-for="image in images" :key="image.id" :value="image.id">{{image.filename}}</option>
+								</select>
+							</div>
+							<a @click="changeImage">Change Image</a>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -210,23 +230,34 @@ var AddStudentToCourseModal = require ('./AddStudentToCourseModal.vue');
 var AddTeacherToCourseModal = require ('./AddTeacherToCourseModal.vue');
 var mapGetters = require ('vuex').mapGetters;
 var _ = require ('lodash');
+var timeout = null;
 var md5 = require ('md5');
+var moment = require ('moment');
 module.exports = {
 	name: 'Course',
+	data ()
+	{
+		return {
+			imageId: null
+		};
+	},
 	components: {
 		HalfCircleSpinner
 	},
-	created () {
-		this.$store.dispatch ('course/getCourse', this.$route.params.courseId);
+	async created () {
+		await this.$store.dispatch ('course/getCourse', this.$route.params.courseId);
 		this.$store.dispatch ('user/getAllUsers');
-		this.$store.dispatch ('board/getBoards');
+		this.$store.dispatch ('image/listImages');
+		// this.$store.dispatch ('board/getBoards');
+		this.updateBoards ();
 	},
 	computed: 
 	{
 		...mapGetters ({
 			course: 'course/course',
 			users: 'user/users',
-			boards: 'board/boards'
+			boards: 'board/courseBoards',
+			images: 'image/images'
 		}),
 		students ()
 		{
@@ -334,6 +365,72 @@ module.exports = {
 				}
 			});
 		},
+		user (userId)
+		{
+			if (this.users)
+			{
+				let user = _.find (this.users, function (user)
+				{
+					if (user.userId === userId) return true;
+				});
+				if (user)
+				{
+					return user.firstName+' '+user.lastName;
+				}
+				else
+				{
+					return userId;
+				}
+			}
+			else
+			{
+				return userId;
+			}
+		},
+		image (course)
+		{
+			if (course.imageId) return course.imageId;
+			else return 'default image';
+		},
+		lastSeen (board)
+		{
+			// console.log (deployment);
+			// console.log (product.latestStatus);
+			if (board.lastInfo)
+			{
+				return new moment (board.lastInfo).format ('MMMM Do YYYY, h:mm:ss a');
+			}
+			else
+			{
+				return 'never';
+			}
+		},
+		async updateBoards ()
+		{
+			await this.$store.dispatch ('board/listCourseBoards', this.course.courseId);
+			timeout = setTimeout (this.updateBoards, 5000);
+		},
+		changeImage ()
+		{
+
+		}
+	},
+	destroyed ()
+	{
+		clearTimeout (timeout);
+	},
+	watch: {
+		course ()
+		{
+			if (this.course)
+			{
+				this.imageId = this.course.imageId;
+			}
+			else
+			{
+				this.imageId = null;
+			}
+		}
 	}
 };
 </script>

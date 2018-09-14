@@ -85,6 +85,30 @@ privateApp.post('/students/remove', async function(req, res, next) {
 
 });
 
+privateApp.post('/image', async function(req, res, next) {
+	var e;
+	var imageId = req.body.imageId;
+	var courseId = req.body.courseId;
+
+	if (userCanAddStudents(req.user, courseId)) {
+		try {
+			if (db.image.existsImageId (imageId))
+			{
+				await db.image.removeSetupCourse (courseId);
+				await db.course.editCourse (courseId, null, imageId);
+			}
+		} catch (err) {
+			debug(err);
+			e = error.serverError(err);
+			next(e);
+		}
+	} else {
+		e = error.unauthorized('User cannot chnage image');
+		next(e);
+	}
+
+});
+
 privateApp.post('/students/add', async function(req, res, next) {
 	var e;
 	var studentId = req.body.studentId;
@@ -137,6 +161,8 @@ adminApp.post('/add', async function(req, res, next) {
 	var teachers = req.body.teachers;
 	var name = req.body.name;
 	var imageId = req.body.imageId;
+	if (!imageId) imageId = db.image.defaultImageId ();
+	console.log (imageId);
 	try {
 		var course = await db.course.createCourse(name, students, teachers, imageId);
 		if (course) {

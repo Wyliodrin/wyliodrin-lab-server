@@ -52,8 +52,8 @@
 				<tbody>
 					<tr v-for="board in boards" :key="board.boardId">
 						<td>{{board.boardId}}</td>
-						<td class="text-center">{{board.userId}}</td>
-						<td class="text-center">{{board.courseId}}</td>
+						<td class="text-center">{{user(board.userId)}}</td>
+						<td class="text-center">{{course(board.courseId)}}</td>
 						<td class="text-center">{{board.ip}}</td>
 						<td class="text-center">{{board.status}}</td>
 						<td class="text-center">{{lastSeen (board)}}</td>
@@ -92,8 +92,8 @@ module.exports = {
 	created ()
 	{
 		this.updateBoards ();
-		this.$store.dispatch ('user/users');
-		this.$store.dispatch ('course/updateCourses');
+		this.$store.dispatch ('user/getAllUsers');
+		this.$store.dispatch ('course/listCourses');
 		// this.$store.dispatch ('board/listBoards');
 	},
 	destroyed ()
@@ -140,9 +140,16 @@ module.exports = {
 			{
 				let user = _.find (this.users, function (user)
 				{
-					if (user.userId === user) return true;
+					if (user.userId === userId) return true;
 				});
-				return user.firstName+' '+user.lastName;
+				if (user)
+				{
+					return user.firstName+' '+user.lastName;
+				}
+				else
+				{
+					return userId;
+				}
 			}
 			else
 			{
@@ -151,16 +158,24 @@ module.exports = {
 		},
 		course (courseId)
 		{
-			if (this.users)
+			if (this.courses)
 			{
-				let user = _.find (this.users, function (user)
+				let course = _.find (this.courses, function (course)
 				{
-					if (user.userId === user) return true;
+					if (course.courseId === courseId) return true;
 				});
+				if (course)
+				{
+					return course.name;
+				}
+				else
+				{
+					return courseId;
+				}
 			}
 			else
 			{
-				return userId;
+				return courseId;
 			}
 		}
 	}

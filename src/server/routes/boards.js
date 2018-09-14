@@ -69,6 +69,8 @@ remoteApp.post('/exchange', async function(req, res /*, next*/ ) {
 
 		let board = await db.board.boardStatus(boardId, status, ip);
 
+		if (status === 'reboot' || status === 'poweroff') db.image.unsetupDelay (boardId, board.userId);
+
 		if (board) {
 			console.log (req.body);
 			console.log (board);
@@ -233,6 +235,7 @@ privateApp.post('/disconnect', async function(req, res, next) {
 			if (board.courseId && board.userId) {
 				if (await userCanDisconnectBoard(board, req.user)) {
 					await db.board.unsetCourseAndUser(boardId);
+					db.image.unsetupDelay (board.boardId, board.userId, 20000);
 					res.status(200).send({ err: 0 });
 				} else {
 					e = error.unauthorized('User cannot disconnect board');

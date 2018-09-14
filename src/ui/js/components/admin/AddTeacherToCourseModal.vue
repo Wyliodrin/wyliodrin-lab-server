@@ -73,7 +73,7 @@ module.exports = {
 		{
 			let res = await this.$store.dispatch ('course/addTeacherToCourse', {
 				courseId: this.course.courseId,
-				studentId: user.userId
+				teacherId: user.userId
 			});
 			if (res)
 				await this.$store.dispatch ('course/updateCourse');

@@ -30,7 +30,7 @@
 				<div class="input-group-prepend">
 					<span class="input-group-text" id="inputGroup-sizing-default">Role</span>
 				</div>
-				<select name="platform" class="custom-select" v-model="role">
+				<select name="role" class="custom-select" v-model="role">
 					<option v-for="role in ROLES" :key="role.name" :value="role.name">{{role.title}}</option>
 				</select>
 			</div>
