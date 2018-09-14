@@ -227,6 +227,8 @@ If students of teachers are not specified, the new course is created with empty 
 
 > Note: Only an administrator can access this route
 
+All boards must be disconnected from the course before a course can be deleted.
+
 #### Parameters
 
 | Parameter | Required | Description |

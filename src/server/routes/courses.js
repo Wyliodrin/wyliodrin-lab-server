@@ -194,8 +194,14 @@ adminApp.post('/remove', async function(req, res, next) {
 	var e;
 	var courseId = req.body.courseId;
 	try {
-		await db.course.deleteByCourseId(courseId);
-		res.status(200).send({ err: 0 });
+		var boards = await db.board.listBoardsByCourseId(courseId);
+		if (!boards) {
+			await db.course.deleteByCourseId(courseId);
+			res.status(200).send({ err: 0 });
+		} else {
+			e = error.unauthorized('Please disconnect all boards from course');
+			next(e);
+		}
 	} catch (err) {
 		debug(err);
 		e = error.serverError();
