@@ -75,4 +75,6 @@ exemplu-gruntfile
 
 # Local session tokens
 tokens.json
+dump.rdb
+redisTest.js
 
