@@ -348,3 +348,48 @@ Add a teacher to a course
 	"err":0
 }
 ````
+
+### List by imageId
+`GET` /courses/:imageId
+
+List the courses that use the image with the ID imageId
+
+#### Response
+
+200 OK
+````json
+{
+	"err":0,
+	"courses": [
+		{ 
+			"name": "name of course1",
+			"teachers": [
+				"teacher1 ID",
+				"teacher2 ID"
+			],
+			"students": [
+				"student1 ID",
+				"student2 ID"
+			],
+			"courseId": "ID of the course1",
+			"imageId": "The requested imageId",
+			"open": "True or False",
+		},
+		{ 
+			"name": "name of course2",
+			"teachers": [
+				"teacher1 ID",
+				"teacher2 ID"
+			],
+			"students": [
+				"student1 ID",
+				"student2 ID"
+			],
+			"courseId": "ID of the course2",
+			"imageId": "The requested imageId",
+			"open": "True or False",
+		}
+		...
+		]
+}
+````

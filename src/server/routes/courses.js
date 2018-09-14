@@ -92,10 +92,9 @@ privateApp.post('/image', async function(req, res, next) {
 
 	if (userCanAddStudents(req.user, courseId)) {
 		try {
-			if (db.image.existsImageId (imageId))
-			{
-				await db.image.removeSetupCourse (courseId);
-				await db.course.editCourse (courseId, null, imageId);
+			if (db.image.existsImageId(imageId)) {
+				await db.image.removeSetupCourse(courseId);
+				await db.course.editCourse(courseId, null, imageId);
 			}
 		} catch (err) {
 			debug(err);
@@ -139,6 +138,19 @@ privateApp.post('/students/add', async function(req, res, next) {
 
 });
 
+adminApp.get('/:imageId', async function(req, res, next) {
+	var e;
+	var imageId = req.params.imageId;
+	try {
+		var courses = await db.course.findByImageId(imageId);
+		res.status(200).send({ err: 0, courses });
+	} catch (err) {
+		e = error.serverError(err);
+		next(e);
+	}
+});
+
+
 adminApp.get('/all', async function(req, res, next) {
 	var e;
 	try {
@@ -161,8 +173,8 @@ adminApp.post('/add', async function(req, res, next) {
 	var teachers = req.body.teachers;
 	var name = req.body.name;
 	var imageId = req.body.imageId;
-	if (!imageId) imageId = db.image.defaultImageId ();
-	console.log (imageId);
+	if (!imageId) imageId = db.image.defaultImageId();
+	console.log(imageId);
 	try {
 		var course = await db.course.createCourse(name, students, teachers, imageId);
 		if (course) {

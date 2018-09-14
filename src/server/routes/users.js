@@ -30,7 +30,7 @@ initTokens();
 
 function updateLocalTokens() {
 	var out = JSON.stringify(tokens);
-	fs.writeFile(localTokens, out);
+	fs.writeFileSync(localTokens, out);
 }
 
 publicApp.post('/login', async function(req, res, next) {
@@ -228,7 +228,7 @@ privateApp.post('/disconnect', async function(req, res, next) {
 		if (course) {
 			try {
 				await db.board.unsetCourseAndUser(board.boardId);
-				db.image.unsetupDelay (board.boardId, 20000);
+				db.image.unsetupDelay(board.boardId, 20000);
 				res.status(200).send({ err: 0 });
 			} catch (err) {
 				e = error.serverError(err);

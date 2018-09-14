@@ -11,7 +11,7 @@ var adminApp = express.Router();
 privateApp.get('/list', async function(req, res, next) {
 	try {
 		debug('List images');
-		var images = await db.image.listImagesAsArray();
+		var images = await db.image.listImagesdAsArray();
 	} catch (err) {
 		let e = error.serverError(err);
 		return next(e);
@@ -62,7 +62,7 @@ adminApp.get('/delete/:id', async function(req, res, next) {
 privateApp.get('/default', async function(req, res, next) {
 	var e;
 	try {
-		let image = await db.image.getDefaultImage();
+		let image = await db.image.loadDefaultImage();
 		if (image) {
 			res.status(200).send({ err: 0, image });
 		} else {
@@ -79,7 +79,7 @@ adminApp.post('/default', async function(req, res, next) {
 	var e;
 	var id = req.body.id;
 	try {
-		let valid = await db.image.setDefaultImage(id);
+		let valid = await db.image.saveDefaultImage(id);
 		if (valid) {
 			res.status(200).send({ err: 0 });
 		} else {

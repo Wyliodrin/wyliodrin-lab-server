@@ -11,7 +11,7 @@ var request = require('request');
 var progress = require('request-progress');
 var unzipper = require('unzipper');
 let db = require('./database');
-var uuid = require ('uuid');
+var uuid = require('uuid');
 
 // var fsid = 0;
 
@@ -19,7 +19,7 @@ let unsetupReqests = {};
 
 function nextFsId() {
 	// fsid++;
-	return uuid.v4 ();
+	return uuid.v4();
 }
 
 function spawnPrivileged() {
@@ -398,8 +398,7 @@ async function mountSetupCourse(courseId, imageInfo) {
 	return mount;
 }
 
-function removeSetupCourse (courseId)
-{
+function removeSetupCourse(courseId) {
 	let folderCourse = path.join(COURSE, courseId);
 	return fs.remove(folderCourse);
 }
@@ -578,10 +577,10 @@ async function readImages() {
 			}
 		}
 		defaultImage = await loadDefaultImage();
-		console.log (defaultImage);
-		console.log (posDefaultImg);
+		console.log(defaultImage);
+		console.log(posDefaultImg);
 		if (!defaultImage && posDefaultImg) await saveDefaultImage(posDefaultImg.id);
-		console.log (defaultImage);
+		console.log(defaultImage);
 
 	} catch (e) {
 		console.error('ERROR: read images (' + e.message + ')');
@@ -645,7 +644,7 @@ async function setup(boardId, userId, courseId, imageId) {
 }
 
 async function unsetup(boardId, userId) {
-	clearTimeout (unsetupReqests[boardId]);
+	clearTimeout(unsetupReqests[boardId]);
 	let folder = path.join(ROOT_FS, boardId);
 	// root
 	if (await isExported(folder)) {
@@ -654,9 +653,8 @@ async function unsetup(boardId, userId) {
 	} else {
 		// throw new Error('Board ' + boardId + ' is not setup');
 	}
-	if (userId)
-	{
-		let userFolder = pathUser (userId);
+	if (userId) {
+		let userFolder = pathUser(userId);
 		if (await isExported(userFolder)) {
 			await unexportFs(userFolder);
 		} else {
@@ -698,9 +696,9 @@ async function cmdline(courseId, imageId, boardId, userId, parameters) {
 	// TODO debug using default image
 	if (!imageId) imageId = defaultImageId();
 	if (!parameters) parameters = {};
-	if (!parameters.server) parameters.server = 'http://'+ip.address();
-	if (!parameters.nfsServer) parameters.nfsServer = ip.address ();
-	let str = 'root=/dev/nfs nfsroot=' + parameters.nfsServer + ':' + path.join(ROOT_FS, boardId) + ',vers=3 rw ip=dhcp rootwait elevator=deadline '+(userId?'userId='+userId:'')+' server='+parameters.server+' '+(courseId?'courseId='+courseId:'');
+	if (!parameters.server) parameters.server = 'http://' + ip.address();
+	if (!parameters.nfsServer) parameters.nfsServer = ip.address();
+	let str = 'root=/dev/nfs nfsroot=' + parameters.nfsServer + ':' + path.join(ROOT_FS, boardId) + ',vers=3 rw ip=dhcp rootwait elevator=deadline ' + (userId ? 'userId=' + userId : '') + ' server=' + parameters.server + ' ' + (courseId ? 'courseId=' + courseId : '');
 	let folderBoot = path.join(BOOT, imageId);
 	let cmdline = (await fs.readFile(path.join(folderBoot, 'cmdline.txt'))).toString();
 	let pos = cmdline.indexOf('root=');
@@ -713,7 +711,7 @@ async function cmdline(courseId, imageId, boardId, userId, parameters) {
 }
 
 function defaultImageId() {
-	console.log (defaultImage);
+	console.log(defaultImage);
 	if (!defaultImage) {
 		console.error('ERROR: there is no default image');
 		return null;
@@ -872,23 +870,19 @@ async function loadDefaultImage() {
 	}
 }
 
-function existsImageId (imageId)
-{
+function existsImageId(imageId) {
 	if (imagesList[imageId]) return true;
 	else return false;
 }
 
-async function unsetupDelay (boardId, userId, timeout = 8000)
-{
-	console.log ('unsetup');
-	if (await hasSetup (boardId))
-	{
-		console.log ('unsetup scheduled');
-		clearTimeout (unsetupReqests[boardId]);
-		unsetupReqests[boardId] = setTimeout (function ()
-		{
-			console.log ('unsetup schedule start');
-			unsetup (boardId, userId);
+async function unsetupDelay(boardId, userId, timeout = 8000) {
+	console.log('unsetup');
+	if (await hasSetup(boardId)) {
+		console.log('unsetup scheduled');
+		clearTimeout(unsetupReqests[boardId]);
+		unsetupReqests[boardId] = setTimeout(function() {
+			console.log('unsetup schedule start');
+			unsetup(boardId, userId);
 		}, timeout);
 	}
 }
