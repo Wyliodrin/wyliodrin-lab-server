@@ -33,8 +33,13 @@ module.exports = {
 					store.commit('images', response.data.images);
 					return true;
 				}
+				Vue.toast.warning({title:'Warning!', message:'Couldn\'t list the images.<br>Server error: ' + response.data.err});
 				return false;
 			} catch (e) {
+				if (e.status === 0)
+					Vue.toast.connectionError();
+				else if (e.status >= 500)
+					Vue.toast.warning({title:'Warning!', message:'Couldn\'t list the images.<br>Server error: ' + e.status});
 				return false;
 			}
 		},
@@ -47,8 +52,13 @@ module.exports = {
 					store.dispatch ('listImages');
 					return true;
 				}
+				Vue.toast.warning({title:'Warning!', message:'Couldn\'t complete the setup.<br>Server error: ' + response.data.err});
 				return false;
 			} catch (e) {
+				if (e.status === 0)
+					Vue.toast.connectionError();
+				else if (e.status >= 500)
+					Vue.toast.warning({title:'Warning!', message:'Couldn\'t complete the setup.<br>Server error: ' + e.status});
 				return false;
 			}
 		},
@@ -61,8 +71,13 @@ module.exports = {
 					store.dispatch ('listImages');
 					return true;
 				}
+				Vue.toast.warning({title:'Warning!', message:'Couldn\'t update the image.<br>Server error: ' + response.data.err});
 				return false;
 			} catch (e) {
+				if (e.status === 0)
+					Vue.toast.connectionError();
+				else if (e.status >= 500)
+					Vue.toast.warning({title:'Warning!', message:'Couldn\'t update the image.<br>Server error: ' + e.status});
 				return false;
 			}
 		},
@@ -75,8 +90,13 @@ module.exports = {
 					store.dispatch ('listImages');
 					return true;
 				}
+				Vue.toast.warning({title:'Warning!', message:'Couldn\'t delete the image.<br>Server error: ' + response.data.err});
 				return false;
 			} catch (e) {
+				if (e.status === 0)
+					Vue.toast.connectionError();
+				else if (e.status >= 500)
+					Vue.toast.warning({title:'Warning!', message:'Couldn\'t delete the image.<br>Server error: ' + e.status});
 				return false;
 			}
 		},
@@ -91,8 +111,13 @@ module.exports = {
 					store.dispatch ('listImages');
 					return true;
 				}
+				Vue.toast.warning({title:'Warning!', message:'Couldn\'t download the product.<br>Server error: ' + response.data.err});
 				return false;
 			} catch (e) {
+				if (e.status === 0)
+					Vue.toast.connectionError();
+				else if (e.status >= 500)
+					Vue.toast.warning({title:'Warning!', message:'Couldn\'t download the image.<br>Server error: ' + e.status});
 				return false;
 			}
 		},

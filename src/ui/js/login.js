@@ -1,6 +1,9 @@
 require('bootstrap');
 var Vue = require ('vue');
 
+var toast = require('./vue-toast.js');
+Vue.use (toast);
+
 var store = require ('./store/login/store.js');
 
 Vue.mixin({

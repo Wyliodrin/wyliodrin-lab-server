@@ -55,13 +55,18 @@ try {
 	debug('[MONGODB]: Error while connecting to database:' + error);
 }
 
+
+if (process.env.CLI_ACTIVE === null) {
+	var image = require('./raspberrypi.js');
+	module.exports.image = image;
+}
+
 var user = require('./user.js');
 var workspace = require('./workspace.js');
 var course = require('./course.js');
 var board = require('./board.js');
-var image = require('./raspberrypi.js');
+
 module.exports.user = user;
 module.exports.workspace = workspace;
 module.exports.course = course;
 module.exports.board = board;
-module.exports.image = image;

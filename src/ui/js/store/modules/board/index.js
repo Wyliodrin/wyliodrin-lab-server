@@ -39,7 +39,10 @@ module.exports = {
 				}
 				return true;
 			} catch (e) {
-				// console.log('Login fail ' + e);
+				if (e.status === 0)
+					Vue.toast.connectionError();
+				else if (e.status >= 500)
+					Vue.toast.warning({title:'Warning!', message: 'You couldn\'t log in!<br>Server error: ' + e.status});
 				return false;
 			}
 		},
@@ -53,7 +56,10 @@ module.exports = {
 				}
 				return true;
 			} catch (e) {
-				// console.log('Login fail ' + e);
+				if (e.status === 0)
+					Vue.toast.connectionError();
+				else if (e.status >= 500)
+					Vue.toast.warning({title:'Warning!', message: 'You couldn\'t log in!<br>Server error: ' + e.status});
 				return false;
 			}
 		},
@@ -68,7 +74,10 @@ module.exports = {
 				}
 				return false;
 			} catch (e) {
-				// console.log('Login fail ' + e);
+				if (e.status === 0)
+					Vue.toast.connectionError();
+				else if (e.status >= 500)
+					Vue.toast.warning({title:'Warning!', message: 'You couldn\'t log in!<br>Server error: ' + e.status});
 				return false;
 			}
 		},
@@ -83,7 +92,10 @@ module.exports = {
 				}
 				return true;
 			} catch (e) {
-				// console.log('Login fail ' + e);
+				if (e.status === 0)
+					Vue.toast.connectionError();
+				else if (e.status >= 500)
+					Vue.toast.warning({title:'Warning!', message: 'You couldn\'t log in!<br>Server error: ' + e.status});
 				return false;
 			}
 		},

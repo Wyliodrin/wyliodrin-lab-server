@@ -49,7 +49,10 @@ module.exports = {
 				}
 				return true;
 			} catch (e) {
-				console.log('Login fail ' + e);
+				if (e.status === 0)
+					Vue.toast.connectionError();
+				else if (e.status >= 500)
+					Vue.toast.warning({title:'Warning', message:'Couldn\'t login.<br>Server error: ' + e.status});
 				return false;
 			}
 		},
@@ -60,10 +63,14 @@ module.exports = {
 				if (response.data.err === 0) {
 					return true;
 				} else {
+					Vue.toast.warning({title:'Warning', message:'Couldn\'t logout.<br>Server error: ' + response.data.err});
 					return false;
 				}
 			} catch (e) {
-				console.log('Logout fail ' + e);
+				if (e.status === 0)
+					Vue.toast.connectionError();
+				else if (e.status >= 500)
+					Vue.toast.warning({title:'Warning', message:'Couldn\'t logout.<br>Server error: ' + e.status});
 				return false;
 			}
 		},
@@ -76,11 +83,14 @@ module.exports = {
 					store.commit('users', response.data.users);
 					return true;
 				} else {
+					Vue.toast.warning({title:'Warning', message:'Couldn\'t get all the users.<br>Server error: ' + response.data.err});
 					return false;
 				}
 			} catch (e) {
-				console.log('Getting all users fail ' + e);
-				console.log(e);
+				if (e.status === 0)
+					Vue.toast.connectionError();
+				else if (e.status >= 500)
+					Vue.toast.warning({title:'Warning', message:'Couldn\'t get all the users.<br>Server error: ' + e.status});
 				return false;
 			}
 		},
@@ -90,11 +100,14 @@ module.exports = {
 				if (response.data.err === 0) {
 					return true;
 				} else {
+					Vue.toast.warning({title:'Warning', message:'Couldn\'t connect to the user.<br>Server error: ' + response.data.err});
 					return false;
 				}
 			} catch (e) {
-				console.log('Connect user ' + e);
-				console.log(e);
+				if (e.status === 0)
+					Vue.toast.connectionError();
+				else if (e.status >= 500)
+					Vue.toast.warning({title:'Warning', message:'Couldn\'t connect to the user.<br>Server error: ' + e.status});
 				return false;
 			}
 		},
@@ -122,9 +135,15 @@ module.exports = {
 				if (response.data.err === 0) {
 					await store.dispatch('getAllUsers');
 					return true;
-				} else
+				} else {
+					Vue.toast.warning({title:'Warning', message:'Couldn\'t add an user.<br>Server error: ' + response.data.err});
 					return false;
+				}
 			} catch (e) {
+				if (e.status === 0)
+					Vue.toast.connectionError();
+				else if (e.status >= 500)
+					Vue.toast.warning({title:'Warning', message:'Couldn\'t add an user.<br>Server error: ' + e.status});
 				return false;
 			}
 		},
@@ -134,9 +153,15 @@ module.exports = {
 				if (response.data.err === 0) {
 					await store.dispatch('getAllUsers');
 					return true;
-				} else
+				} else {
+					Vue.toast.warning({title:'Warning', message:'Couldn\'t edit the user ADMIN.<br>Server error: ' + response.data.err});
 					return false;
+				}
 			} catch (e) {
+				if (e.status === 0)
+					Vue.toast.connectionError();
+				else if (e.status >= 500)
+					Vue.toast.warning({title:'Warning', message:'Couldn\'t edit the user ADMIN.<br>Server error: ' + e.status});
 				return false;
 			}
 		},
@@ -147,8 +172,13 @@ module.exports = {
 					console.log(response.data.user);
 					return response.data.user;
 				}
+				Vue.toast.warning({title:'Warning', message:'Couldn\'t get the given user.<br>Server error: ' + response.data.err});
 				return false;
 			} catch (e) {
+				if (e.status === 0)
+					Vue.toast.connectionError();
+				else if (e.status >= 500)
+					Vue.toast.warning({title:'Warning', message:'Couldn\'t get the given user.<br>Server error: ' + e.status});
 				return false;
 			}
 		},
@@ -162,13 +192,6 @@ module.exports = {
 					store.commit ('user', response.data.user);
 					return true;
 				}
-				else
-				{
-					// TODO toast token expired
-					store.commit ('user', null);
-					store.commit ('token', null);
-					return false;
-				}
 			}
 			catch (e)
 			{
@@ -176,9 +199,15 @@ module.exports = {
 				{
 					store.commit ('user', null);
 					store.commit ('token', null);
+				} else if (e.status === 0) {
+					Vue.toast.connectionError();
+					return false;
+				} else {
+					Vue.toast.warning({title:'Warning!', message:'The token has expired.<br>Server error: ' + e.status});
+					store.commit ('user', null);
+					store.commit ('token', null);
+					return false;
 				}
-				// TODO toast network error
-				return false;
 			}
 		},
 		// async changePassword (store, passwordsData)

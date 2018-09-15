@@ -38,19 +38,20 @@ module.exports ={
 					}
 					else
 					{
-						console.log ('Products list fail');
-						// TODO toast
+						Vue.toast.warning({title:'Warning!', message:'Couldn\'t list the products.<br>Server error: ' + response.data.err});
 					}
 				}
 				else
 				{
-					console.log ('Products list fail');
-					// TODO toast
+					Vue.toast.warning({title:'Warning!', message:'Couldn\'t list the products.<br>Server error: ' + response.data.err});
 				}
 			}
 			catch (e)
 			{
-				console.log ('Product list fail '+e.message);
+				if (e.status === 0)
+					Vue.toast.connectionError();
+				else if (e.status >= 500)
+					Vue.toast.warning({title:'Warning!', message:'Couldn\'t list the products.<br>Server error: ' + e.status});
 				return false;
 			}
 		},
@@ -67,19 +68,20 @@ module.exports ={
 					}
 					else
 					{
-						console.log ('Languages list fail');
-						// TODO toast
+						Vue.toast.warning({title:'Warning!', message:'Couldn\'t list the languages.<br>Server error: ' + response.data.err});
 					}
 				}
 				else
 				{
-					console.log ('Languages list fail');
-					// TODO toast
+					Vue.toast.warning({title:'Warning!', message:'Couldn\'t list the languages.<br>Server error: ' + response.data.err});
 				}
 			}
 			catch (e)
 			{
-				console.log ('languages list fail '+e.message);
+				if (e.status === 0)
+					Vue.toast.connectionError();
+				else if (e.status >= 500)
+					Vue.toast.warning({title:'Warning!', message:'Couldn\'t list the languages.<br>Server error: ' + e.status});
 				return false;
 			}
 		},
@@ -99,19 +101,20 @@ module.exports ={
 					}
 					else
 					{
-						console.log ('Product get fail');
-						// TODO toast
+						Vue.toast.warning({title:'Warning!', message:'Couldn\'t get the products.<br>Server error: ' + response.data.err});
 					}
 				}
 				else
 				{
-					console.log ('Product get fail');
-					// TODO toast
+					Vue.toast.warning({title:'Warning!', message:'Couldn\'t get the products.<br>Server error: ' + response.data.err});
 				}
 			}
 			catch (e)
 			{
-				console.log ('Product get fail '+e);
+				if (e.status === 0)
+					Vue.toast.connectionError();
+				else if (e.status >= 500)
+					Vue.toast.warning({title:'Warning!', message:'Couldn\'t get the products.<br>Server error: ' + e.status});
 				return false;
 			}
 		},
@@ -124,11 +127,17 @@ module.exports ={
 				{
 					return true;
 				}
-				else return false;
+				else {
+					Vue.toast.warning({title:'Warning!', message:'Couldn\'t reset the workspace.<br>Server error: ' + response.data.err});
+					return false;
+				}
 			}
 			catch (e)
 			{
-				console.log ('Reset workspace fail '+e);
+				if (e.status === 0)
+					Vue.toast.connectionError();
+				else if (e.status >= 500)
+					Vue.toast.warning({title:'Warning!', message:'Couldn\'t reset the workspace.<br>Server error: ' + e.status});
 				return false;
 			}
 		},
@@ -142,11 +151,17 @@ module.exports ={
 					store.dispatch ('list').then ();
 					return true;
 				}
-				else return false;
+				else {
+					Vue.toast.warning({title:'Warning!', message:'Couldn\'t add the project.<br>Server error: ' + response.data.err});
+					return false;
+				}
 			}
 			catch (e)
 			{
-				console.log ('New project fail '+e);
+				if (e.status === 0)
+					Vue.toast.connectionError();
+				else if (e.status >= 500)
+					Vue.toast.warning({title:'Warning!', message:'Couldn\'t add the project.<br>Server error: ' + e.status});
 				return false;
 			}
 		},
@@ -160,11 +175,17 @@ module.exports ={
 					store.dispatch ('list').then ();
 					return true;
 				}
-				else return false;
+				else {
+					Vue.toast.warning({title:'Warning!', message:'Couldn\'t delete the project ' + projectId + '.<br>Server error: ' + response.data.err});
+					return false;
+				}
 			}
 			catch (e)
 			{
-				console.log ('Del '+projectId+' fail '+e);
+				if (e.status === 0)
+					Vue.toast.connectionError();
+				else if (e.status >= 500)
+					Vue.toast.warning({title:'Warning!', message:'Couldn\'t delete the project ' + projectId + '.<br>Server error: ' + e.status});
 				return false;
 			}
 		},
@@ -181,13 +202,16 @@ module.exports ={
 				}
 				else
 				{
-					// TODO toast
+					Vue.toast.warning({title:'Warning!', message:'Couldn\'t save the project.<br>Server error: ' + response.data.err});
 					return false;
 				}
 			}
 			catch (e)
 			{
-				console.log ('Edit project '+project.projectId+' fail '+e);
+				if (e.status === 0)
+					Vue.toast.connectionError();
+				else if (e.status >= 500)
+					Vue.toast.warning({title:'Warning!', message:'Couldn\'t edit the project ' + project.projectId + '.<br>Server error: ' + e.status});
 				return false;
 			}
 		}

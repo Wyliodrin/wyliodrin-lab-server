@@ -46,8 +46,13 @@ module.exports = {
 					store.commit('courses', response.data.courses);
 					return true;
 				}
+				Vue.toast.warning({title:'Warning!', message:'Couldn\'t list all the courses.<br>Server error: ' + response.data.err});
 				return false;
 			} catch (e) {
+				if (e.status === 0)
+					Vue.toast.connectionError();
+				else if (e.status >= 500)
+					Vue.toast.warning({title:'Warning!', message:'Couldn\'t list all the courses.<br>Server error: ' + e.status});
 				return false;
 			}
 		},
@@ -61,8 +66,13 @@ module.exports = {
 					store.commit('course', response.data.course);
 					return true;
 				}
+				Vue.toast.warning({title:'Warning!', message:'Couldn\'t get a course.<br>Server error: ' + response.data.err});
 				return false;
 			} catch (e) {
+				if (e.status === 0)
+					Vue.toast.connectionError();
+				else if (e.status >= 500)
+					Vue.toast.warning({title:'Warning!', message:'Couldn\'t get a course.<br>Server error: ' + e.status});
 				return false;
 			}
 		},
@@ -76,13 +86,21 @@ module.exports = {
 						console.log(response.data.course);
 						store.commit('course', response.data.course);
 						return true;
+					} else {
+						Vue.toast.warning({title:'Warning!', message:'Couldn\'t update the course.<br>Server error: ' + response.data.err});
+						return false;
 					}
 				}
 				else
 				{
+					Vue.toast.warning({title:'Warning!', message:'The course is not active.'});
 					return false;
 				}
 			} catch (e) {
+				if (e.status === 0)
+					Vue.toast.connectionError();
+				else if (e.status >= 500)
+					Vue.toast.warning({title:'Warning!', message:'Couldn\'t update the course.<br>Server error: ' + e.status});
 				return false;
 			}
 		},
@@ -96,8 +114,13 @@ module.exports = {
 					store.commit('publicCourses', response.data.courses);
 					return true;
 				}
+				Vue.toast.warning({title:'Warning!', message:'Couldn\'t list the public courses.<br>Server error: ' + response.data.err});
 				return false;
 			} catch (e) {
+				if (e.status === 0)
+					Vue.toast.connectionError();
+				else if (e.status >= 500)
+					Vue.toast.warning({title:'Warning!', message:'Couldn\'t list the public courses.<br>Server error: ' + e.status});
 				return false;
 			}
 		},
@@ -111,8 +134,13 @@ module.exports = {
 					store.commit('userCourses', response.data.courses);
 					return true;
 				}
+				Vue.toast.warning({title:'Warning!', message:'Couldn\'t list the courses of the given user.<br>Server error: ' + response.data.err});
 				return false;
 			} catch (e) {
+				if (e.status === 0)
+					Vue.toast.connectionError();
+				else if (e.status >= 500)
+					Vue.toast.warning({title:'Warning!', message:'Couldn\'t list the courses of the given user.<br>Server error: ' + e.status});
 				return false;
 			}
 		},
@@ -123,9 +151,15 @@ module.exports = {
 				if (response.data.err === 0) {
 					await store.dispatch('listCourses');
 					return true;
-				} else
+				} else {
+					Vue.toast.warning({title:'Warning!', message:'Couldn\'t create the course.<br>Server error: ' + response.data.err});
 					return false;
+				}
 			} catch (e) {
+				if (e.status === 0)
+					Vue.toast.connectionError();
+				else if (e.status >= 500)
+					Vue.toast.warning({title:'Warning!', message:'Couldn\'t create the course.<br>Server error: ' + e.status});
 				return false;
 			}
 		},
@@ -137,9 +171,15 @@ module.exports = {
 					await store.dispatch('listCourses');
 					await store.dispatch('getCourse', courseUpdateQuery.courseId);
 					return true;
-				} else
+				} else {
+					Vue.toast.warning({title:'Warning!', message:'Couldn\'t edit the course name.<br>Server error: ' + response.data.err});
 					return false;
+				}
 			} catch (e) {
+				if (e.status === 0)
+					Vue.toast.connectionError();
+				else if (e.status >= 500)
+					Vue.toast.warning({title:'Warning!', message:'Couldn\'t edit the course name.<br>Server error: ' + e.status});
 				return false;
 			}
 		},
@@ -150,9 +190,15 @@ module.exports = {
 				if (response.data.err === 0) {
 					await store.dispatch('listCourses');
 					return true;
-				} else
+				} else {
+					Vue.toast.warning({title:'Warning!', message:'Couldn\'t delete the given course.<br>Server error: ' + response.data.err});
 					return false;
+				}
 			} catch (e) {
+				if (e.status === 0)
+					Vue.toast.connectionError();
+				else if (e.status >= 500)
+					Vue.toast.warning({title:'Warning!', message:'Couldn\'t delete the given course.<br>Server error: ' + e.status});
 				return false;
 			}
 		},
@@ -166,10 +212,15 @@ module.exports = {
 					await store.dispatch('updateCourse', courseUserQuery.courseId);
 					return true;
 				} else {
+					Vue.toast.warning({title:'Warning!', message:'Couldn\'t delete the student from the given course.<br>Server error: ' + response.data.err});
 					console.log(response);
 					return false;
 				}
 			} catch (e) {
+				if (e.status === 0)
+					Vue.toast.connectionError();
+				else if (e.status >= 500)
+					Vue.toast.warning({title:'Warning!', message:'Couldn\'t delete the student from the given course.<br>Server error: ' + e.status});
 				return false;
 			}
 		},
@@ -183,10 +234,15 @@ module.exports = {
 					await store.dispatch('updateCourse', courseUserQuery.courseId);
 					return true;
 				} else {
+					Vue.toast.warning({title:'Warning!', message:'Couldn\'t add a student to the given course.<br>Server error: ' + response.data.err});
 					console.log(response);
 					return false;
 				}
 			} catch (e) {
+				if (e.status === 0)
+					Vue.toast.connectionError();
+				else if (e.status >= 500)
+					Vue.toast.warning({title:'Warning!', message:'Couldn\'t add a student to the given course.<br>Server error: ' + e.status});
 				return false;
 			}
 		},
@@ -199,9 +255,15 @@ module.exports = {
 					await store.dispatch('listCourses');
 					await store.dispatch('updateCourse', courseTeacherQuery.courseId);
 					return true;
-				} else
+				} else {
+					Vue.toast.warning({title:'Warning!', message:'Couldn\'t delete the teacher from the given course.<br>Server error: ' + response.data.err});
 					return false;
+				}
 			} catch (e) {
+				if (e.status === 0)
+					Vue.toast.connectionError();
+				else if (e.status >= 500)
+					Vue.toast.warning({title:'Warning!', message:'Couldn\'t delete the teacher from the given course.<br>Server error: ' + e.status});
 				return false;
 			}
 		},
@@ -215,10 +277,15 @@ module.exports = {
 					await store.dispatch('updateCourse', courseTeacherQuery.courseId);
 					return true;
 				} else {
+					Vue.toast.warning({title:'Warning!', message:'Couldn\'t add the teacher to the given course.<br>Server error: ' + response.data.err});
 					console.log(response);
 					return false;
 				}
 			} catch (e) {
+				if (e.status === 0)
+					Vue.toast.connectionError();
+				else if (e.status >= 500)
+					Vue.toast.warning({title:'Warning!', message:'Couldn\'t add the teacher to the given course.<br>Server error: ' + e.status});
 				return false;
 			}
 		}

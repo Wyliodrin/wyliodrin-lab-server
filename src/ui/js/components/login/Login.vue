@@ -42,6 +42,7 @@
 var HalfCircleSpinner = require ('epic-spinners/dist/lib/epic-spinners.min.js').HalfCircleSpinner;
 var mapGetters = require('vuex').mapGetters;
 
+
 module.exports = {
 	name: 'Login',
 	data() {
@@ -55,8 +56,8 @@ module.exports = {
 		HalfCircleSpinner
 	},
 	methods: {
-		async login () {
-			
+		async login () {	
+
 			this.waitingForLogin = true;
 
 			let login = await this.$store.dispatch ('user/login', {
@@ -78,6 +79,7 @@ module.exports = {
 				}
 			}
 			else {
+				
 				this.username = '';
 				this.password = '';
 			}
