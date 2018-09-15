@@ -11,6 +11,9 @@ Vue.mixin ({
 	store
 });
 
+var LiquorTree = require ('liquor-tree');
+Vue.use(LiquorTree);
+
 
 var Ace = require ('../components/ide/ace/Ace.vue');
 
