@@ -65,12 +65,11 @@ module.exports = {
 				password: this.password
 			});
 
-			this.waitingForLogin = false;
-
 			if (login)
 			{
 				if (this.role === 'admin')
 				{
+					this.waitingForLogin = false;
 					this.$store.dispatch ('settings/redirect', 'ADMIN');
 				}
 				else

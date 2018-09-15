@@ -1,6 +1,6 @@
 'use strict';
 
-var libs = ['bootstrap', 'vue', 'bootbox', 'lodash', 'vuex', 'vue-resource', 'vue-router', 'jquery', 'xterm', 'reconnectingwebsocket', 'md5', 'moment', 'xterm'];
+var libs = ['bootstrap-notify', 'bootstrap', 'vue', 'bootbox', 'lodash', 'vuex', 'vue-resource', 'vue-router', 'jquery', 'xterm', 'reconnectingwebsocket', 'md5', 'moment', 'xterm'];
 
 module.exports = function(grunt) {
 	var tasks = {
