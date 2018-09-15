@@ -42,7 +42,7 @@ module.exports = {
 				if (e.status === 0)
 					Vue.toast.connectionError();
 				else if (e.status >= 500)
-					Vue.toast.warning({title:'Warning!', message: 'You couldn\'t log in!<br>Server error: ' + e.status});
+					Vue.toast.warning({title:'Warning!', message: 'You couldn\'t log in!<br>Server error: ' + e.body.err});
 				return false;
 			}
 		},
@@ -59,7 +59,7 @@ module.exports = {
 				if (e.status === 0)
 					Vue.toast.connectionError();
 				else if (e.status >= 500)
-					Vue.toast.warning({title:'Warning!', message: 'You couldn\'t log in!<br>Server error: ' + e.status});
+					Vue.toast.warning({title:'Warning!', message: 'You couldn\'t log in!<br>Server error: ' + e.body.err});
 				return false;
 			}
 		},
@@ -77,7 +77,7 @@ module.exports = {
 				if (e.status === 0)
 					Vue.toast.connectionError();
 				else if (e.status >= 500)
-					Vue.toast.warning({title:'Warning!', message: 'You couldn\'t log in!<br>Server error: ' + e.status});
+					Vue.toast.warning({title:'Warning!', message: 'You couldn\'t log in!<br>Server error: ' + e.body.err});
 				return false;
 			}
 		},
@@ -95,7 +95,7 @@ module.exports = {
 				if (e.status === 0)
 					Vue.toast.connectionError();
 				else if (e.status >= 500)
-					Vue.toast.warning({title:'Warning!', message: 'You couldn\'t log in!<br>Server error: ' + e.status});
+					Vue.toast.warning({title:'Warning!', message: 'You couldn\'t log in!<br>Server error: ' + e.body.err});
 				return false;
 			}
 		},

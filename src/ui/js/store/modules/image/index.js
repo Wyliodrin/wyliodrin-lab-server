@@ -39,7 +39,7 @@ module.exports = {
 				if (e.status === 0)
 					Vue.toast.connectionError();
 				else if (e.status >= 500)
-					Vue.toast.warning({title:'Warning!', message:'Couldn\'t list the images.<br>Server error: ' + e.status});
+					Vue.toast.warning({title:'Warning!', message:'Couldn\'t list the images.<br>Server error: ' + e.body.err});
 				return false;
 			}
 		},
@@ -58,7 +58,7 @@ module.exports = {
 				if (e.status === 0)
 					Vue.toast.connectionError();
 				else if (e.status >= 500)
-					Vue.toast.warning({title:'Warning!', message:'Couldn\'t complete the setup.<br>Server error: ' + e.status});
+					Vue.toast.warning({title:'Warning!', message:'Couldn\'t complete the setup.<br>Server error: ' + e.body.err});
 				return false;
 			}
 		},
@@ -77,7 +77,7 @@ module.exports = {
 				if (e.status === 0)
 					Vue.toast.connectionError();
 				else if (e.status >= 500)
-					Vue.toast.warning({title:'Warning!', message:'Couldn\'t update the image.<br>Server error: ' + e.status});
+					Vue.toast.warning({title:'Warning!', message:'Couldn\'t update the image.<br>Server error: ' + e.body.err});
 				return false;
 			}
 		},
@@ -96,7 +96,7 @@ module.exports = {
 				if (e.status === 0)
 					Vue.toast.connectionError();
 				else if (e.status >= 500)
-					Vue.toast.warning({title:'Warning!', message:'Couldn\'t delete the image.<br>Server error: ' + e.status});
+					Vue.toast.warning({title:'Warning!', message:'Couldn\'t delete the image.<br>Server error: ' + e.body.err});
 				return false;
 			}
 		},
@@ -117,7 +117,7 @@ module.exports = {
 				if (e.status === 0)
 					Vue.toast.connectionError();
 				else if (e.status >= 500)
-					Vue.toast.warning({title:'Warning!', message:'Couldn\'t download the image.<br>Server error: ' + e.status});
+					Vue.toast.warning({title:'Warning!', message:'Couldn\'t download the image.<br>Server error: ' + e.body.err});
 				return false;
 			}
 		},

@@ -14,13 +14,16 @@
 					<div class="pointer"></div>
 				</div>
 				<div class="modal-body">
-					<div v-if="projects === null" class="d-flex h-100 w-100 justify-content-center align-items-center">
+					<div v-if="error === true">
+						<p style="color: black;">The projects couldn't be listed!</p>
+					</div> 
+					<div v-if="projects === null && error === false" class="d-flex h-100 w-100 justify-content-center align-items-center">
 						<half-circle-spinner
 							:animation-duration="1000"
 							:size="120"
 							color="#e54325"
 						/>
-					</div> 
+					</div>
 					<div v-else class="projects-container">
 						<button @click="addProject" type="button" class="new-proj" data-dismiss="modal" aria-label="New project" data-toggle="tooltip"  v-tooltip data-placement="top" title="New project">
 							<span aria-hidden="true"><img src="img/new-device.png"></span>
@@ -73,12 +76,17 @@ module.exports = {
 	name: 'Projects',
 	data () {
 		return {
-			
+			error: false
 		};
 	},
 	created ()
 	{
-		this.$store.dispatch ('project/list');
+		var listProjects = this.$store.dispatch ('project/list');
+		if (listProjects) {
+			this.error = true;
+		} else {
+			this.error = false;
+		}
 	},
 	methods: {
 		menu ()

@@ -52,7 +52,7 @@ module.exports = {
 				if (e.status === 0)
 					Vue.toast.connectionError();
 				else if (e.status >= 500)
-					Vue.toast.warning({title:'Warning!', message:'Couldn\'t list all the courses.<br>Server error: ' + e.status});
+					Vue.toast.warning({title:'Warning!', message:'Couldn\'t list all the courses.<br>Server error: ' + e.body.err});
 				return false;
 			}
 		},
@@ -72,7 +72,7 @@ module.exports = {
 				if (e.status === 0)
 					Vue.toast.connectionError();
 				else if (e.status >= 500)
-					Vue.toast.warning({title:'Warning!', message:'Couldn\'t get a course.<br>Server error: ' + e.status});
+					Vue.toast.warning({title:'Warning!', message:'Couldn\'t get a course.<br>Server error: ' + e.body.err});
 				return false;
 			}
 		},
@@ -100,7 +100,7 @@ module.exports = {
 				if (e.status === 0)
 					Vue.toast.connectionError();
 				else if (e.status >= 500)
-					Vue.toast.warning({title:'Warning!', message:'Couldn\'t update the course.<br>Server error: ' + e.status});
+					Vue.toast.warning({title:'Warning!', message:'Couldn\'t update the course.<br>Server error: ' + e.body.err});
 				return false;
 			}
 		},
@@ -120,7 +120,7 @@ module.exports = {
 				if (e.status === 0)
 					Vue.toast.connectionError();
 				else if (e.status >= 500)
-					Vue.toast.warning({title:'Warning!', message:'Couldn\'t list the public courses.<br>Server error: ' + e.status});
+					Vue.toast.warning({title:'Warning!', message:'Couldn\'t list the public courses.<br>Server error: ' + e.body.err});
 				return false;
 			}
 		},
@@ -140,7 +140,7 @@ module.exports = {
 				if (e.status === 0)
 					Vue.toast.connectionError();
 				else if (e.status >= 500)
-					Vue.toast.warning({title:'Warning!', message:'Couldn\'t list the courses of the given user.<br>Server error: ' + e.status});
+					Vue.toast.warning({title:'Warning!', message:'Couldn\'t list the courses of the given user.<br>Server error: ' + e.body.err});
 				return false;
 			}
 		},
@@ -159,7 +159,7 @@ module.exports = {
 				if (e.status === 0)
 					Vue.toast.connectionError();
 				else if (e.status >= 500)
-					Vue.toast.warning({title:'Warning!', message:'Couldn\'t create the course.<br>Server error: ' + e.status});
+					Vue.toast.warning({title:'Warning!', message:'Couldn\'t create the course.<br>Server error: ' + e.body.err});
 				return false;
 			}
 		},
@@ -179,7 +179,7 @@ module.exports = {
 				if (e.status === 0)
 					Vue.toast.connectionError();
 				else if (e.status >= 500)
-					Vue.toast.warning({title:'Warning!', message:'Couldn\'t edit the course name.<br>Server error: ' + e.status});
+					Vue.toast.warning({title:'Warning!', message:'Couldn\'t edit the course name.<br>Server error: ' + e.body.err});
 				return false;
 			}
 		},
@@ -198,7 +198,7 @@ module.exports = {
 				if (e.status === 0)
 					Vue.toast.connectionError();
 				else if (e.status >= 500)
-					Vue.toast.warning({title:'Warning!', message:'Couldn\'t delete the given course.<br>Server error: ' + e.status});
+					Vue.toast.warning({title:'Warning!', message:'Couldn\'t delete the given course.<br>Server error: ' + e.body.err});
 				return false;
 			}
 		},
@@ -220,7 +220,7 @@ module.exports = {
 				if (e.status === 0)
 					Vue.toast.connectionError();
 				else if (e.status >= 500)
-					Vue.toast.warning({title:'Warning!', message:'Couldn\'t delete the student from the given course.<br>Server error: ' + e.status});
+					Vue.toast.warning({title:'Warning!', message:'Couldn\'t delete the student from the given course.<br>Server error: ' + e.body.err});
 				return false;
 			}
 		},
@@ -242,7 +242,7 @@ module.exports = {
 				if (e.status === 0)
 					Vue.toast.connectionError();
 				else if (e.status >= 500)
-					Vue.toast.warning({title:'Warning!', message:'Couldn\'t add a student to the given course.<br>Server error: ' + e.status});
+					Vue.toast.warning({title:'Warning!', message:'Couldn\'t add a student to the given course.<br>Server error: ' + e.body.err});
 				return false;
 			}
 		},
@@ -263,7 +263,7 @@ module.exports = {
 				if (e.status === 0)
 					Vue.toast.connectionError();
 				else if (e.status >= 500)
-					Vue.toast.warning({title:'Warning!', message:'Couldn\'t delete the teacher from the given course.<br>Server error: ' + e.status});
+					Vue.toast.warning({title:'Warning!', message:'Couldn\'t delete the teacher from the given course.<br>Server error: ' + e.body.err});
 				return false;
 			}
 		},
@@ -285,7 +285,7 @@ module.exports = {
 				if (e.status === 0)
 					Vue.toast.connectionError();
 				else if (e.status >= 500)
-					Vue.toast.warning({title:'Warning!', message:'Couldn\'t add the teacher to the given course.<br>Server error: ' + e.status});
+					Vue.toast.warning({title:'Warning!', message:'Couldn\'t add the teacher to the given course.<br>Server error: ' + e.body.err});
 				return false;
 			}
 		}
