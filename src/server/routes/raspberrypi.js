@@ -11,8 +11,9 @@ var adminApp = express.Router();
 privateApp.get('/list', async function(req, res, next) {
 	try {
 		debug('List images');
-		var images = await db.image.listImagesdAsArray();
+		var images = await db.image.listImagesAsArray();
 	} catch (err) {
+		console.log (err);
 		let e = error.serverError(err);
 		return next(e);
 	}

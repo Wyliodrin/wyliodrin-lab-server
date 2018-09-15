@@ -138,7 +138,7 @@ privateApp.post('/students/add', async function(req, res, next) {
 
 });
 
-adminApp.get('/:imageId', async function(req, res, next) {
+adminApp.get('/image/:imageId', async function(req, res, next) {
 	var e;
 	var imageId = req.params.imageId;
 	try {

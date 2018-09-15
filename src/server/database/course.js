@@ -154,7 +154,7 @@ function listCoursesByImageId(imageId) {
 }
 
 function listAllCourses() {
-	return Course.find();
+	return Course.find({});
 }
 
 function listPublicCourses() {

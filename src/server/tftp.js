@@ -59,10 +59,10 @@ var server = tftp.createServer ({
 				let pathBoot = db.image.pathBoot ();
 				if (filename === 'start.elf')
 				{
-					if (await db.image.hasSetup (boardId))
-					{
-						await db.image.unsetup (boardId);
-					}
+					// if (await db.image.hasSetup (boardId))
+					// {
+					// 	await db.image.unsetup (boardId);
+					// }
 					console.log ('setting up image for '+boardId);
 					let data = await imageData (boardId, 'bootup');
 					console.log (data);
@@ -98,6 +98,7 @@ var server = tftp.createServer ({
 			}
 			catch (e)
 			{
+				// console.log (e);
 				if (e.message.indexOf ('ENOENT')<0)
 				{
 					console.log (filename+' '+e.message);

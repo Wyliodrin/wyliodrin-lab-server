@@ -16,7 +16,7 @@
 					<a @click="showSource" :class="{'active':source}"><img src="img/code.png"> Code</a>
 				</div>
 			</div>
-			<iframe :src="'/project.html?projectId='+project.projectId" class="h-100 w-100" v-show="source">
+			<iframe :src="'/ide/ace.html?projectId='+project.projectId" class="h-100 w-100" v-show="source">
 			</iframe>
 			<iframe id="iframe_freeboard" :src="'/freeboard/freeboard.html?projectId='+project.projectId" class="h-100 w-100" v-show="!source">
 			</iframe>
@@ -42,17 +42,7 @@ module.exports = {
 		addProject () {
 			Vue.bootbox.dialog (AddProjectModal, {}, {
 				title: 'New Project',
-				className: 'regularModal',
-				buttons:{
-					add: {
-						label: 'Add',
-						className: 'wyliodrin-active'
-					},
-					back: {
-						label: 'Back',
-						className: 'wyliodrin-back'
-					}
-				}
+				className: 'regularModal'
 			});
 		},
 

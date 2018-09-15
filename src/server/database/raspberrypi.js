@@ -15,7 +15,43 @@ var uuid = require('uuid');
 
 // var fsid = 0;
 
-let unsetupReqests = {};
+let boards = {};
+
+// let unsetupReqests = {};
+
+function getBoardSetup (boardId)
+{
+	if (!boards[boardId]) 
+	{
+		boards[boardId] = {
+			userId: null,
+			courseId: null,
+			imageId: null,
+			setup: false,
+			unsetupRequest: null
+		};
+	}
+	return boards[boardId];
+}
+
+function setBoardSetup (boardId, userId, courseId, imageId)
+{
+	let board = getBoardSetup (boardId);
+	board.userId = userId;
+	board.courseId = courseId;
+	board.imageId = imageId;
+	board.setup = true;
+}
+
+function delBoardSetup (boardId)
+{
+	let board = getBoardSetup (boardId);
+	board.userId = null;
+	board.courseId = null;
+	board.imageId = null;
+	clearTimeout (board.unsetupRequest);
+	board.setup = false;
+}
 
 function nextFsId() {
 	// fsid++;
@@ -619,41 +655,76 @@ function hasRootFsMounted(boardId) {
 async function setup(boardId, userId, courseId, imageId) {
 	if (!imageId) imageId = defaultImageId();
 	if (imagesList[imageId]) {
-		let folder = path.join(ROOT_FS, boardId);
-		if (!await isExported(folder)) {
-			let mount = await mountRootFs(boardId, userId, courseId, imagesList[imageId]);
-			// console.log (mount);
-			if (mount) {
-				let read = 'rw';
-				// if (!userId || !courseId) read = 'ro';
-				if (userId) await exportFs(await pathUser(userId, true), ['fsid=' + nextFsId(), read, 'all_squash', 'anonuid=1000', 'anongid=1000']);
-				let exp = await exportFs(folder, ['fsid=' + nextFsId(), read, 'no_root_squash']);
-				if (!exp) {
-					await unmountRootFs(boardId);
-					throw new Error('Failed to export rootfs for image ' + imageId);
+		let board = getBoardSetup (boardId);
+		if (board.setup && board.userId === userId && board.courseId === courseId && board.imageId === imageId)
+		{
+			clearTimeout (board.unsetupRequest);
+			console.log ('Board is already setup');
+		}
+		else
+		{
+			await unsetup (boardId);
+			let folder = path.join(ROOT_FS, boardId);
+			if (!await isExported(folder)) {
+				let mount = await mountRootFs(boardId, userId, courseId, imagesList[imageId]);
+				// console.log (mount);
+				if (mount) {
+					let read = 'rw';
+					// if (!userId || !courseId) read = 'ro';
+					if (userId) await exportFs(await pathUser(userId, true), ['fsid=' + nextFsId(), read, 'all_squash', 'anonuid=1000', 'anongid=1000']);
+					let exp = await exportFs(folder, ['fsid=' + nextFsId(), read, 'no_root_squash']);
+					if (!exp) {
+						await unmountRootFs(boardId);
+						throw new Error('Failed to export rootfs for image ' + imageId);
+					} else {
+						setBoardSetup (boardId, userId, courseId, imageId);
+						return true;
+					}
 				} else {
-					return true;
+					throw new Error('Failed to mount rootfs for image ' + imageId);
 				}
 			} else {
-				throw new Error('Failed to mount rootfs for image ' + imageId);
+				throw new Error('Board ' + boardId + ' is already setup');
 			}
-		} else {
-			throw new Error('Board ' + boardId + ' is already setup');
 		}
 	} else throw new Error('Image ' + imageId + ' does not exist');
 }
 
-async function unsetup(boardId) {
-	clearTimeout (unsetupReqests[boardId]);
-	let folder = path.join(ROOT_FS, boardId);
-	// root
-	if (await isExported(folder)) {
-		await unexportFs(folder);
-		await unmountRootFs(boardId);
-	} else {
-		throw new Error('Board ' + boardId + ' is not setup');
+function unsetup(boardId) {
+	let board = getBoardSetup (boardId);
+	if (!board.unsetupInProgress)
+	{
+		console.log (board);
+		clearTimeout (board.unsetupRequest);
+		board.unsetupInProgress = new Promise (async function (resolve)
+		{
+			let folder = path.join(ROOT_FS, boardId);
+			// root
+			if (await isExported(folder)) {
+				await unexportFs(folder);
+				await unmountRootFs(boardId);
+				// resolve (true);
+			} else {
+				// board.unsetupInProgress = null;
+				// reject (new Error('Board ' + boardId + ' is not setup'));
+			}
+			if (board.userId)
+			{
+				let userFolder = await pathUser (board.userId);
+				// console.log (userFolder);
+				await unexportFs (userFolder);
+			}
+			delBoardSetup (boardId);
+			board.unsetupInProgress = null;
+			resolve (true);
+		});
+		return board.unsetupInProgress;
 	}
-	return true;
+	else
+	{
+		console.log ('board unsetup in progress');
+		return board.unsetupInProgress;
+	}
 }
 
 
@@ -867,28 +938,19 @@ function existsImageId(imageId) {
 	else return false;
 }
 
-async function unsetupDelay (boardId, userId, timeout = 8000)
+function unsetupDelay (boardId, timeout = 8000)
 {
 	console.log ('unsetup');
-	if (await hasSetup (boardId))
+	let board = getBoardSetup (boardId);
+	if (board.setup)
 	{
-		clearTimeout (unsetupReqests[boardId]);
+		clearTimeout (board.unsetupRequest);
 		console.log ('unsetup scheduled');
 
-		if (userId)
-		{
-			let userFolder = pathUser (userId);
-			if (await isExported(userFolder)) {
-				await unexportFs(userFolder);
-			} else {
-				// TODO
-			}
-		}
-
-		unsetupReqests[boardId] = setTimeout (function ()
+		board.unsetupRequest = setTimeout (async function ()
 		{
 			console.log ('unsetup schedule start');
-			unsetup (boardId);
+			await unsetup (boardId);
 		}, timeout);
 	}
 }
