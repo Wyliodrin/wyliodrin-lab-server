@@ -1,10 +1,11 @@
 <template>
 	<span>
-		<div>
+		<div class="group-border pt-0 row">
 			<!-- Modalul pentru adaugarea unui profesor la un curs in tabul de editare curs -->
-			<p>Selecteaza un user pentru a-l adauga: </p>
-			<input type="text" v-model="search">
-			<br>
+			<div class="search">
+				<img src="/img/icons/search-icon.png">
+				<input type="text" placeholder="Search" class="search-input" v-model="search">
+			</div>
 			<div class="content greybg w-100 d-flex flex-column" v-if="users === null">
 				<div class="d-flex h-100 justify-content-center align-items-center">
 					<div>
@@ -12,19 +13,23 @@
 					</div>
 				</div>
 			</div>
-			<table border="1" v-else>
-				<tr>
-					<th>Name</th>
-					<th>Username</th>
-					<th>Actions</th>
-				</tr>
-				<tr v-for="user in filteredUsers" :key="user.userId">
-					<td>{{user.firstName+' '+user.lastName}}</td>
-					<td>{{user.username}}</td>
-					<td>
-						<a v-tooltip data-toggle="tooltip" data-placement="top" title="Add Student" @click="add(user)"><img src="img/icons/add.png"></a>
-					</td>
-				</tr>
+			<table v-else>
+				<thead>
+					<tr class="row ml-0 mr-0">
+						<th class="text-center col-md-6">Name</th>
+						<th class="text-center col-md-3">Username</th>
+						<th class="text-center col-md-3">Actions</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr v-for="user in filteredUsers" :key="user.userId" class="row ml-0 mr-0">
+						<td class="text-center col-md-6">{{user.firstName+' '+user.lastName}}</td>
+						<td class="text-center col-md-3">{{user.username}}</td>
+						<td class="text-center col-md-3">
+							<a v-tooltip data-toggle="tooltip" data-placement="top" title="Add Student" @click="add(user)"><img src="img/icons/add.png"></a>
+						</td>
+					</tr>
+				</tbody>
 			</table>
 			<!-- <div class="dropdown">
 				<button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">

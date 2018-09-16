@@ -1,5 +1,5 @@
 <template>
-	<div>
+	<div style="height: 100%; width: 100%">
 		<editor v-model="source" @init="initEditor"></editor>
 	</div>
 </template>
