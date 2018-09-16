@@ -203,6 +203,57 @@ async function getFile(filePath, userId, project) {
 	return { success: true, data, err: 0 };
 }
 
+/**
+ * 
+ * @param {String} filePath - the file path relative to the project
+ * @param {String} userId - id of the user
+ * @param {String} project - name of the project 
+ */
+async function getFolder(userId, project, folder) {
+	var pathIsValid = await verifyPath(folder, userId, project);
+	if (!pathIsValid.valid) {
+		return { success: false, message: 'Invalid path', err: statusCodes.BAD_REQUEST };
+	}
+	try {
+		var prExists = await projectExists(userId, project);
+	} catch (err) {
+		console.log(err);
+		return { success: false, message: 'File system error', err: statusCodes.INTERNAL_SERVER_ERROR };
+	}
+	if (!prExists) {
+		return { success: false, message: 'Project not found', err: statusCodes.BAD_REQUEST };
+	}
+
+	var normalized_path = pathIsValid.normalizedPath;
+
+	var data = [];
+	try {
+		var files = (await fs.readdir(normalized_path));
+		for (let file of files)
+		{
+			if (file !== '.' && file !== '..')
+			{
+				let stat = await fs.stat (path.join (normalized_path, file));
+				let f = {
+					name: file
+				};
+				if (stat.isDirectory ()) 
+				{
+					f.type = 'dir';
+					f.contents = await getFolder (userId, project, path.join (folder, file));
+				}
+				if (stat.isFile()) f.type = 'file';
+				data.push (f);
+			}
+		}
+	} catch (err) {
+		console.log(err);
+		return { success: false, message: 'File system error', err: statusCodes.INTERNAL_SERVER_ERROR };
+	}
+
+	return { success: true, data, err: 0 };
+}
+
 
 /**
  * Lists the projects of a user 
@@ -235,7 +286,8 @@ var workspace = {
 	listProjects,
 	hasHome,
 	setFile,
-	getFile
+	getFile,
+	getFolder
 };
 
 module.exports = workspace;

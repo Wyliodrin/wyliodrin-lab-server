@@ -113,4 +113,41 @@ privateApp.post('/files/load', async function(req, res, next) {
 
 });
 
+privateApp.post('/list', async function(req, res, next) {
+	var e;
+	var userId = req.user.userId;
+	var project = req.body.project;
+	console.log (project);
+	// var folder = req.body.folder;
+	if (project) {
+		try {
+			var out = await db.workspace.getFolder(userId, project, '/');
+			if (out.success) {
+				res.status(200).send({ err: 0, project: out.data });
+			} else {
+				if (out.message === 'Project not found') {
+					e = error.notFound('Project not found');
+				} else if (out.message === 'Invalid path') {
+					e = error.badRequest('Invalid Path');
+				} else if (out.message === 'Folder not found') {
+					e = error.notFound('Folder not found');
+				} else {
+					e = error.serverError(out.message);
+				}
+				console.log (out);
+				next(e);
+			}
+
+		} catch (err) {
+			console.log (err);
+			e = error.serverError(err);
+			next(e);
+		}
+	} else {
+		e = error.badRequest('One or more fields missing');
+		next(e);
+	}
+
+});
+
 module.exports.privateRoutes = privateApp;

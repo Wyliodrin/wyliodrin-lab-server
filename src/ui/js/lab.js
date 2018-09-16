@@ -19,6 +19,9 @@ Vue.mixin ({
 	store
 });
 
+var LiquorTree = require ('liquor-tree');
+Vue.use(LiquorTree);
+
 var Loading = require ('./components/Loading.vue');
 var Lab = require ('./components/lab/Lab.vue');
 var SignIn = require ('./components/lab/SignIn.vue');
