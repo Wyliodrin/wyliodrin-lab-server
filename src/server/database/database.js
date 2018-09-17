@@ -56,7 +56,7 @@ try {
 }
 
 
-if (process.env.CLI_ACTIVE === null) {
+if (!process.env.CLI_ACTIVE) {
 	var image = require('./raspberrypi.js');
 	module.exports.image = image;
 }
