@@ -110,6 +110,37 @@ privateApp.post('/folders/add', async function(req, res, next) {
 	}
 });
 
+privateApp.post(/(folders)|(files)\/add/, async function(req, res, next) {
+	var e;
+	var userId = req.user.userId;
+	var fileOrFolder = req.body.fileOrFolder;
+	var project = req.body.project;
+	if (fileOrFolder && project) {
+		try {
+			var out = await db.workspace.delFileOrFolder(fileOrFolder, userId, project);
+			console.log (out);
+			if (out.success) {
+				res.status(200).send({ err: 0 });
+			} else {
+				if (out.message === 'Project not found') {
+					e = error.notFound('Project not found');
+				} else if (out.message === 'Invalid path') {
+					e = error.badRequest('Invalid Path');
+				} else {
+					e = error.serverError(out.message);
+				}
+				next(e);
+			}
+		} catch (err) {
+			e = error.serverError(err);
+			next(e);
+		}
+	} else {
+		e = error.badRequest('One or more fields missing');
+		next(e);
+	}
+});
+
 privateApp.post('/files/load', async function(req, res, next) {
 	var e;
 	var userId = req.user.userId;
