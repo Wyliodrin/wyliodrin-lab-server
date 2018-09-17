@@ -1,16 +1,18 @@
 FROM repository.wyliodrin.com/com.wyliodrin.intel64.noui.nodejs
 
 RUN apt-get update && \
-	apt-get install -y supervisor build-essential dnsmasq nfs-kernel-server qemu-user-static python --no-install-recommends && \
+	apt-get install -y supervisor build-essential dnsmasq nfs-kernel-server qemu-user-static python git nano procps openssh-client --no-install-recommends && \
 	apt-get clean && rm -r /var/lib/apt/lists/* && \
 	npm install -g grunt && \
-	mkdir /wyliodrin-lab
+	mkdir -p /wyliodrin-lab/images
+
+COPY ../../imaginic/2018-04-18-raspbian-stretch-lite.img /wyliodrin-lab/images/2018-04-18-raspbian-stretch-lite.img
 
 
-ADD http://worldclockapi.com/api/json/utc/now /tmp/bustcache
+#ADD http://worldclockapi.com/api/json/utc/now /tmp/bustcache
 
 RUN git clone https://github.com/Wyliodrin/wyliodrin-lab-server/ && \
-	cd wyliodrin-lab-server && npm install
+	cd wyliodrin-lab-server && npm install && grunt
 
 COPY .env wyliodrin-lab-server/build/server/.env
 COPY dnsmasq.conf /etc/dnsmasq.conf
