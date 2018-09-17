@@ -20,12 +20,12 @@
 				<tree :options="treeOptions" v-model="selectedFile">
 					<span class="tree-container" slot-scope="{ node }" @mouseover="hover (node)" @mouseout="hover(null)">
 						<span class="tree-text">
-							<template v-if="!node.hasChildren()">
+							<template v-if="!node.data.type==='dir'">
 								<i class="ion-android-document"></i>
 								{{ node.text }}
 								<div v-if="isHover(node)">
-									<a href="" @mouseup.stop="renameFile(node)">Rename File</a>
-									<a href="" @mouseup.stop="deleteFile(node)">Delete</a>
+									<a href="#" @mouseup.stop="renameFile(node)">Rename File</a>
+									<a href="#" @mouseup.stop="deleteFile(node)">Delete</a>
 								</div>
 							</template>
 
@@ -33,10 +33,10 @@
 								<i :class="[node.expanded() ? 'ion-android-folder-open' : 'ion-android-folder']"></i>
 								{{ node.text }}
 								<div v-if="isHover(node)">
-									<a href="" @mouseup.stop="newFile">New File</a>
-									<a href="" @mouseup.stop="newFolder">New Folder</a>
-									<a href="" @mouseup.stop="renameFolder(node)">Rename Folder</a>
-									<a href="" @mouseup.stop="deleteFolder(node)">Delete Folder</a>
+									<a href="#" @mouseup.stop="newFile(node)">New File</a>
+									<a href="#" @mouseup.stop="newFolder(node)">New Folder</a>
+									<a href="#" @mouseup.stop="renameFolder(node)">Rename Folder</a>
+									<a href="#" @mouseup.stop="deleteFolder(node)">Delete Folder</a>
 								</div>
 							</template>
 						</span>
@@ -57,6 +57,7 @@ var Vue = require ('vue');
 var AddProjectModal = require ('./AddProjectModal.vue');
 var SettingsProjectModal = require ('./SettingsProjectModal.vue');
 var $ = require ('jquery');
+var path = require ('path');
 module.exports = {
 	name: 'Workspace',
 	data () {
@@ -85,17 +86,21 @@ module.exports = {
 			});
 		},
 
-		newFolder ()
+		newFolder (node)
 		{
+			console.log (this.getPath (node));
 			var that = this;
-			Vue.bootbox.prompt ('New Folder Name', function (result) {
+			Vue.bootbox.prompt ('New Folder Name', async function (result) {
 				if (result)
 				{
 					// TODO full path
-					that.$store.dispatch ('project/newFolder', {
-						project: this.project.name,
-						folder: result 
-					});
+					if (await that.$store.dispatch ('project/newFolder', {
+						project: that.project.name,
+						folder: path.join (that.getPath (node), result)
+					}))
+					{
+						that.$store.dispatch ('project/listProjectFolder', that.project.name);
+					}
 				}
 			});
 		},
@@ -108,7 +113,7 @@ module.exports = {
 				{
 					// TODO full path
 					that.$store.dispatch ('project/newFile', {
-						project: this.project.name,
+						project: this.project,
 						file: result 
 					});
 				}
@@ -222,6 +227,12 @@ module.exports = {
 		{
 			// console.log ('isHover');
 			return this.hoverNode === node;
+		},
+		getPath (node)
+		{
+			console.log (node);
+			if (node.isRoot ()) return '/';
+			else return path.join (this.getPath (node.parent), node.data.text);
 		}
 	},
 	watch: {

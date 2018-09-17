@@ -165,6 +165,40 @@ async function setFile(filePath, userId, project, data) {
  * @param {String} filePath - the file path relative to the project
  * @param {String} userId - id of the user
  * @param {String} project - name of the project 
+ * @param {Object} data - object containing name of file and data from file 
+ */
+async function addFolder(folderPath, userId, project) {
+	try {
+		var projExists = await projectExists(userId, project);
+	} catch (err) {
+		return { success: false, message: 'File System Error' + err, err: statusCodes.INTERNAL_SERVER_ERROR };
+	}
+
+	if (!projExists) {
+		return { success: false, message: 'Project not found', err: statusCodes.BAD_REQUEST };
+	}
+
+	var pathIsValid = await verifyPath(folderPath, userId, project);
+	if (!pathIsValid.valid) {
+		return { success: false, message: 'Invalid path', err: statusCodes.BAD_REQUEST };
+	}
+
+	var normalized_path = pathIsValid.normalizedPath;
+	try {
+		await fs.mkdirs(normalized_path);
+	} catch (err) {
+		console.log('Got error writing file: ', err);
+		return { success: false, message: 'File system error' + err, err: statusCodes.INTERNAL_SERVER_ERROR };
+	}
+
+	return { success: true, err: 0 };
+}
+
+/**
+ * 
+ * @param {String} filePath - the file path relative to the project
+ * @param {String} userId - id of the user
+ * @param {String} project - name of the project 
  */
 async function getFile(filePath, userId, project) {
 	var pathIsValid = await verifyPath(filePath, userId, project);
@@ -240,7 +274,7 @@ async function getFolder(userId, project, folder) {
 				if (stat.isDirectory ()) 
 				{
 					f.type = 'dir';
-					f.contents = await getFolder (userId, project, path.join (folder, file));
+					f.files = (await getFolder (userId, project, path.join (folder, file))).data;
 				}
 				if (stat.isFile()) f.type = 'file';
 				data.push (f);
@@ -250,7 +284,7 @@ async function getFolder(userId, project, folder) {
 		console.log(err);
 		return { success: false, message: 'File system error', err: statusCodes.INTERNAL_SERVER_ERROR };
 	}
-
+	console.log (data);
 	return { success: true, data, err: 0 };
 }
 
@@ -287,7 +321,8 @@ var workspace = {
 	hasHome,
 	setFile,
 	getFile,
-	getFolder
+	getFolder,
+	addFolder
 };
 
 module.exports = workspace;
