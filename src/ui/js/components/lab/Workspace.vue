@@ -18,17 +18,28 @@
 			</div>
 			<div style="height: 100%; width: 20%; float: left;">
 				<tree :options="treeOptions" v-model="selectedFile">
-					<span class="tree-text" slot-scope="{ node }">
-						<template v-if="!node.hasChildren()">
-							<i class="ion-android-document"></i>
-							{{ node.text }}
-						</template>
+					<span class="tree-container" slot-scope="{ node }" @mouseover="hover (node)" @mouseout="hover(null)">
+						<span class="tree-text">
+							<template v-if="!node.hasChildren()">
+								<i class="ion-android-document"></i>
+								{{ node.text }}
+								<div v-if="isHover(node)">
+									<a href="" @mouseup.stop="renameFile(node)">Rename File</a>
+									<a href="" @mouseup.stop="deleteFile(node)">Delete</a>
+								</div>
+							</template>
 
-						<template v-else>
-							<i :class="[node.expanded() ? 'ion-android-folder-open' : 'ion-android-folder']"></i>
-							{{ node.text }}
-							<div v-if="node.selected()"><a href="" @click="newFile">New File</a><a href="" @click="newFolder">New Folder</a></div>
-						</template>
+							<template v-else>
+								<i :class="[node.expanded() ? 'ion-android-folder-open' : 'ion-android-folder']"></i>
+								{{ node.text }}
+								<div v-if="isHover(node)">
+									<a href="" @mouseup.stop="newFile">New File</a>
+									<a href="" @mouseup.stop="newFolder">New Folder</a>
+									<a href="" @mouseup.stop="renameFolder(node)">Rename Folder</a>
+									<a href="" @mouseup.stop="deleteFolder(node)">Delete Folder</a>
+								</div>
+							</template>
+						</span>
 					</span>
 				</tree>
 			</div>
@@ -51,6 +62,7 @@ module.exports = {
 	data () {
 		return {
 			selectedFile: null,
+			hoverNode: null,
 			source: true,
 			reloadFreeboard: false,
 			treeOptions: {
@@ -103,6 +115,70 @@ module.exports = {
 			});
 		},
 
+		renameFile (node)
+		{
+			node;
+			// var that = this;
+			// Vue.bootbox.prompt ('New File Name', function (result) {
+			// 	if (result)
+			// 	{
+			// 		// TODO full path
+			// 		that.$store.dispatch ('project/newFile', {
+			// 			project: this.project.name,
+			// 			file: result 
+			// 		});
+			// 	}
+			// });
+		},
+
+		renameFolder (node)
+		{
+			node;
+			// var that = this;
+			// Vue.bootbox.prompt ('New File Name', function (result) {
+			// 	if (result)
+			// 	{
+			// 		// TODO full path
+			// 		that.$store.dispatch ('project/newFile', {
+			// 			project: this.project.name,
+			// 			file: result 
+			// 		});
+			// 	}
+			// });
+		},
+
+		deleteFile (node)
+		{
+			node;
+			// var that = this;
+			// Vue.bootbox.prompt ('New File Name', function (result) {
+			// 	if (result)
+			// 	{
+			// 		// TODO full path
+			// 		that.$store.dispatch ('project/newFile', {
+			// 			project: this.project.name,
+			// 			file: result 
+			// 		});
+			// 	}
+			// });
+		},
+
+		deleteFolder (node)
+		{
+			node;
+			// var that = this;
+			// Vue.bootbox.prompt ('New File Name', function (result) {
+			// 	if (result)
+			// 	{
+			// 		// TODO full path
+			// 		that.$store.dispatch ('project/newFile', {
+			// 			project: this.project.name,
+			// 			file: result 
+			// 		});
+			// 	}
+			// });
+		},
+
 		settings ()
 		{
 			// Vue.bootbox.dialog (UserSettingsModal, {}, 
@@ -134,6 +210,18 @@ module.exports = {
 		showDashboard ()
 		{
 			this.source = false;
+		},
+
+		hover (node)
+		{
+			// console.log ('hover');
+			this.hoverNode = node;
+		},
+
+		isHover (node)
+		{
+			// console.log ('isHover');
+			return this.hoverNode === node;
 		}
 	},
 	watch: {

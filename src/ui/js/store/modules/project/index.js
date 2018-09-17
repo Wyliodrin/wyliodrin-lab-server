@@ -264,7 +264,13 @@ module.exports ={
 		},
 		projectFolder (state, value)
 		{
-			state.projectFolder = value;
+			state.projectFolder = [
+				{
+					name: 'Project',
+					type:'dir',
+					files: value
+				}
+			];
 		}
 	}
 };
