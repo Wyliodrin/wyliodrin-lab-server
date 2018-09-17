@@ -93,6 +93,12 @@ module.exports = function(grunt) {
 						dest: 'build/ui/freeboard',
 						extDot: 'first'
 					},
+					{
+						expand: true,
+						cwd: 'src/ui/fonts',
+						src: ['**/*'],
+						dest: 'build/ui/fonts/'
+					},
 				]
 			},
 

@@ -8,6 +8,7 @@ module.exports ={
 		projects: null,
 		project: null,
 		languages: [],
+		projectFolder: []
 	},
 	getters: {
 		projects (state)
@@ -21,6 +22,10 @@ module.exports ={
 		languages (state)
 		{
 			return state.languages;
+		},
+		projectFolder (state)
+		{
+			return state.projectFolder;
 		}
 	},
 	actions: {
@@ -118,29 +123,6 @@ module.exports ={
 				return false;
 			}
 		},
-		async resetWorkspace (store, projectId)
-		{
-			try
-			{
-				let response = await Vue.http.get (setup.API+'/project/resetWorkspace/'+projectId);
-				if (response.data.err === 0) 
-				{
-					return true;
-				}
-				else {
-					Vue.toast.warning({title:'Warning!', message:'Couldn\'t reset the workspace.<br>Server error: ' + response.data.err});
-					return false;
-				}
-			}
-			catch (e)
-			{
-				if (e.status === 0)
-					Vue.toast.connectionError();
-				else if (e.status >= 500)
-					Vue.toast.warning({title:'Warning!', message:'Couldn\'t reset the workspace.<br>Server error: ' + e.body.err});
-				return false;
-			}
-		},
 		async add (store, project)
 		{
 			try
@@ -211,10 +193,65 @@ module.exports ={
 				if (e.status === 0)
 					Vue.toast.connectionError();
 				else if (e.status >= 500)
-					Vue.toast.warning({title:'Warning!', message:'Couldn\'t edit the project ' + project.projectId + '.<br>Server error: ' + e.body.err});
+					Vue.toast.warning({title:'Warning!', message:'Couldn\'t edit the project ' + project + '.<br>Server error: ' + e.body.err});
 				return false;
 			}
-		}
+		},
+		async listProjectFolder (store, project)
+		{
+			try
+			{
+				let response = await Vue.http.post (setup.API+'/projects/list/', {
+					project
+				});
+				if (response.data.err === 0) 
+				{
+					store.commit ('projectFolder', response.data.project);
+					return true;
+				}
+				else
+				{
+					Vue.toast.warning({title:'Warning!', message:'Couldn\'t load the project folder.<br>Server error: ' + response.data.err});
+					return false;
+				}
+			}
+			catch (e)
+			{
+				if (e.status === 0)
+					Vue.toast.connectionError();
+				else if (e.status >= 500)
+					Vue.toast.warning({title:'Warning!', message:'Couldn\'t load the project folder ' + project + '.<br>Server error: ' + e.body.err});
+				return false;
+			}
+		},
+		async newFolder (store, data)
+		{
+			try
+			{
+				let response = await Vue.http.post (setup.API+'/projects/folders/add', {
+					project: data.project,
+					folder: data.folder
+				});
+				if (response.data.err === 0) 
+				{
+					store.dispatch ('listProjectFolder');
+					return true;
+				}
+				else
+				{
+					Vue.toast.warning({title:'Warning!', message:'Couldn\'t add the folder.<br>Server error: ' + response.data.err});
+					return false;
+				}
+			}
+			catch (e)
+			{
+				if (e.status === 0)
+					Vue.toast.connectionError();
+				else if (e.status >= 500)
+					Vue.toast.warning({title:'Warning!', message:'Couldn\'t add the folder to ' + data.project + '.<br>Server error: ' + e.body.err});
+				return false;
+			}
+		},
 	},
 	mutations: 
 	{
@@ -229,6 +266,16 @@ module.exports ={
 		languages (state, value)
 		{
 			state.languages = value;
+		},
+		projectFolder (state, value)
+		{
+			state.projectFolder = [
+				{
+					name: 'Project',
+					type:'dir',
+					files: value
+				}
+			];
 		}
 	}
 };
