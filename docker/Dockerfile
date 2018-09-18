@@ -6,7 +6,7 @@ RUN apt-get update && \
 	npm install -g grunt
 
 
-#ADD http://worldclockapi.com/api/json/utc/now /tmp/bustcache
+ADD http://worldclockapi.com/api/json/utc/now /tmp/bustcache
 
 RUN git clone https://github.com/Wyliodrin/wyliodrin-lab-server/ && \
 	cd wyliodrin-lab-server && npm install && grunt
