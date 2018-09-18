@@ -16,11 +16,14 @@
 					<a @click="showSource" :class="{'active':source}"><img src="img/code.png"> Code</a>
 				</div>
 			</div>
-			<div style="height: 100%; width: 20%; float: left;" class="tree-box">
-				<tree :options="treeOptions" v-model="selectedFile">
+			<div class="h-100 w-80">
+				<editor v-show="selectedFile" v-model="fileSource" @init="initEditor" lang="python" theme="monokai" :options="editorOptions"></editor>
+			</div>
+			<div style="height: 100%; width: 20%; float: right;" class="tree-box">
+				<tree :options="treeOptions" v-model="selectedNode">
 					<span class="tree-container" slot-scope="{ node }" @mouseover="hover (node)" @mouseout="hover(null)">
 						<span class="tree-text">
-							<template v-if="!node.data.type==='dir'">
+							<template v-if="!node.hasChildren ()">
 								<i class="ion-android-document"></i>
 								{{ node.text }}
 								<div v-if="isHover(node)" class="explorer-actions">
@@ -43,8 +46,8 @@
 					</span>
 				</tree>
 			</div>
-			<iframe :src="'/ide/ace.html?projectId='+base64ProjectId" class="h-100 w-80" v-show="source">
-			</iframe>
+			<!-- <iframe :src="'/ide/ace.html?projectId='+base64ProjectId"  v-show="source">
+			</iframe> -->
 			<iframe id="iframe_freeboard" :src="'/freeboard/freeboard.html?projectId='+project.projectId" class="h-100 w-100" v-show="!source">
 			</iframe>
 		</div>
@@ -58,12 +61,16 @@ var AddProjectModal = require ('./AddProjectModal.vue');
 var SettingsProjectModal = require ('./SettingsProjectModal.vue');
 var $ = require ('jquery');
 var path = require ('path');
+var editor = require ('vue2-ace-editor');
 module.exports = {
 	name: 'Workspace',
 	data () {
 		return {
 			selectedFile: null,
+			selectedNode: null,
 			hoverNode: null,
+			loadedSource: '',
+			fileSource: '',
 			source: true,
 			reloadFreeboard: false,
 			treeOptions: {
@@ -76,6 +83,9 @@ module.exports = {
 					'children':'files'
 				}
 			},
+			editorOptions: {
+				fontSize: '14pt',
+			}
 		};
 	},
 	methods: {
@@ -233,7 +243,29 @@ module.exports = {
 			console.log (node);
 			if (node.isRoot ()) return '/';
 			else return path.join (this.getPath (node.parent), node.data.text);
-		}
+		},
+		isFile (node)
+		{
+			// console.log (node);
+			if (node.data && node.data.type === 'file')
+			{
+				return true;
+			}
+			else
+			{
+				return false;
+			}
+		},
+		initEditor (editor)
+		{
+			editor;
+			require('brace/ext/language_tools'); //language extension prerequsite...
+			// require('brace/mode/html');                
+			require('brace/mode/python');    //language
+			require('brace/mode/less');
+			require('brace/theme/monokai');
+			require('brace/snippets/python'); //snippet
+		},
 	},
 	watch: {
 		project ()
@@ -242,6 +274,7 @@ module.exports = {
 			this.showSource ();
 			if (this.source) this.reloadFreeboard = true;
 			else this.reloadFreeboard = false;
+			this.selectedFile = null;
 		},
 		source ()
 		{
@@ -253,9 +286,35 @@ module.exports = {
 				iframeFreeboard.src = iframeFreeboard.src;
 			}
 		},
-		selectedFile ()
+		async selectedNode ()
 		{
-			console.log (this.selectedFile);
+			// console.log (this.selectedNode);
+			if (!this.selectedNode[0].hasChildren() && this.selectedNode[0].text !== '(empty)')
+			{
+				this.selectedFile = this.getPath (this.selectedNode[0]);
+				this.loadedSource = '';
+				this.fileSource = '';
+				let fileData = await this.$store.dispatch ('project/getFile', {
+					project: this.project.name,
+					file: this.selectedFile
+				});
+				if (fileData)
+				{
+					this.loadedSource = new Buffer (fileData, 'base64').toString ();
+					this.fileSource = this.loadedSource;
+				}
+			}
+		},
+		fileSource ()
+		{
+			if (this.loadedSource !== this.fileSource)
+			{
+				this.$store.dispatch ('project/setFile', {
+					project: this.project.name,
+					file: this.selectedFile,
+					data: new Buffer (this.fileSource).toString ('base64')
+				});
+			}
 		}
 	},
 	computed: 
@@ -277,6 +336,9 @@ module.exports = {
 				return null;
 			}
 		}
+	},
+	components: {
+		editor
 	}
 };
 </script>

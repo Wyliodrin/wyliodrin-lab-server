@@ -54,7 +54,7 @@ privateApp.post('/files/save', async function(req, res, next) {
 	var file = req.body.file;
 	var data = req.body.data;
 	var project = req.body.project;
-	if (file && data && project) {
+	if (file && data !== undefined && project) {
 		try {
 			var out = await db.workspace.setFile(file, userId, project, data);
 			if (out.success) {

@@ -21,7 +21,7 @@ async function verifyPath(filePath, userId, project) {
 	var absPath = path.join(homeFolder, PROJECTS, project, filePath);
 	var normalizedPath = path.normalize(absPath);
 	var verifyPath = path.join(homeFolder, PROJECTS, project);
-	if (normalizedPath.startsWith(verifyPath)) {
+	if (normalizedPath.startsWith(verifyPath) && normalizedPath.indexOf ('(empty)') <0 ) {
 		return { valid: true, absPath: absPath, normalizedPath: normalizedPath };
 	}
 	return { valid: false, absPath: absPath, normalizedPath: normalizedPath };

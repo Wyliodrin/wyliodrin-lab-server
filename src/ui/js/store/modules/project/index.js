@@ -279,6 +279,61 @@ module.exports ={
 					Vue.toast.warning({title:'Warning!', message:'Couldn\'t delete file or folder from ' + data.project + '.<br>Server error: ' + e.body.err});
 				return false;
 			}
+		},
+		async getFile (store, data)
+		{
+			try
+			{
+				let response = await Vue.http.post (setup.API+'/projects/files/load', {
+					project: data.project,
+					file: data.file
+				});
+				if (response.data.err === 0) 
+				{
+					return response.data.data;
+				}
+				else
+				{
+					Vue.toast.warning({title:'Warning!', message:'Couldn\'t load '+data.file+'+.<br>Server error: ' + response.data.err});
+					return false;
+				}
+			}
+			catch (e)
+			{
+				if (e.status === 0)
+					Vue.toast.connectionError();
+				else if (e.status >= 500)
+					Vue.toast.warning({title:'Warning!', message:'Couldn\'t load ' + data.file + '.<br>Server error: ' + e.body.err});
+				return false;
+			}
+		},
+		async setFile (store, data)
+		{
+			try
+			{
+				let response = await Vue.http.post (setup.API+'/projects/files/save', {
+					project: data.project,
+					file: data.file,
+					data: data.data
+				});
+				if (response.data.err === 0) 
+				{
+					return true;
+				}
+				else
+				{
+					Vue.toast.warning({title:'Warning!', message:'Couldn\'t save '+data.file+'+.<br>Server error: ' + response.data.err});
+					return false;
+				}
+			}
+			catch (e)
+			{
+				if (e.status === 0)
+					Vue.toast.connectionError();
+				else if (e.status >= 500)
+					Vue.toast.warning({title:'Warning!', message:'Couldn\'t save ' + data.file + '.<br>Server error: ' + e.body.err});
+				return false;
+			}
 		}
 	},
 	mutations: 
@@ -297,12 +352,32 @@ module.exports ={
 		},
 		projectFolder (state, value)
 		{
-			state.projectFolder = [
+			let addEmpty = function (value)
+			{
+				console.log ('addEmpty');
+				console.log (value);
+				if (value.files)
+				{
+					for (let file of value.files)
+					{
+						addEmpty (file);
+					}
+					if (value.files.length === 0) value.files.push ({name: '(empty)', type: 'empty'});
+				}
+				return value;
+			};
+			console.log (addEmpty({
+				name: 'Project',
+				type:'dir',
+				files: value
+			}));
+			state.projectFolder = [addEmpty (
 				{
 					name: 'Project',
 					type:'dir',
 					files: value
 				}
+			)
 			];
 		}
 	}
