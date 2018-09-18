@@ -252,6 +252,34 @@ module.exports ={
 				return false;
 			}
 		},
+		async delFileOrFolder (store, data)
+		{
+			try
+			{
+				let response = await Vue.http.post (setup.API+'/projects/folders/del', {
+					project: data.project,
+					fileOrFolder: data.folder
+				});
+				if (response.data.err === 0) 
+				{
+					store.dispatch ('listProjectFolder');
+					return true;
+				}
+				else
+				{
+					Vue.toast.warning({title:'Warning!', message:'Couldn\'t delete '+data.fileOrFolder+'.<br>Server error: ' + response.data.err});
+					return false;
+				}
+			}
+			catch (e)
+			{
+				if (e.status === 0)
+					Vue.toast.connectionError();
+				else if (e.status >= 500)
+					Vue.toast.warning({title:'Warning!', message:'Couldn\'t delete file or folder from ' + data.project + '.<br>Server error: ' + e.body.err});
+				return false;
+			}
+		}
 	},
 	mutations: 
 	{

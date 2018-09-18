@@ -162,7 +162,7 @@ async function setFile(filePath, userId, project, data) {
 
 /**
  * 
- * @param {String} filePath - the file path relative to the project
+ * @param {String} folder - the folder path relative to the project
  * @param {String} userId - id of the user
  * @param {String} project - name of the project 
  * @param {Object} data - object containing name of file and data from file 
@@ -186,6 +186,40 @@ async function addFolder(folderPath, userId, project) {
 	var normalized_path = pathIsValid.normalizedPath;
 	try {
 		await fs.mkdirs(normalized_path);
+	} catch (err) {
+		console.log('Got error writing file: ', err);
+		return { success: false, message: 'File system error' + err, err: statusCodes.INTERNAL_SERVER_ERROR };
+	}
+
+	return { success: true, err: 0 };
+}
+
+/**
+ * 
+ * @param {String} fileOrFolderPath - the file or folder path relative to the project
+ * @param {String} userId - id of the user
+ * @param {String} project - name of the project 
+ * @param {Object} data - object containing name of file and data from file 
+ */
+async function delFileOrFolder(fileOrFolderPath, userId, project) {
+	try {
+		var projExists = await projectExists(userId, project);
+	} catch (err) {
+		return { success: false, message: 'File System Error' + err, err: statusCodes.INTERNAL_SERVER_ERROR };
+	}
+
+	if (!projExists) {
+		return { success: false, message: 'Project not found', err: statusCodes.BAD_REQUEST };
+	}
+
+	var pathIsValid = await verifyPath(fileOrFolderPath, userId, project);
+	if (!pathIsValid.valid) {
+		return { success: false, message: 'Invalid path', err: statusCodes.BAD_REQUEST };
+	}
+
+	var normalized_path = pathIsValid.normalizedPath;
+	try {
+		await fs.remove(normalized_path);
 	} catch (err) {
 		console.log('Got error writing file: ', err);
 		return { success: false, message: 'File system error' + err, err: statusCodes.INTERNAL_SERVER_ERROR };
@@ -239,7 +273,7 @@ async function getFile(filePath, userId, project) {
 
 /**
  * 
- * @param {String} filePath - the file path relative to the project
+ * @param {String} folder - the folder path relative to the project
  * @param {String} userId - id of the user
  * @param {String} project - name of the project 
  */
@@ -322,7 +356,8 @@ var workspace = {
 	setFile,
 	getFile,
 	getFolder,
-	addFolder
+	addFolder,
+	delFileOrFolder,
 };
 
 module.exports = workspace;
