@@ -8,35 +8,35 @@
 			</ul>
 		</div>
 		<div v-else class="h-100 w-100 m-0 p-0 projectbox">
-			<div>
+			<div class="projectcode">
 				<span>{{project.name}}</span>
 				<a href="#" @click="settings(project)" class="projsettings" data-toggle="tooltip" data-placement="bottom" v-tooltip title="Project settings"><img src="img/icons/settings-icon-16.png"></a>
-				<div class="right">
+				<div class="left">
 					<a @click="showDashboard" :class="{'active':source === false}"><img src="img/dashboard.png"> Dashboard</a>
 					<a @click="showSource" :class="{'active':source}"><img src="img/code.png"> Code</a>
 				</div>
 			</div>
-			<div style="height: 100%; width: 20%; float: left;">
+			<div style="height: 100%; width: 20%; float: left;" class="tree-box">
 				<tree :options="treeOptions" v-model="selectedFile">
 					<span class="tree-container" slot-scope="{ node }" @mouseover="hover (node)" @mouseout="hover(null)">
 						<span class="tree-text">
 							<template v-if="!node.data.type==='dir'">
 								<i class="ion-android-document"></i>
 								{{ node.text }}
-								<div v-if="isHover(node)">
-									<a href="#" @mouseup.stop="renameFile(node)">Rename File</a>
-									<a href="#" @mouseup.stop="deleteFile(node)">Delete</a>
+								<div v-if="isHover(node)" class="explorer-actions">
+									<a href="#" @mouseup.stop="renameFile(node)" data-toggle="tooltip" data-placement="left" v-tooltip title="Rename File"><i class="ion-android-create"></i></a>
+									<a href="#" @mouseup.stop="deleteFile(node)" data-toggle="tooltip" data-placement="left" v-tooltip title="Delete"><i class="ion-android-close"></i></a>
 								</div>
 							</template>
 
 							<template v-else>
 								<i :class="[node.expanded() ? 'ion-android-folder-open' : 'ion-android-folder']"></i>
 								{{ node.text }}
-								<div v-if="isHover(node)">
-									<a href="#" @mouseup.stop="newFile(node)">New File</a>
-									<a href="#" @mouseup.stop="newFolder(node)">New Folder</a>
-									<a href="#" @mouseup.stop="renameFolder(node)">Rename Folder</a>
-									<a href="#" @mouseup.stop="deleteFolder(node)">Delete Folder</a>
+								<div v-if="isHover(node)" class="explorer-actions">
+									<a href="#" @mouseup.stop="newFile(node)" data-toggle="tooltip" data-placement="left" v-tooltip title="New File"><i class="ion-android-document"></i></a>
+									<a href="#" @mouseup.stop="newFolder(node)" data-toggle="tooltip" data-placement="left" v-tooltip title="New Folder"><i class="ion-android-folder"></i></a>
+									<a href="#" @mouseup.stop="renameFolder(node)" data-toggle="tooltip" data-placement="left" v-tooltip title="Rename Folder"><i class="ion-android-create"></i></a>
+									<a href="#" @mouseup.stop="deleteFolder(node)" data-toggle="tooltip" data-placement="left" v-tooltip title="Delete Folder"><i class="ion-android-close"></i></a>
 								</div>
 							</template>
 						</span>
