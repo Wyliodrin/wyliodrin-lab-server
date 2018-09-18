@@ -1,9 +1,9 @@
 var WebSocket = require ('ws');
-var raspberrypi = require('./database/raspberrypi.js');
 var msgpack = require('msgpack5');
 var EventEmitter = require ('events').EventEmitter;
 var _ = require('lodash');
 var db = require('./database/database.js');
+var raspberrypi = db.image;
 
 const EMIT_SOCK_SEND_PREFIX = 'socket:send:';
 

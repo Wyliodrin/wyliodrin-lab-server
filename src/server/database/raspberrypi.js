@@ -245,22 +245,29 @@ async function readImageInfo(filename) {
 		filename = path.normalize(path.resolve(__dirname, filename));
 		if (await fs.pathExists(filename)) {
 			var data = await spawn('file', ['-b', filename]);
-			if (data.exitCode === 0 && data.stderr.toString() === '') {
-				let stdout = data.stdout.toString();
-				imageInfo = splitImageInfo(stdout);
-				if (imageInfo) {
-					imageInfo.id = newImageId(filename);
-					imageInfo.filename = filename;
-					imageInfo.status = 'downloaded';
-					if (await hasServerSetup(imageInfo)) imageInfo.status = 'ok';
+			if (data)
+			{
+				if (data.exitCode === 0 && data.stderr.toString() === '') {
+					let stdout = data.stdout.toString();
+					imageInfo = splitImageInfo(stdout);
+					if (imageInfo) {
+						imageInfo.id = newImageId(filename);
+						imageInfo.filename = filename;
+						imageInfo.status = 'downloaded';
+						if (await hasServerSetup(imageInfo)) imageInfo.status = 'ok';
+					} else {
+						error = 'Image does not have an MBR, FAT and EXT3 partition';
+						console.error('ERROR: ' + error);
+						// TODO load image with status error?
+					}
 				} else {
-					error = 'Image does not have an MBR, FAT and EXT3 partition';
+					error = 'Image file ' + filename + ' is not a Raspberry Pi Image ' + data.stderr;
 					console.error('ERROR: ' + error);
-					// TODO load image with status error?
 				}
-			} else {
-				error = 'Image file ' + filename + ' is not a Raspberry Pi Image ' + data.stderr;
-				console.error('ERROR: ' + error);
+			}
+			else
+			{
+				console.error ('ERROR: "file" is not installed');
 			}
 		} else {
 			error = 'Image file ' + filename + ' does not exist';
