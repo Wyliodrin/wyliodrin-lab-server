@@ -16,16 +16,19 @@
 					<a @click="showSource" :class="{'active':source}"><img src="img/code.png"> Code</a>
 				</div>
 			</div>
-			<div style="height: 100%; width: 20%; float: left;" class="tree-box">
-				<tree :options="treeOptions" v-model="selectedFile">
+			<div class="h-100 w-80">
+				<editor v-show="selectedFile" v-model="fileSource" @init="initEditor" lang="python" theme="monokai" :options="editorOptions"></editor>
+			</div>
+			<div style="height: 100%; width: 20%; float: right;" class="tree-box">
+				<tree :options="treeOptions" v-model="selectedNode">
 					<span class="tree-container" slot-scope="{ node }" @mouseover="hover (node)" @mouseout="hover(null)">
 						<span class="tree-text">
-							<template v-if="!node.data.type==='dir'">
+							<template v-if="!node.hasChildren ()">
 								<i class="ion-android-document"></i>
 								{{ node.text }}
 								<div v-if="isHover(node)" class="explorer-actions">
-									<a href="#" @mouseup.stop="renameFile(node)" data-toggle="tooltip" data-placement="left" v-tooltip title="Rename File"><i class="ion-android-create"></i></a>
-									<a href="#" @mouseup.stop="deleteFile(node)" data-toggle="tooltip" data-placement="left" v-tooltip title="Delete"><i class="ion-android-close"></i></a>
+									<a href="#" v-if="node.text!=='(empty)'" @mouseup.stop="renameFile(node)" data-toggle="tooltip" data-placement="left" v-tooltip title="Rename File"><i class="ion-android-create"></i></a>
+									<a href="#" v-if="node.text!=='(empty)'" @mouseup.stop="del(node)" data-toggle="tooltip" data-placement="left" v-tooltip title="Delete"><i class="ion-android-close"></i></a>
 								</div>
 							</template>
 
@@ -35,16 +38,16 @@
 								<div v-if="isHover(node)" class="explorer-actions">
 									<a href="#" @mouseup.stop="newFile(node)" data-toggle="tooltip" data-placement="left" v-tooltip title="New File"><i class="ion-android-document"></i></a>
 									<a href="#" @mouseup.stop="newFolder(node)" data-toggle="tooltip" data-placement="left" v-tooltip title="New Folder"><i class="ion-android-folder"></i></a>
-									<a href="#" @mouseup.stop="renameFolder(node)" data-toggle="tooltip" data-placement="left" v-tooltip title="Rename Folder"><i class="ion-android-create"></i></a>
-									<a href="#" @mouseup.stop="deleteFolder(node)" data-toggle="tooltip" data-placement="left" v-tooltip title="Delete Folder"><i class="ion-android-close"></i></a>
+									<a href="#" v-if="!node.isRoot()" @mouseup.stop="renameFolder(node)" data-toggle="tooltip" data-placement="left" v-tooltip title="Rename Folder"><i class="ion-android-create"></i></a>
+									<a href="#" v-if="!node.isRoot()" @mouseup.stop="del(node)" data-toggle="tooltip" data-placement="left" v-tooltip title="Delete Folder"><i class="ion-android-close"></i></a>
 								</div>
 							</template>
 						</span>
 					</span>
 				</tree>
 			</div>
-			<iframe :src="'/ide/ace.html?projectId='+base64ProjectId" class="h-100 w-80" v-show="source">
-			</iframe>
+			<!-- <iframe :src="'/ide/ace.html?projectId='+base64ProjectId"  v-show="source">
+			</iframe> -->
 			<iframe id="iframe_freeboard" :src="'/freeboard/freeboard.html?projectId='+project.projectId" class="h-100 w-100" v-show="!source">
 			</iframe>
 		</div>
@@ -58,12 +61,18 @@ var AddProjectModal = require ('./AddProjectModal.vue');
 var SettingsProjectModal = require ('./SettingsProjectModal.vue');
 var $ = require ('jquery');
 var path = require ('path');
+var editor = require ('vue2-ace-editor');
+var blockly = require ('blockly/blockly_compressed.js');
+console.log (blockly);
 module.exports = {
 	name: 'Workspace',
 	data () {
 		return {
 			selectedFile: null,
+			selectedNode: null,
 			hoverNode: null,
+			loadedSource: '',
+			fileSource: '',
 			source: true,
 			reloadFreeboard: false,
 			treeOptions: {
@@ -76,6 +85,9 @@ module.exports = {
 					'children':'files'
 				}
 			},
+			editorOptions: {
+				fontSize: '14pt',
+			}
 		};
 	},
 	methods: {
@@ -90,98 +102,113 @@ module.exports = {
 		{
 			console.log (this.getPath (node));
 			var that = this;
-			Vue.bootbox.prompt ('New Folder Name', async function (result) {
-				if (result)
-				{
-					// TODO full path
-					if (await that.$store.dispatch ('project/newFolder', {
-						project: that.project.name,
-						folder: path.join (that.getPath (node), result)
-					}))
+			Vue.bootbox.prompt ({
+				title: 'New Folder',
+				className: 'regularModal',
+				message: 'Enter the new folder\'s name', 
+				callback: async function (result) {
+					if (result)
 					{
-						that.$store.dispatch ('project/listProjectFolder', that.project.name);
+						// TODO full path
+						if (await that.$store.dispatch ('project/newFolder', {
+							project: that.project.name,
+							folder: path.join (that.getPath (node), result)
+						}))
+						{
+							that.$store.dispatch ('project/listProjectFolder', that.project.name);
+						}
 					}
 				}
 			});
 		},
 
-		newFile ()
+		newFile (node)
 		{
 			var that = this;
-			Vue.bootbox.prompt ('New File Name', function (result) {
-				if (result)
-				{
-					// TODO full path
-					that.$store.dispatch ('project/newFile', {
-						project: this.project,
-						file: result 
-					});
+			Vue.bootbox.prompt ({
+				title: 'New File',
+				className: 'regularModal',
+				message: 'Enter the new file\' name', 
+				callback: function (result) {
+					if (result)
+					{
+						// TODO full path
+						if (that.$store.dispatch ('project/setFile', {
+							project: that.project.name,
+							file: path.join (that.getPath (node), result),
+							data: ''
+						}))
+						{
+							that.$store.dispatch ('project/listProjectFolder', that.project.name);
+						}
+					}
 				}
 			});
 		},
 
 		renameFile (node)
 		{
-			node;
-			// var that = this;
-			// Vue.bootbox.prompt ('New File Name', function (result) {
-			// 	if (result)
-			// 	{
-			// 		// TODO full path
-			// 		that.$store.dispatch ('project/newFile', {
-			// 			project: this.project.name,
-			// 			file: result 
-			// 		});
-			// 	}
-			// });
+			var that = this;
+			Vue.bootbox.prompt ({
+				title: 'Rename',
+				className: 'regularModal',
+				value: node.text,
+				message: 'Enter the new file\'s name',
+				callback: function (result) {
+					if (result)
+					{
+						// TODO full path
+						that.$store.dispatch ('project/renameFile', {
+							project: this.project.name,
+							file: this.getPath (node),
+							name: path.join (this.getPath(node.parent), result)
+						});
+					}
+				}
+			});
 		},
 
 		renameFolder (node)
 		{
-			node;
-			// var that = this;
-			// Vue.bootbox.prompt ('New File Name', function (result) {
-			// 	if (result)
-			// 	{
-			// 		// TODO full path
-			// 		that.$store.dispatch ('project/newFile', {
-			// 			project: this.project.name,
-			// 			file: result 
-			// 		});
-			// 	}
-			// });
+			var that = this;
+			Vue.bootbox.prompt ({
+				title: 'Rename',
+				className: 'regularModal',
+				value: node.text,
+				message: 'Enter the new folder\'s name',
+				callback: function (result) {
+					if (result)
+					{
+						// TODO full path
+						that.$store.dispatch ('project/renameFolder', {
+							project: this.project.name,
+							file: this.getPath (node),
+							name: path.join (this.getPath(node.parent), result)
+						});
+					}
+				}
+			});
 		},
 
-		deleteFile (node)
+		del (node)
 		{
-			node;
-			// var that = this;
-			// Vue.bootbox.prompt ('New File Name', function (result) {
-			// 	if (result)
-			// 	{
-			// 		// TODO full path
-			// 		that.$store.dispatch ('project/newFile', {
-			// 			project: this.project.name,
-			// 			file: result 
-			// 		});
-			// 	}
-			// });
-		},
-
-		deleteFolder (node)
-		{
-			node;
-			// var that = this;
-			// Vue.bootbox.prompt ('New File Name', function (result) {
-			// 	if (result)
-			// 	{
-			// 		// TODO full path
-			// 		that.$store.dispatch ('project/newFile', {
-			// 			project: this.project.name,
-			// 			file: result 
-			// 		});
-			// 	}
-			// });
+			var that = this;
+			Vue.bootbox.confirm ({
+				title: 'Delete',
+				className: 'regularModal',
+				value: node.text,
+				message: 'Are you sure you want to delete '+node.text+' ?',
+				callback: function (result) {
+					if (result)
+					{
+						// TODO full path
+						that.$store.dispatch ('project/del', {
+							project: this.project.name,
+							file: this.getPath (node),
+						});
+					}
+				}
+			});
 		},
 
 		settings ()
@@ -233,7 +260,29 @@ module.exports = {
 			console.log (node);
 			if (node.isRoot ()) return '/';
 			else return path.join (this.getPath (node.parent), node.data.text);
-		}
+		},
+		isFile (node)
+		{
+			// console.log (node);
+			if (node.data && node.data.type === 'file')
+			{
+				return true;
+			}
+			else
+			{
+				return false;
+			}
+		},
+		initEditor (editor)
+		{
+			editor;
+			require('brace/ext/language_tools'); //language extension prerequsite...
+			// require('brace/mode/html');                
+			require('brace/mode/python');    //language
+			require('brace/mode/less');
+			require('brace/theme/monokai');
+			require('brace/snippets/python'); //snippet
+		},
 	},
 	watch: {
 		project ()
@@ -242,6 +291,7 @@ module.exports = {
 			this.showSource ();
 			if (this.source) this.reloadFreeboard = true;
 			else this.reloadFreeboard = false;
+			this.selectedFile = null;
 		},
 		source ()
 		{
@@ -253,9 +303,35 @@ module.exports = {
 				iframeFreeboard.src = iframeFreeboard.src;
 			}
 		},
-		selectedFile ()
+		async selectedNode ()
 		{
-			console.log (this.selectedFile);
+			// console.log (this.selectedNode);
+			if (!this.selectedNode[0].hasChildren() && this.selectedNode[0].text !== '(empty)')
+			{
+				this.selectedFile = this.getPath (this.selectedNode[0]);
+				this.loadedSource = '';
+				this.fileSource = '';
+				let fileData = await this.$store.dispatch ('project/getFile', {
+					project: this.project.name,
+					file: this.selectedFile
+				});
+				if (fileData)
+				{
+					this.loadedSource = new Buffer (fileData, 'base64').toString ();
+					this.fileSource = this.loadedSource;
+				}
+			}
+		},
+		fileSource ()
+		{
+			if (this.loadedSource !== this.fileSource)
+			{
+				this.$store.dispatch ('project/setFile', {
+					project: this.project.name,
+					file: this.selectedFile,
+					data: new Buffer (this.fileSource).toString ('base64')
+				});
+			}
 		}
 	},
 	computed: 
@@ -277,6 +353,9 @@ module.exports = {
 				return null;
 			}
 		}
+	},
+	components: {
+		editor
 	}
 };
 </script>
