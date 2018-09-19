@@ -1,6 +1,6 @@
 'use strict';
 
-var libs = ['bootstrap-notify', 'bootstrap', 'vue', 'bootbox', 'lodash', 'vuex', 'vue-resource', 'vue-router', 'jquery', 'xterm', 'reconnectingwebsocket', 'md5', 'moment', 'xterm', 'vue2-ace-editor', 'liquor-tree'];
+var libs = ['bootstrap-notify', 'bootstrap', 'vue', 'bootbox', 'lodash', 'vuex', 'vue-resource', 'vue-router', 'jquery', 'xterm', 'reconnectingwebsocket', 'md5', 'moment', 'xterm', 'vue2-ace-editor', 'liquor-tree', 'blockly/blockly_compressed.js'];
 
 module.exports = function(grunt) {
 	var tasks = {
