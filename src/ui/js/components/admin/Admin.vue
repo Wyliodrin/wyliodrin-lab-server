@@ -16,7 +16,7 @@
 					<div style="float: left">
 						<div class="my-boards left">
 							<router-link to="/" :class="{'active':activeDashboard}" exact>
-								<img src="img/dashboard.png">
+								<img src="img/dashboard-icon.png">
 								<span> Dashboard</span>
 								<div class="triangle"></div>
 							</router-link>
