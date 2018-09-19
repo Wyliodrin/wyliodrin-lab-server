@@ -1,6 +1,6 @@
-/*var mosca = require ('mosca');
+var mosca = require ('mosca');
 
-log = {error:console.log, info:console.log}
+var log = {error:console.log, info:console.log};
 
 
 
@@ -35,7 +35,7 @@ var authorizeSubscribe = function(client, topic, callback) {
 			}
 		}
 	});
-}
+};
   
 var authorizePublish = function(client, topic, payload, callback) {
 	callback(null, function(){
@@ -68,7 +68,7 @@ var authorizePublish = function(client, topic, payload, callback) {
 			}
 		}
 	});
-}
+};
 
 
 var server = new mosca.Server ({
@@ -85,10 +85,10 @@ server.on ('ready', function ()
 {
 	log.info ('MQTT: Mosca server started');
 	server.authorizePublish = authorizePublish;
-  	server.authorizeSubscribe = authorizeSubscribe;
+	server.authorizeSubscribe = authorizeSubscribe;
 });
 
-server.on('published', function(packet, client) {
+server.on('published', function(packet/*, client*/) {
 	log.info ('MQTT: Published packet '+JSON.stringify({packet: packet}));
 });
 
@@ -100,4 +100,4 @@ server.on('clientConnected', function(client) {
 server.on('clientDisconnected', function(client) {
 	log.info('MQTT: Client Disconnected '+client.id);
 });
-*/
+

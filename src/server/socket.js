@@ -70,9 +70,40 @@ function initSocket(route, server){
 							//board no longer in database
 							socket.close();
 						}
-						
-						
 					}
+					else if (data.t === 'p'){
+						//ping pong
+						let boardIdAway = data.i.boardId;
+
+						if (boardIdAway) {
+							let courseIdAway = data.i.courseId;
+							let userIdAway = data.i.userId;
+							let ipAway = data.i.ip;
+							let statusAway = data.i.status;
+
+							let board = await db.board.boardStatus(boardIdAway, statusAway, ipAway);
+
+							if (status === 'reboot' || status === 'poweroff') db.image.unsetupDelay (boardIdAway);
+
+							if (board) {
+								if (board.courseId !== courseIdAway || board.userId !== userIdAway) {
+									await db.board.boardStatus(boardIdAway, 'desync');
+									send(socket, {t:'p', c:'reboot'});
+								} else {
+									if (board.command) {
+										await db.board.resetCommand(boardIdAway);
+									}
+									send(socket, {t:'p', c:board.command});
+								}
+							} else {
+								send(socket, {t:'e', a:'e', e:'boardregerror'});
+							}
+						} else {
+							send(socket, {t:'e', a:'e', e:'boardiderror'});
+						}
+					
+					}
+
 				}
 
 			}
