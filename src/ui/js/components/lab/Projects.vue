@@ -79,13 +79,13 @@ module.exports = {
 			error: false
 		};
 	},
-	created ()
+	async created ()
 	{
-		var listProjects = this.$store.dispatch ('project/list');
+		var listProjects = await this.$store.dispatch ('project/list');
 		if (listProjects) {
-			this.error = true;
-		} else {
 			this.error = false;
+		} else {
+			this.error = true;
 		}
 	},
 	methods: {

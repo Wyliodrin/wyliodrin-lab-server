@@ -16,8 +16,11 @@
 					<a @click="showSource" :class="{'active':source}"><img src="img/code.png"> Code</a>
 				</div>
 			</div>
-			<div class="h-100 w-80 editor-box">
-				<editor v-show="selectedFile" v-model="fileSource" @init="initEditor" lang="python" theme="monokai" :options="editorOptions"></editor>
+			<div v-show="source && selectedFile" class="h-100 w-80 editor-box" id="sourcePanel">
+				<VisualToolbox></VisualToolbox>
+				<editor v-show="editor" v-model="fileSource" @init="initEditor" lang="python" theme="monokai" :options="editorOptions"></editor>
+				<div id="visual" v-show="visual">
+				</div>
 			</div>
 			<div class="tree-box">
 				<div class="tree-hide-btn"><i></i></div>
@@ -63,8 +66,16 @@ var SettingsProjectModal = require ('./SettingsProjectModal.vue');
 var $ = require ('jquery');
 var path = require ('path');
 var editor = require ('vue2-ace-editor');
-var blockly = require ('blockly/blockly_compressed.js');
-console.log (blockly);
+var blockly = require ('blockly/blockly_compressed_wyliolab.js');
+var Blockly = blockly.Blockly;
+require ('blockly/blocks_compressed_wyliolab.js')(blockly);
+require ('blockly/msg_en_wyliolab.js')(blockly);
+require ('blockly/python_compressed_wyliolab.js')(blockly);
+var VisualToolbox = require ('./VisualToolbox.vue');
+var _ = require ('lodash');
+var onresize = function () {};
+
+console.log (Blockly);
 module.exports = {
 	name: 'Workspace',
 	data () {
@@ -74,6 +85,9 @@ module.exports = {
 			hoverNode: null,
 			loadedSource: '',
 			fileSource: '',
+			visual:false,
+			workspace: null,
+			editor: false,
 			source: true,
 			reloadFreeboard: false,
 			treeOptions: {
@@ -92,6 +106,22 @@ module.exports = {
 		};
 	},
 	methods: {
+		selectFile (filename)
+		{
+			let ext = path.extname (filename);
+			console.log (ext);
+			this.editor = false;
+			this.visual = false;
+			if (ext === '.visual')
+			{
+				this.visual = true;
+			}
+			else
+			{
+				this.editor = true;
+			}
+			this.source = true;
+		},
 		addProject () {
 			Vue.bootbox.dialog (AddProjectModal, {}, {
 				title: 'New Project',
@@ -284,6 +314,48 @@ module.exports = {
 			require('brace/theme/monokai');
 			require('brace/snippets/python'); //snippet
 		},
+		initVisual ()
+		{
+			console.log (this.$el);
+			let sourcePanel = $(this.$el).find ('#sourcePanel')[0];
+			console.log (sourcePanel);
+			let blocklyDiv = $(this.$el).find ('#visual')[0];
+			var workspace = Blockly.inject(blocklyDiv, {
+				toolbox: document.getElementById('toolbox')
+			});
+			this.workspace = workspace;
+			onresize = function(/*e*/) {
+				// Compute the absolute coordinates and dimensions of blocklyArea.
+				var element = sourcePanel;
+				var x = 0;
+				var y = 0;
+				do {
+					x += element.offsetLeft;
+					y += element.offsetTop;
+					element = element.offsetParent;
+				} while (element);
+				// Position blocklyDiv over blocklyArea.
+				blocklyDiv.style.left = x + 'px';
+				blocklyDiv.style.top = y + 'px';
+				blocklyDiv.style.width = sourcePanel.offsetWidth + 'px';
+				blocklyDiv.style.height = sourcePanel.offsetHeight + 'px';
+				Blockly.svgResize(workspace);
+			};
+			window.addEventListener('resize', onresize, false);
+			onresize();
+			Blockly.svgResize(workspace);
+			var that = this;
+			workspace.addChangeListener (function ()
+			{
+				var xml = Blockly.Xml.workspaceToDom (workspace);
+				var visual = Blockly.Xml.domToText (xml);
+				if (that.selectedFile && that.visual)
+				{
+					that.fileSource = visual;
+				}
+				// console.log (code);
+			});
+		}
 	},
 	watch: {
 		project ()
@@ -293,6 +365,14 @@ module.exports = {
 			if (this.source) this.reloadFreeboard = true;
 			else this.reloadFreeboard = false;
 			this.selectedFile = null;
+			if (!this.workspace) 
+			{
+				var that = this;
+				setTimeout (function ()
+				{
+					that.initVisual ();
+				}, 500);
+			}
 		},
 		source ()
 		{
@@ -316,10 +396,21 @@ module.exports = {
 					project: this.project.name,
 					file: this.selectedFile
 				});
-				if (fileData)
+				if (_.isString(fileData))
 				{
 					this.loadedSource = new Buffer (fileData, 'base64').toString ();
+					this.selectFile (this.selectedFile);
 					this.fileSource = this.loadedSource;
+
+					this.workspace.clear ();
+					var that = this;
+					if (this.visual) setTimeout (function ()
+					{
+						var xml = Blockly.Xml.textToDom(that.fileSource);
+						Blockly.Xml.domToWorkspace(xml, Blockly.mainWorkspace);  
+						onresize ();
+						// this.workspace.zoomReset ();
+					}, 500);
 				}
 			}
 		},
@@ -356,7 +447,8 @@ module.exports = {
 		}
 	},
 	components: {
-		editor
+		editor,
+		VisualToolbox
 	}
 };
 </script>
