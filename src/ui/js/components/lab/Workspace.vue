@@ -8,18 +8,19 @@
 			</ul>
 		</div>
 		<div v-else class="h-100 w-100 m-0 p-0 projectbox">
-			<div class="projectcode">
+			<div class="projectcode w-80">
 				<span>{{project.name}}</span>
 				<a href="#" @click="settings(project)" class="projsettings" data-toggle="tooltip" data-placement="bottom" v-tooltip title="Project settings"><img src="img/icons/settings-icon-16.png"></a>
-				<div class="left">
+				<div class="right">
 					<a @click="showDashboard" :class="{'active':source === false}"><img src="img/dashboard.png"> Dashboard</a>
 					<a @click="showSource" :class="{'active':source}"><img src="img/code.png"> Code</a>
 				</div>
 			</div>
-			<div class="h-100 w-80">
+			<div class="h-100 w-80 editor-box">
 				<editor v-show="selectedFile" v-model="fileSource" @init="initEditor" lang="python" theme="monokai" :options="editorOptions"></editor>
 			</div>
-			<div style="height: 100%; width: 20%; float: right;" class="tree-box">
+			<div class="tree-box">
+				<div class="tree-hide-btn"><i></i></div>
 				<tree :options="treeOptions" v-model="selectedNode">
 					<span class="tree-container" slot-scope="{ node }" @mouseover="hover (node)" @mouseout="hover(null)">
 						<span class="tree-text">

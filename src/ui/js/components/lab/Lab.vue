@@ -2,6 +2,16 @@
 	<div>
 		<nav class="navbar navbar-expand-lg navbar-inverse navbar-static-top p-0 w-100" id="slide-nav">
 			<a class="navbar-brand pt-0 pb-0 pl-4" href="index.html"><img src="img/logo.png"></a>
+			<div class="board-connected">
+				<img src="img/pics/raspberry-pi.png">
+				<span>
+					<h4>8b36ab95</h4>
+					<p>192.168.1.34</p>
+				</span>
+				<button><img src="img/device-running.png"></button>
+				<button><img src="img/device-stopped.png"></button>
+
+			</div>
 			<button class="navbar-toggler hidden-sm-up" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
 				<img src="img/icons/menu-icon.png">
 			</button>

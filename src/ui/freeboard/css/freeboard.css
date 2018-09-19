@@ -763,13 +763,13 @@ freeboard
 ============*/
 
 html {
-	background-color: #2e2e2e;
+	background-color: #272822;
 	height: 100%;
 	overflow: hidden;
 }
 
 body {
-	background-color: #1e1e1e;
+	background-color: #272822;
 	color: #8b8b8b;
 	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 	font-size: 14px;
