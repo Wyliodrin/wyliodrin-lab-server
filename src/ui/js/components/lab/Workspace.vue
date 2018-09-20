@@ -97,6 +97,7 @@ module.exports = {
 			visualSource: '',
 			reloadFreeboard: false,
 			treeOptions: {
+				parentSelect: true,
 				store: {
 					store: this.$store,
 					getter: 'project/projectFolder'
