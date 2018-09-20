@@ -2,33 +2,30 @@
 
 var express = require('express');
 var debug = require('debug')('wyliodrin-lab-server:user-routes');
-var uuid = require('uuid');
 var db = require('../database/database.js');
 var error = require('../error.js');
-var redis = require('redis');
-var { promisify } = require('util');
+var tokens = require('./redis-tokens.js');
 
 var publicApp = express.Router();
 var privateApp = express.Router();
 var adminApp = express.Router();
 
-var client = redis.createClient();
 
-// redis functions for login tokens
-const getAsync = promisify(client.get).bind(client);
-const setAsync = promisify(client.set).bind(client);
-const delAsync = promisify(client.del).bind(client);
-const KEY = 'wyliodrin-lab-server:';
+// // redis functions for login tokens
+// const getAsync = promisify(client.get).bind(client);
+// const setAsync = promisify(client.set).bind(client);
+// const delAsync = promisify(client.del).bind(client);
+// const KEY = 'wyliodrin-lab-server:';
 
-client.on('error', function(err) {
-	console.log('Error' + err);
-});
+// client.on('error', function(err) {
+// 	console.log('Error' + err);
+// });
 
 debug.log = console.info.bind(console);
 
-function createToken() {
-	return uuid.v4() + uuid.v4() + uuid.v4() + uuid.v4();
-}
+// function createToken() {
+// 	return uuid.v4() + uuid.v4() + uuid.v4() + uuid.v4();
+// }
 
 publicApp.post('/login', async function(req, res, next) {
 	var e;
@@ -39,8 +36,8 @@ publicApp.post('/login', async function(req, res, next) {
 		let user = await db.user.findByUsernameAndPassword(username, password);
 		if (user) {
 			debug('Found user ' + user);
-			var token = createToken();
-			await setAsync(KEY + token, user.userId);
+			var token = tokens.createToken();
+			await tokens.set(tokens.KEY + token, user.userId);
 			debug('User ' + user.username + ':' + user.userId + ' logged in');
 
 			try {
@@ -89,7 +86,7 @@ async function security(req, res, next) {
 	let user;
 	if (token) {
 		debug('got token', token);
-		var userId = await getAsync(KEY + token);
+		var userId = await tokens.get(tokens.KEY + token);
 		user = await db.user.findByUserId(userId);
 	}
 	if (user) {
@@ -160,7 +157,7 @@ privateApp.post('/password/edit', async function(req, res, next) {
 
 privateApp.get('/logout', async function(req, res) {
 	debug(req.user.userId + ' logged out');
-	await delAsync(KEY + req.token);
+	await tokens.del(tokens.KEY + req.token);
 
 	res.status(200).send({ err: 0 });
 });
