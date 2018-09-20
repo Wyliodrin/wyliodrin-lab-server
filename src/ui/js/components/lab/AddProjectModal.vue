@@ -50,7 +50,7 @@
 					<option v-for="app in applications" :key="app.appId" :value="app.appId">{{app.name}}</option>
 				</select>
 			</div> -->
-			<div class="col-md-12">
+			<div class="col-md-12 pb-3">
 				<button @click="addVisual" class="newprojbtn col-md-6 text-center">
 					<img src="img/vp-btn.png" alt="Visual">
 					<span class="w-100 pt-2">Visual Programming</span>

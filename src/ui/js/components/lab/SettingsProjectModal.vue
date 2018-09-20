@@ -1,5 +1,5 @@
 <template>
-	<div>
+	<span>
 		<div v-show="hasErrors">
 			<div class="alert alert-danger" role="alert" v-show="errors.name">
 				<span class="error">Please enter the Projects's Name</span>
@@ -57,7 +57,7 @@
 				</select>
 			</div> -->
 		</div>
-	</div>
+	</span>
 </template>
 
 <script>

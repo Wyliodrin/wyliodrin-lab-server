@@ -217,7 +217,7 @@ module.exports = {
 		// 		}
 		// 	});
 		// },
-		run (event, product)
+		projectRun (event, product)
 		{
 			if (this.project)
 			{

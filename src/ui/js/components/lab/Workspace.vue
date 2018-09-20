@@ -52,7 +52,7 @@
 			</div>
 			<!-- <iframe :src="'/ide/ace.html?projectId='+base64ProjectId"  v-show="source">
 			</iframe> -->
-			<iframe id="iframe_freeboard" :src="'/freeboard/freeboard.html?projectId='+project.projectId" class="h-100 w-100" v-show="!source">
+			<iframe id="iframe_freeboard" :src="'/freeboard/freeboard.html?projectId='+project.projectId" class="h-100 w-80" v-show="!source">
 			</iframe>
 		</div>
 	</div>
@@ -69,11 +69,16 @@ var editor = require ('vue2-ace-editor');
 var blockly = require ('blockly/blockly_compressed_wyliolab.js');
 var Blockly = blockly.Blockly;
 require ('blockly/blocks_compressed_wyliolab.js')(blockly);
-require ('blockly/msg_en_wyliolab.js')(blockly);
+require ('blockly/msg/js/en_wyliolab.js')(blockly);
 require ('blockly/python_compressed_wyliolab.js')(blockly);
 var VisualToolbox = require ('./VisualToolbox.vue');
 var _ = require ('lodash');
 var onresize = function () {};
+
+require ('../../blockly/definitions_wyliolab.js') (blockly);
+require ('../../blockly/code_wyliolab.js') (blockly);
+
+let saveFile = {};
 
 console.log (Blockly);
 module.exports = {
@@ -89,8 +94,10 @@ module.exports = {
 			workspace: null,
 			editor: false,
 			source: true,
+			visualSource: '',
 			reloadFreeboard: false,
 			treeOptions: {
+				parentSelect: true,
 				store: {
 					store: this.$store,
 					getter: 'project/projectFolder'
@@ -102,6 +109,7 @@ module.exports = {
 			},
 			editorOptions: {
 				fontSize: '14pt',
+				readOnly: true
 			}
 		};
 	},
@@ -121,6 +129,12 @@ module.exports = {
 				this.editor = true;
 			}
 			this.source = true;
+			let readOnly = false;
+			if (filename === '/wylioproject.json') readOnly = true;
+			this.editorOptions = _.assign ({}, this.editorOptions, { 
+				readOnly
+			});
+			console.log ('readOnly: '+this.editorOptions.readOnly);
 		},
 		addProject () {
 			Vue.bootbox.dialog (AddProjectModal, {}, {
@@ -338,7 +352,7 @@ module.exports = {
 				blocklyDiv.style.left = x + 'px';
 				blocklyDiv.style.top = y + 'px';
 				blocklyDiv.style.width = sourcePanel.offsetWidth + 'px';
-				blocklyDiv.style.height = sourcePanel.offsetHeight + 'px';
+				blocklyDiv.style.height = (sourcePanel.offsetHeight - 63) + 'px';
 				Blockly.svgResize(workspace);
 			};
 			window.addEventListener('resize', onresize, false);
@@ -352,6 +366,7 @@ module.exports = {
 				if (that.selectedFile && that.visual)
 				{
 					that.fileSource = visual;
+					that.visualSource = Blockly.Python.workspaceToCode(workspace);
 				}
 				// console.log (code);
 			});
@@ -401,6 +416,7 @@ module.exports = {
 					this.loadedSource = new Buffer (fileData, 'base64').toString ();
 					this.selectFile (this.selectedFile);
 					this.fileSource = this.loadedSource;
+					this.visualSource = '';
 
 					this.workspace.clear ();
 					var that = this;
@@ -418,11 +434,35 @@ module.exports = {
 		{
 			if (this.loadedSource !== this.fileSource)
 			{
-				this.$store.dispatch ('project/setFile', {
-					project: this.project.name,
-					file: this.selectedFile,
-					data: new Buffer (this.fileSource).toString ('base64')
-				});
+				let project = this.project.name;
+				let filename = this.selectedFile;
+				let source = this.fileSource;
+				console.log ('schediule save '+filename);
+				var that = this;
+				clearTimeout (saveFile[filename]);
+				saveFile[filename] = setTimeout (function ()
+				{
+					that.$store.dispatch ('project/setFile', {
+						project: project,
+						file: filename,
+						data: new Buffer (source).toString ('base64')
+					});
+				}, 600);
+				if (this.visual)
+				{
+					let extension = path.extname (this.selectedFile);
+					let filename = this.selectedFile.substring (0, this.selectedFile.length-extension.length)+'.py';
+					let source = this.visualSource;
+					clearTimeout (saveFile[filename]);
+					saveFile[filename] = setTimeout (function ()
+					{
+						that.$store.dispatch ('project/setFile', {
+							project: project,
+							file: filename,
+							data: new Buffer (source).toString ('base64')
+						});
+					}, 600);
+				}
 			}
 		}
 	},
