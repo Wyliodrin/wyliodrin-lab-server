@@ -13,7 +13,7 @@
 				<a href="#" @click="settings(project)" class="projsettings" data-toggle="tooltip" data-placement="bottom" v-tooltip title="Project settings"><img src="img/icons/settings-icon-16.png"></a>
 				<div class="right">
 					<a @click="showDashboard" :class="{'active':source === false}"><img src="img/dashboard.png"> Dashboard</a>
-					<a @click="showSource" :class="{'active':source}"><img src="img/code.png"> Code</a>
+					<a @click="showSource" :class="{'active':source}"><img src="img/code.png"> {{filename}}</a>
 				</div>
 			</div>
 			<div v-show="source && selectedFile" class="h-100 w-80 editor-box" id="sourcePanel">
@@ -31,8 +31,8 @@
 								<i class="ion-android-document"></i>
 								{{ node.text }}
 								<div v-if="isHover(node)" class="explorer-actions">
-									<a href="#" v-if="node.text!=='(empty)'" @mouseup.stop="renameFile(node)" data-toggle="tooltip" data-placement="left" v-tooltip title="Rename File"><i class="ion-android-create"></i></a>
-									<a href="#" v-if="node.text!=='(empty)'" @mouseup.stop="del(node)" data-toggle="tooltip" data-placement="left" v-tooltip title="Delete"><i class="ion-android-close"></i></a>
+									<a href="#" v-if="allowModify (node)" @mouseup.stop="renameFile(node)" data-toggle="tooltip" data-placement="left" v-tooltip title="Rename File"><i class="ion-android-create"></i></a>
+									<a href="#" v-if="allowModify (node)" @mouseup.stop="del(node)" data-toggle="tooltip" data-placement="left" v-tooltip title="Delete"><i class="ion-android-close"></i></a>
 								</div>
 							</template>
 
@@ -174,11 +174,11 @@ module.exports = {
 				title: 'New File',
 				className: 'regularModal',
 				message: 'Enter the new file\' name', 
-				callback: function (result) {
+				callback: async function (result) {
 					if (result)
 					{
 						// TODO full path
-						if (that.$store.dispatch ('project/setFile', {
+						if (await that.$store.dispatch ('project/setFile', {
 							project: that.project.name,
 							file: path.join (that.getPath (node), result),
 							data: ''
@@ -243,14 +243,17 @@ module.exports = {
 				className: 'regularModal',
 				value: node.text,
 				message: 'Are you sure you want to delete '+node.text+' ?',
-				callback: function (result) {
+				callback: async function (result) {
 					if (result)
 					{
 						// TODO full path
-						that.$store.dispatch ('project/del', {
-							project: this.project.name,
-							file: this.getPath (node),
-						});
+						if (await that.$store.dispatch ('project/delFileOrFolder', {
+							project: that.project.name,
+							file: that.getPath (node),
+						}))
+						{
+							that.dispatch ('project/listProjectFolder', that.project.name);
+						}
 					}
 				}
 			});
@@ -370,6 +373,19 @@ module.exports = {
 				}
 				// console.log (code);
 			});
+		},
+		allowModify (node)
+		{
+			let filename = this.getPath(node);
+			console.log ('allow del '+filename);
+			if (node.text === '(empty)') return false;
+			else
+			if (filename === '/wylioproject.json') return false;
+			else
+			if (filename === '/main.py') return false;
+			else
+			if (filename === '/main.visual') return false;
+			else return true;
 		}
 	},
 	watch: {
@@ -470,7 +486,7 @@ module.exports = {
 					}, 600);
 				}
 			}
-		}
+		},
 	},
 	computed: 
 	{
@@ -489,6 +505,17 @@ module.exports = {
 			else
 			{
 				return null;
+			}
+		},
+		filename ()
+		{
+			if (this.selectedFile)
+			{
+				return path.basename(this.selectedFile);
+			}
+			else
+			{
+				return 'Code';
 			}
 		}
 	},

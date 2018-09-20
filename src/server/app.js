@@ -62,8 +62,9 @@ app.get('/', function(req, res) {
 /** */
 app.use(function(err, req, res, next) {
 	next;
+	console.log (err);
 	if (err.status === statusCodes.INTERNAL_SERVER_ERROR) {
-		error.sendError(res, error.serverError('Something went wrong with your request. Try again later!'));
+		error.sendError(res, error.serverError('Something went wrong with your request. ('+err.data.err+')'));
 		debug(err);
 	} else {
 		error.sendError(res, err);
