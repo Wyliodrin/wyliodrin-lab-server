@@ -52,7 +52,7 @@
 			</div>
 			<!-- <iframe :src="'/ide/ace.html?projectId='+base64ProjectId"  v-show="source">
 			</iframe> -->
-			<iframe id="iframe_freeboard" :src="'/freeboard/freeboard.html?projectId='+project.projectId" class="h-100 w-100" v-show="!source">
+			<iframe id="iframe_freeboard" :src="'/freeboard/freeboard.html?projectId='+project.projectId" class="h-100 w-80" v-show="!source">
 			</iframe>
 		</div>
 	</div>
@@ -338,7 +338,7 @@ module.exports = {
 				blocklyDiv.style.left = x + 'px';
 				blocklyDiv.style.top = y + 'px';
 				blocklyDiv.style.width = sourcePanel.offsetWidth + 'px';
-				blocklyDiv.style.height = sourcePanel.offsetHeight + 'px';
+				blocklyDiv.style.height = (sourcePanel.offsetHeight - 63) + 'px';
 				Blockly.svgResize(workspace);
 			};
 			window.addEventListener('resize', onresize, false);
