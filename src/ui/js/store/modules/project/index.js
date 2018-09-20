@@ -366,13 +366,16 @@ module.exports ={
 				}
 				return value;
 			};
-			console.log (addEmpty({
-				name: 'Project',
-				type:'dir',
-				files: value
-			}));
+			// console.log (addEmpty({
+			// 	name: 'Project',
+			// 	type:'dir',
+			// 	files: value
+			// }));
 			state.projectFolder = [addEmpty (
 				{
+					state: {
+						expanded: true,
+					},
 					name: 'Project',
 					type:'dir',
 					files: value

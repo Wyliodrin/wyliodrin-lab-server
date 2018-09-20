@@ -69,7 +69,7 @@ var editor = require ('vue2-ace-editor');
 var blockly = require ('blockly/blockly_compressed_wyliolab.js');
 var Blockly = blockly.Blockly;
 require ('blockly/blocks_compressed_wyliolab.js')(blockly);
-require ('blockly/msg/js/en_wyliolab.js')(blockly);
+require ('blockly/msg_en_wyliolab.js')(blockly);
 require ('blockly/python_compressed_wyliolab.js')(blockly);
 var VisualToolbox = require ('./VisualToolbox.vue');
 var _ = require ('lodash');
@@ -380,14 +380,6 @@ module.exports = {
 			if (this.source) this.reloadFreeboard = true;
 			else this.reloadFreeboard = false;
 			this.selectedFile = null;
-			if (!this.workspace) 
-			{
-				var that = this;
-				setTimeout (function ()
-				{
-					that.initVisual ();
-				}, 500);
-			}
 		},
 		source ()
 		{
@@ -418,15 +410,29 @@ module.exports = {
 					this.fileSource = this.loadedSource;
 					this.visualSource = '';
 
-					this.workspace.clear ();
+					// if (this.workspace) this.workspace.clear ();
 					var that = this;
 					if (this.visual) setTimeout (function ()
 					{
-						var xml = Blockly.Xml.textToDom(that.fileSource);
-						Blockly.Xml.domToWorkspace(xml, Blockly.mainWorkspace);  
+						if (!that.workspace) 
+						{
+							that.initVisual ();
+						}
+						console.log ('clear workspace');
+						Blockly.mainWorkspace.clear ();
+						try
+						{
+							let xml = Blockly.Xml.textToDom(that.fileSource);
+							Blockly.Xml.domToWorkspace(xml, Blockly.mainWorkspace);  
+						}
+						catch (e)
+						{
+							let xml = Blockly.Xml.textToDom('<xml></xml>');
+							Blockly.Xml.domToWorkspace(xml, Blockly.mainWorkspace);
+						}
 						onresize ();
-						// this.workspace.zoomReset ();
-					}, 500);
+						// that.workspace.zoomReset ();
+					});
 				}
 			}
 		},
