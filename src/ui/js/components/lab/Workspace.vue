@@ -69,7 +69,7 @@ var editor = require ('vue2-ace-editor');
 var blockly = require ('blockly/blockly_compressed_wyliolab.js');
 var Blockly = blockly.Blockly;
 require ('blockly/blocks_compressed_wyliolab.js')(blockly);
-require ('blockly/msg_en_wyliolab.js')(blockly);
+require ('blockly/msg/js/en_wyliolab.js')(blockly);
 require ('blockly/python_compressed_wyliolab.js')(blockly);
 var VisualToolbox = require ('./VisualToolbox.vue');
 var _ = require ('lodash');
