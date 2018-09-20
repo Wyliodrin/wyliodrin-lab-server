@@ -54,43 +54,43 @@ async function userCanDisconnectBoard(board, user) {
 	}
 }
 
-remoteApp.post('/exchange', async function(req, res /*, next*/ ) {
-	// var e;
-	// var id = req.body.id;
-	// var ip = req.body.ip;
+// remoteApp.post('/exchange', async function(req, res /*, next*/ ) {
+// 	// var e;
+// 	// var id = req.body.id;
+// 	// var ip = req.body.ip;
 
-	var boardId = req.body.boardId;
+// 	var boardId = req.body.boardId;
 
-	if (boardId) {
-		var courseId = req.body.courseId;
-		var userId = req.body.userId;
-		var status = req.body.status;
-		var ip = req.body.ip;
+// 	if (boardId) {
+// 		var courseId = req.body.courseId;
+// 		var userId = req.body.userId;
+// 		var status = req.body.status;
+// 		var ip = req.body.ip;
 
-		let board = await db.board.boardStatus(boardId, status, ip);
+// 		let board = await db.board.boardStatus(boardId, status, ip);
 
-		if (status === 'reboot' || status === 'poweroff') db.image.unsetupDelay (boardId);
+// 		if (status === 'reboot' || status === 'poweroff') db.image.unsetupDelay (boardId);
 
-		if (board) {
-			console.log (req.body);
-			console.log (board);
-			if (board.courseId !== courseId || board.userId !== userId) {
-				await db.board.boardStatus(boardId, 'desync');
-				res.send({ err: 0, command: 'reboot' });
-			} else {
-				if (board.command) {
-					await db.board.resetCommand(boardId);
-				}
-				res.status(200).send({ err: 0, command: board.command });
-			}
-		} else {
-			error.sendError(res, error.unauthorized('The board should boot from this server'));
-		}
-	} else {
-		error.sendError(res, error.badRequest('Wrong boardId'));
-	}
+// 		if (board) {
+// 			console.log (req.body);
+// 			console.log (board);
+// 			if (board.courseId !== courseId || board.userId !== userId) {
+// 				await db.board.boardStatus(boardId, 'desync');
+// 				res.send({ err: 0, command: 'reboot' });
+// 			} else {
+// 				if (board.command) {
+// 					await db.board.resetCommand(boardId);
+// 				}
+// 				res.status(200).send({ err: 0, command: board.command });
+// 			}
+// 		} else {
+// 			error.sendError(res, error.unauthorized('The board should boot from this server'));
+// 		}
+// 	} else {
+// 		error.sendError(res, error.badRequest('Wrong boardId'));
+// 	}
 
-});
+// });
 
 privateApp.get('/get/:boardId', async function(req, res, next) {
 	var e;
