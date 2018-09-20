@@ -1,5 +1,5 @@
 var WebSocket = require ('ws');
-var msgpack = require('msgpack5');
+var msgpack = require('msgpack5')();
 var EventEmitter = require ('events').EventEmitter;
 var _ = require('lodash');
 var db = require('./database/database.js');
