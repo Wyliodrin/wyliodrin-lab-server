@@ -14,8 +14,8 @@ var boardList = {};
 
 var openCourses = {};
 
-function send(socket, data){
-	socket.send(msgpack.encode(data));
+function send(socket, label, data){
+	socket.send(msgpack.encode(_.assign ({l: label}, data)).toString ('base64'));
 }
 
 function initSocket(route, server){
@@ -75,7 +75,7 @@ function initSocket(route, server){
 					}
 				}
 				else if (authenticated === true){
-					if (data.t === 'b'){
+					if (data.l === 'b'){
 						//shell for users
 						let found = await db.board.findByBoardId(token);
 						if (found !== null){
@@ -87,7 +87,7 @@ function initSocket(route, server){
 							socket.close();
 						}
 					}
-					else if (data.t === 'p'){
+					else if (data.l === 'p'){
 						//ping pong
 						let boardIdAway = data.i.boardId;
 
@@ -153,6 +153,7 @@ function initSocket(route, server){
 
 	socketUsers.on ('connection', function (socket){
 
+		console.log ('connection');
 		let authenticated = false;
 		let token = null;
 		let userId = null;
@@ -167,23 +168,25 @@ function initSocket(route, server){
 			let err = false;
 			try
 			{
-
-				let data =  msgpack.decode (message);
+				console.log (message);
+				let data =  msgpack.decode (new Buffer (message, 'base64'));
+				token = data.token;
 				if (authenticated === false){
 					userId = await tokenLib.get(tokenLib.KEY + token);
 					if (userId !== null){
 						//user found in database
 						authenticated = true;
-						token = data.token;
 						userList.on(EMIT_SOCK_SEND_PREFIX + userId, pushToSocket);
-						
+						send (socket, 'a', {
+							err: 0
+						});
 					}
 					else{
 						socket.close ();
 					}
 				}
 				else if (authenticated === true){
-					if (data.t === 's'){
+					if (data.l === 's'){
 						//shell for courses
 						if (await db.board.findByCourseIdAndTeacher(data.x, userId)){ 
 							//userId (user prof) allowed to modify course data.x
@@ -230,7 +233,7 @@ function initSocket(route, server){
 						}
 					}
 
-					else if (data.t === 'b'){
+					else if (data.l === 'b'){
 						//user shell
 						if (await db.board.findByUserIdAndBoardId(userId, data.b)){ 
 							//userId (user) allowed to use board data.b (board id)
