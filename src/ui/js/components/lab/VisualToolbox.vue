@@ -107,6 +107,35 @@
 			<sep />
 			<category name="Variables" custom="VARIABLE" colour="330" />
 			<category name="Functions" custom="PROCEDURE" colour="290" />
+			<sep />
+			<category name="Pin access" colour="100">
+				<block type="analogread" /> 
+				<block type="digitalread" />
+				<block type="analogwrite" />
+				<block type="digitalwrite" />
+				<block type="pinmode" />
+				<block type="pin" />
+				<block type="start_wyliolab" />
+				<block type="led" /> 
+				<block type="pwm_led" /> 
+				<block type="button" /> 
+				<block type="button_is_pressed" /> 
+				<block type="led_blink" /> 
+				<block type="pwm_on" /> 
+				<block type="button_wait_for_press" /> 
+				<block type="pause" /> 
+				<block type="trafficlight" /> 
+				<block type="turn_on" /> 
+				<block type="turn_off" /> 
+				<block type="traffic_light_on" /> 
+				<block type="traffic_light_off" />
+				<block type="pwm_pulse" />
+				<block type="start_labnetwork" />
+
+
+
+			</category>
+
 		</xml>
 	</code>
 </template>
