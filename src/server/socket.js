@@ -5,6 +5,7 @@ var _ = require('lodash');
 var db = require('./database/database.js');
 var raspberrypi = db.image;
 var url = require ('url');
+var tokenLib = require('./routes/redis-tokens.js');
 
 const EMIT_SOCK_SEND_PREFIX = 'socket:send:';
 
@@ -74,7 +75,7 @@ function initSocket(route, server){
 					}
 				}
 				else if (authenticated === true){
-					if (data.t === 'u'){
+					if (data.t === 'b'){
 						//shell for users
 						let found = await db.board.findByBoardId(token);
 						if (found !== null){
@@ -154,6 +155,7 @@ function initSocket(route, server){
 
 		let authenticated = false;
 		let token = null;
+		let userId = null;
 
 		let pushToSocket = function(data){
 			if (authenticated){
@@ -168,11 +170,12 @@ function initSocket(route, server){
 
 				let data =  msgpack.decode (message);
 				if (authenticated === false){
-					if (await db.user.findByUserId(data.token)){
+					userId = await tokenLib.get(tokenLib.KEY + token);
+					if (userId !== null){
 						//user found in database
 						authenticated = true;
 						token = data.token;
-						userList.on(EMIT_SOCK_SEND_PREFIX + token, pushToSocket);
+						userList.on(EMIT_SOCK_SEND_PREFIX + userId, pushToSocket);
 						
 					}
 					else{
@@ -182,29 +185,29 @@ function initSocket(route, server){
 				else if (authenticated === true){
 					if (data.t === 's'){
 						//shell for courses
-						if (await db.board.findByCourseIdAndTeacher(data.b, token)){ 
-							//token (user prof) allowed to modify course data.b
+						if (await db.board.findByCourseIdAndTeacher(data.x, userId)){ 
+							//userId (user prof) allowed to modify course data.x
 							if (data.a === 'o'){
 								//open
-								let currentCourse = openCourses[token];
+								let currentCourse = openCourses[userId];
 								if (!currentCourse){
-									openCourses[token] = await raspberrypi.setupCourse(data.b, undefined, userList, EMIT_SOCK_SEND_PREFIX + token);
+									openCourses[userId] = await raspberrypi.setupCourse(data.x, undefined, userList, EMIT_SOCK_SEND_PREFIX + userId);
 								}
 							}
 							else if (data.a === 'c'){
 								//close
-								let currentCourse = openCourses[token];
+								let currentCourse = openCourses[userId];
 								if (currentCourse){
 									currentCourse.kill();
 								}
 								else{
 									send(socket, {t:'s', a:'e', e:'noshell'});
 								}
-								openCourses[token] = undefined;
+								openCourses[userId] = undefined;
 							}
 							else if (data.a === 'k'){
 								//key
-								let currentCourse = openCourses[token];
+								let currentCourse = openCourses[userId];
 								if (currentCourse){
 									if (_.isString(data.c) || _.isBuffer (data.c)){
 										currentCourse.write(data.c);
@@ -216,7 +219,7 @@ function initSocket(route, server){
 							}
 							else if (data.a === 'r'){
 								//resize
-								let currentCourse = openCourses[token];
+								let currentCourse = openCourses[userId];
 								if (currentCourse){
 									currentCourse.resize(data.c, data.d);
 								}
@@ -227,10 +230,10 @@ function initSocket(route, server){
 						}
 					}
 
-					else if (data.t === 'u'){
+					else if (data.t === 'b'){
 						//user shell
-						if (await db.board.findByUserIdAndBoardId(token, data.b)){ 
-							//token (user) allowed to use board data.b (board token)
+						if (await db.board.findByUserIdAndBoardId(userId, data.b)){ 
+							//userId (user) allowed to use board data.b (board id)
 							if (boardList[data.b] !== undefined){
 								//board is on
 								send(boardList[data.b], message);
@@ -256,7 +259,7 @@ function initSocket(route, server){
 		});
 
 		socket.on ('close', function (){
-			userList.removeListener(EMIT_SOCK_SEND_PREFIX + token, pushToSocket);
+			userList.removeListener(EMIT_SOCK_SEND_PREFIX + userId, pushToSocket);
 		});
 
 		socket.on ('error', function (e){
