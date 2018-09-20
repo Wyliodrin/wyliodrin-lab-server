@@ -109,27 +109,194 @@
 			<category name="Functions" custom="PROCEDURE" colour="290" />
 			<sep />
 			<category name="Pin access" colour="100">
-				<block type="analogread" /> 
-				<block type="digitalread" />
-				<block type="analogwrite" />
-				<block type="digitalwrite" />
-				<block type="pinmode" />
-				<block type="pin" />
-				<block type="start_wyliolab" />
-				<block type="led" /> 
-				<block type="pwm_led" /> 
-				<block type="button" /> 
-				<block type="button_is_pressed" /> 
-				<block type="led_blink" /> 
-				<block type="pwm_on" /> 
-				<block type="button_wait_for_press" /> 
+
+				<block type="analogread"> 
+					<value name="pin">
+						<block type="pin"/>
+					</value>
+				</block>
+
+				<block type="digitalread">
+					<value name="pin">
+						<block type="pin"/>
+					</value>
+				</block>
+
+				<block type="analogwrite">
+					<value name="pin">
+						<block type="pin"/>
+					</value>
+					<value name="value">
+						<block type="math_number"/>
+					</value>
+				</block>
+
+				<block type="digitalwrite" > 
+					<value name="pin">
+						<block type="pin"/>
+					</value>
+					<value name="value">
+						<block type="logic_boolean"/>
+					</value>
+				</block>
+
+				<block type="pinmode">
+					<value name="NAME">
+						<block type="pin"/>
+					</value>
+				</block>
+
+
+				<block type="variables_set">
+					<field name="VAR">newItem</field>
+					<value name="VALUE">
+						<block type="led">
+							<value name="pin">
+								<block type="pin">
+									<field name="pin">R4</field>
+								</block>
+							</value>
+						</block>
+					</value>
+				</block>
+				
+			
+				<block type="led"> 
+					<value name="pin">
+						<block type="pin"/>
+					</value>
+				</block>
+
+				<block type="pwm_led"> 
+					<value name="led">
+						<block type="pin"/>
+					</value>
+				</block>
+
+				<block type="button">
+					<value name="pin_number">
+						<block type="pin"/>
+					</value>
+				</block>
+
+				<block type="button_is_pressed">
+					<value name="button">
+						<block type="button">
+							<value name="pin_number">
+								<block type="pin"/>
+							</value>
+						</block>
+					</value>
+				</block> 
+
+				<block type="led_blink"> 
+					<value name="led">
+						<block type="led">
+							<value name="pin">
+								<block type="pin"/>
+							</value>
+						</block>
+					</value>
+				</block>
+
+				<block type="pwm_on"> 
+					<value name="pwm_led">
+						<block type="pwm_led">
+							<value name="led">
+								<block type="pin"/>
+							</value>
+						</block>
+					</value>
+					<value name="value">
+						<block type="math_number"/>
+					</value>
+				</block>
+
+				<block type="button_wait_for_press">
+					<value name="button">
+						<block type="button">
+							<value name="pin_number">
+								<block type="pin"/>
+							</value>
+						</block>
+					</value>
+				</block>
+
 				<block type="pause" /> 
-				<block type="trafficlight" /> 
-				<block type="turn_on" /> 
-				<block type="turn_off" /> 
-				<block type="traffic_light_on" /> 
-				<block type="traffic_light_off" />
-				<block type="pwm_pulse" />
+
+				<block type="trafficlight"> 
+					<value name="red">
+						<block type="pin"/>
+					</value>
+					<value name="yellow">
+						<block type="pin"/>
+					</value>
+					<value name="green">
+						<block type="pin"/>
+					</value>
+				</block>
+
+				<block type="turn_on"> 
+					<value name="NAME">
+						<block type="led">
+							<value name="pin">
+								<block type="pin"/>
+							</value>
+						</block>
+					</value>
+				</block>
+
+				<block type="turn_off"> 
+					<value name="NAME">
+						<block type="led">
+							<value name="pin">
+								<block type="pin"/>
+							</value>
+						</block>
+					</value>
+				</block>
+
+				<block type="traffic_light_on"> 
+					<value name="NAME">
+						<block type="trafficlight">
+							<value name="red">
+								<block type="pin"/>
+							</value>
+							<value name="yellow">
+								<block type="pin"/>
+							</value>
+							<value name="green">
+								<block type="pin"/>
+							</value>
+						</block>
+					</value>
+				</block>
+
+				<block type="traffic_light_off">
+					<value name="NAME">
+						<block type="trafficlight">
+							<value name="red">
+								<block type="pin"/>
+							</value>
+							<value name="yellow">
+								<block type="pin"/>
+							</value>
+							<value name="green">
+								<block type="pin"/>
+							</value>
+						</block>
+					</value>
+				</block>
+
+				<block type="pwm_pulse">
+					<value name="pwm_led">
+						<block type="pwm_led">
+							<value name="led">
+								<block type="pin"/>
+							</value>
+						</block>
+					</value>
+				</block>
 				<block type="start_labnetwork" />
 
 

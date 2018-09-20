@@ -53,7 +53,7 @@ Blockly.Blocks['analogread'] = {
 		  .setAlign(Blockly.ALIGN_RIGHT)
 		  .appendField("digitalWrite");
 	  this.appendValueInput("value")
-		  .setCheck("Number")
+		  .setCheck("Boolean")
 		  .setAlign(Blockly.ALIGN_RIGHT)
 		  .appendField("value");
 	  this.setInputsInline(true);
@@ -65,18 +65,20 @@ Blockly.Blocks['analogread'] = {
 	}
   };
   
-  Blockly.Blocks['pinmode'] = {
-	init: function() {
-	  this.appendValueInput("NAME")
-		  .setCheck(["String", "pinNumber"])
-		  .appendField("pinMode");
-	  this.appendDummyInput()
-		  .appendField(new Blockly.FieldDropdown([["INPUT","INPUT"], ["OUTPUT","OUTPUT"]]), "mode");
-	  this.setColour(105);
-   this.setTooltip("");
-   this.setHelpUrl("");
-	}
-  };
+Blockly.Blocks['pinmode'] = {
+  init: function() {
+    this.appendValueInput("NAME")
+        .setCheck(["String", "pinNumber"])
+        .appendField("pinMode");
+    this.appendDummyInput()
+        .appendField(new Blockly.FieldDropdown([["INPUT","INPUT"], ["OUTPUT","OUTPUT"]]), "mode");
+    this.setPreviousStatement(true, null);
+    this.setNextStatement(true, null);
+    this.setColour(105);
+ this.setTooltip("");
+ this.setHelpUrl("");
+  }
+};
   
   Blockly.Blocks['pin'] = {
 	init: function() {
@@ -119,17 +121,8 @@ Blockly.Blocks['analogread'] = {
 	}
   };
   
-  Blockly.Blocks['start_wyliolab'] = {
-	init: function() {
-	  this.appendDummyInput()
-		  .appendField("Start Wyliolab");
-	  this.setNextStatement(true, null);
-	  this.setColour(180);
-   this.setTooltip("");
-   this.setHelpUrl("");
-	}
-  };
-  
+
+
   Blockly.Blocks['led'] = {
 	init: function() {
 	  this.appendValueInput("pin")
@@ -258,7 +251,7 @@ Blockly.Blocks['analogread'] = {
   Blockly.Blocks['turn_on'] = {
 	init: function() {
 	  this.appendValueInput("NAME")
-		  .setCheck(["PWM_LED", "LED", "traffic"])
+		  .setCheck(["PWM_LED", "LED"])
 		  .appendField("Turn on");
 	  this.setPreviousStatement(true, null);
 	  this.setNextStatement(true, null);
@@ -271,7 +264,7 @@ Blockly.Blocks['analogread'] = {
   Blockly.Blocks['turn_off'] = {
 	init: function() {
 	  this.appendValueInput("NAME")
-		  .setCheck(["PWM_LED", "LED", "traffic"])
+		  .setCheck(["PWM_LED", "LED"])
 		  .appendField("Turn off");
 	  this.setPreviousStatement(true, null);
 	  this.setNextStatement(true, null);
