@@ -4,6 +4,7 @@ var EventEmitter = require ('events').EventEmitter;
 var _ = require('lodash');
 var db = require('./database/database.js');
 var raspberrypi = db.image;
+var url = require ('url');
 
 const EMIT_SOCK_SEND_PREFIX = 'socket:send:';
 
@@ -17,18 +18,32 @@ function send(socket, data){
 }
 
 function initSocket(route, server){
-	server.on ('upgrade', function (req)
+	server.on ('upgrade', function (req, socket, head)
 	{
-		console.log (req.headers);
+		const pathname = url.parse(req.url).pathname;
+		if (pathname === route+'/socket/board') 
+		{
+			socketBoards.handleUpgrade(req, socket, head, function done(ws) {
+				socketBoards.emit('connection', ws, req);
+			});
+		} 
+		else 
+		if (pathname === route+'/socket/user') {
+			socketUsers.handleUpgrade(req, socket, head, function done(ws) {
+				socketUsers.emit('connection', ws, req);
+			});
+		} else {
+			socket.destroy();
+		}
 	});
 
 	var socketBoards = new WebSocket.Server ({
-		server,
+		noServer: true,
 		path: route+'/socket/board'
 	});
 
 	var socketUsers = new WebSocket.Server ({
-		server,
+		noServer: true,
 		path: route+'/socket/user'
 	});
 
@@ -83,7 +98,7 @@ function initSocket(route, server){
 
 							let board = await db.board.boardStatus(boardIdAway, statusAway, ipAway);
 
-							if (status === 'reboot' || status === 'poweroff') db.image.unsetupDelay (boardIdAway);
+							if (statusAway === 'reboot' || statusAway === 'poweroff') db.image.unsetupDelay (boardIdAway);
 
 							if (board) {
 								if (board.courseId !== courseIdAway || board.userId !== userIdAway) {
