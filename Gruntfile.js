@@ -1,6 +1,8 @@
 'use strict';
 
-var libs = ['bootstrap-notify', 'bootstrap', 'vue', 'bootbox', 'lodash', 'vuex', 'vue-resource', 'vue-router', 'jquery', 'xterm', 'reconnectingwebsocket', 'md5', 'moment', 'xterm', 'vue2-ace-editor', 'liquor-tree', 'blockly/blockly_compressed.js'];
+var libs = ['bootstrap-notify', 'bootstrap', 'vue', 'bootbox', 'lodash', 'vuex', 'vue-resource', 'vue-router', 'jquery', 'xterm', 'reconnectingwebsocket', 'md5', 'moment', 'xterm', 'vue2-ace-editor', 'liquor-tree', 'blockly/blockly_compressed.js', 'blockly/blocks_compressed_wyliolab.js', 'blockly/msg_en_wyliolab.js', 'blockly/python_compressed_wyliolab.js'];
+
+var fs = require ('fs');
 
 module.exports = function(grunt) {
 	var tasks = {
@@ -10,7 +12,6 @@ module.exports = function(grunt) {
 					'build/ui/js/login.js': ['src/ui/js/login.js'],
 					'build/ui/js/lab.js': ['src/ui/js/lab.js'],
 					'build/ui/js/admin.js': ['src/ui/js/admin.js'],
-					'build/ui/js/ide/ace.js': ['src/ui/js/ide/ace.js']
 				},
 				options: {
 					transform: ['vueify']
@@ -29,7 +30,7 @@ module.exports = function(grunt) {
 				dest: 'build/ui/js/vendor.js',
 				options: {
 					external: null,
-					require: libs
+					require: libs,
 				},
 			},
 			freeboard: {
@@ -41,64 +42,64 @@ module.exports = function(grunt) {
 				}
 			},
 			options: {
-				external: libs
+				external: libs,
 			},
 		},
 
 		copy: {
 			server: {
 				files: [{
-						expand: true,
-						cwd: 'src/server',
-						src: ['**/*'],
-						dest: 'build/server/'
-					},
-					// {
-					// 	expand: true,
-					// 	cwd: 'src/server/bin',
-					// 	src: ['*'],
-					// 	dest: 'build/server/bin/'
-					// },
-					// {
-					// 	expand: true,
-					// 	cwd: 'src/server/database',
-					// 	src: ['*'],
-					// 	dest: 'build/server/database/'
-					// },
-					// {
-					// 	expand: true,
-					// 	cwd: 'src/server/routes',
-					// 	src: ['*'],
-					// 	dest: 'build/server/routes/'
-					// }
+					expand: true,
+					cwd: 'src/server',
+					src: ['**/*'],
+					dest: 'build/server/'
+				},
+				// {
+				// 	expand: true,
+				// 	cwd: 'src/server/bin',
+				// 	src: ['*'],
+				// 	dest: 'build/server/bin/'
+				// },
+				// {
+				// 	expand: true,
+				// 	cwd: 'src/server/database',
+				// 	src: ['*'],
+				// 	dest: 'build/server/database/'
+				// },
+				// {
+				// 	expand: true,
+				// 	cwd: 'src/server/routes',
+				// 	src: ['*'],
+				// 	dest: 'build/server/routes/'
+				// }
 				]
 			},
 			ui: {
 				files: [{
-						expand: true,
-						cwd: 'src/ui/img',
-						src: ['**/*'],
-						dest: 'build/ui/img/'
-					},
-					{
-						expand: true,
-						cwd: 'src/ui',
-						src: ['**/*.html'],
-						dest: 'build/ui'
-					},
-					{
-						expand: true,
-						cwd: 'src/ui/freeboard',
-						src: ['**/*'],
-						dest: 'build/ui/freeboard',
-						extDot: 'first'
-					},
-					{
-						expand: true,
-						cwd: 'src/ui/fonts',
-						src: ['**/*'],
-						dest: 'build/ui/fonts/'
-					},
+					expand: true,
+					cwd: 'src/ui/img',
+					src: ['**/*'],
+					dest: 'build/ui/img/'
+				},
+				{
+					expand: true,
+					cwd: 'src/ui',
+					src: ['**/*.html'],
+					dest: 'build/ui'
+				},
+				{
+					expand: true,
+					cwd: 'src/ui/freeboard',
+					src: ['**/*'],
+					dest: 'build/ui/freeboard',
+					extDot: 'first'
+				},
+				{
+					expand: true,
+					cwd: 'src/ui/fonts',
+					src: ['**/*'],
+					dest: 'build/ui/fonts/'
+				},
 				]
 			},
 
@@ -141,6 +142,25 @@ module.exports = function(grunt) {
 		}
 	};
 
+	grunt.registerTask ('blockly', 'Blockly', function ()
+	{
+		let blockly_compressed = fs.readFileSync ('node_modules/blockly/blockly_compressed.js').toString ();
+		blockly_compressed += '\nmodule.exports = {\n\tBlockly,\n\tgoog\n};';
+		fs.writeFileSync ('node_modules/blockly/blockly_compressed_wyliolab.js', blockly_compressed);
+
+		let blocks_compressed = fs.readFileSync ('node_modules/blockly/blocks_compressed.js').toString ();
+		blocks_compressed = 'module.exports = function (blockly) {\n\tvar Blockly = blockly.Blockly;\n\tvar goog = blockly.goog;\n' + blocks_compressed +'\n};';
+		fs.writeFileSync ('node_modules/blockly/blocks_compressed_wyliolab.js', blocks_compressed);
+
+		let msg_en = fs.readFileSync ('node_modules/blockly/msg/js/en.js').toString ();
+		msg_en = 'module.exports = function (blockly) {\n\tvar Blockly = blockly.Blockly;\n\tvar goog = blockly.goog;\n' + msg_en +'\n};';
+		fs.writeFileSync ('node_modules/blockly/msg_en_wyliolab.js', msg_en);
+
+		let python_compressed = fs.readFileSync ('node_modules/blockly/python_compressed.js').toString ();
+		python_compressed = 'module.exports = function (blockly) {\n\tvar Blockly = blockly.Blockly;\n\tvar goog = blockly.goog;\n' + python_compressed +'\n};';
+		fs.writeFileSync ('node_modules/blockly/python_compressed_wyliolab.js', python_compressed);
+	});
+
 	grunt.initConfig(tasks);
 	grunt.loadNpmTasks('grunt-browserify');
 	grunt.loadNpmTasks('grunt-contrib-less');
@@ -150,7 +170,7 @@ module.exports = function(grunt) {
 
 	grunt.registerTask('server', ['eslint:server', 'copy:server']);
 
-	grunt.registerTask('ui', ['eslint:ui', 'browserify', 'less', 'copy:ui']);
+	grunt.registerTask('ui', ['eslint:ui', 'blockly', 'browserify', 'less', 'copy:ui']);
 
 	grunt.registerTask('docs', ['browserify:docs', 'copy:docs', 'less:docs']);
 	grunt.registerTask('fastui', ['eslint:ui', 'browserify:ui', 'browserify:freeboard']);

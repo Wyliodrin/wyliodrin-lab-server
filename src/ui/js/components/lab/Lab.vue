@@ -5,11 +5,11 @@
 			<div class="board-connected">
 				<img src="img/pics/raspberry-pi.png">
 				<span>
-					<h4>8b36ab95</h4>
-					<p>192.168.1.34</p>
+					<h4>{{board.boardId}}</h4>
+					<p>{{board.ip}}</p>
 				</span>
-				<button><img src="img/device-running.png"></button>
-				<button><img src="img/device-stopped.png"></button>
+				<button v-show="!run"><img src="img/device-running.png"></button>
+				<button v-show="run"><img src="img/device-stopped.png"></button>
 
 			</div>
 			<button class="navbar-toggler hidden-sm-up" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
@@ -51,7 +51,7 @@
 						</div>
 					</div>
 					<div class="user right connected" style="float: right">
-						<a href="#">{{user.name}}Username</a><span class="user-image">
+						<a href="#">{{user.firstName}} {{user.lastName}}</a><span class="user-image">
 						<img :src="gravatar"></span>
 						<div class="triangle"></div>
 						<div class="options-list">
@@ -189,7 +189,7 @@ module.exports = {
 	name: 'Lab',
 	data () {
 		return {
-			
+			run: false
 		};
 	},
 	components: {
@@ -264,6 +264,7 @@ module.exports = {
 	computed: {
 		...mapGetters ({
 			token: 'user/token',
+			board: 'board/board',
 			user: 'user/user',
 			project: 'project/project',
 			// clusters: 'cluster/clusters',
@@ -294,4 +295,4 @@ module.exports = {
 		// });
 	}
 };
-</script>s
+</script>
