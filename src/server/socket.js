@@ -210,11 +210,11 @@ function initSocket(route, server){
 										openCourses[userId][courseId] = undefined;
 									}
 									else{
-										send(socket, 's', {err:'noshell'});
+										send(socket, 's', {id: courseId, err:'noshell'});
 									}
 								}
 								else{
-									send(socket, 's', {err:'noshell'});
+									send(socket, 's', {id: courseId, err:'noshell'});
 								}
 							}
 							else if (data.a === 'k'){
@@ -228,11 +228,11 @@ function initSocket(route, server){
 										}
 									}
 									else{
-										send(socket, 's', {err:'noshell'});
+										send(socket, 's', {id: courseId, err:'noshell'});
 									}
 								}
 								else{
-									send(socket, 's', {err:'noshell'});
+									send(socket, 's', {id: courseId, err:'noshell'});
 								}
 							}
 							else if (data.a === 'r'){
