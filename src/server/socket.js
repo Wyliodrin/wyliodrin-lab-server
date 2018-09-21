@@ -18,6 +18,10 @@ function send(socket, label, data) {
 	socket.send(msgpack.encode(_.assign({ l: label }, data)).toString('base64'));
 }
 
+function forward(socket, data) {
+	socket.send(data);
+}
+
 function initSocket(route, server) {
 	server.on('upgrade', function(req, socket, head) {
 		const pathname = url.parse(req.url).pathname;
@@ -74,7 +78,7 @@ function initSocket(route, server) {
 						let found = await db.board.findByBoardId(token);
 						if (found !== null) {
 							let userToken = found.userId;
-							userList.emit(EMIT_SOCK_SEND_PREFIX + userToken, data);
+							userList.emit(EMIT_SOCK_SEND_PREFIX + userToken, message);
 						} else {
 							//board no longer in database
 							socket.close();
@@ -119,7 +123,7 @@ function initSocket(route, server) {
 				err = true;
 			}
 			if (err) {
-				send(socket, { t: 'e', a: 'e', e: 'servererror' });
+				send(socket, { l: 'e', a: 'e', e: 'servererror' });
 				socket.close();
 			}
 		});
@@ -133,7 +137,7 @@ function initSocket(route, server) {
 
 		socket.on('error', function(e) {
 			console.log('WebSocket error : ' + e);
-			send(socket, { t: 'e', a: 'e', e: 'servererror' });
+			send(socket, { l: 'e', a: 'e', e: 'servererror' });
 		});
 	});
 
@@ -148,13 +152,21 @@ function initSocket(route, server) {
 		let userId = null;
 
 		let pushToSocket = function(label, data) {
-			if (label === 's' && data.a === 'c'){
-				if (openCourses[userId] !== undefined && openCourses[userId][data.id] !== undefined) {
-					openCourses[userId][data.id] = undefined;
+			if (data !== undefined)
+			{
+				if (label === 's' && data.a === 'c'){
+					if (openCourses[userId] !== undefined && openCourses[userId][data.id] !== undefined) {
+						openCourses[userId][data.id] = undefined;
+					}
+				}
+				if (authenticated) {
+					send(socket, label, data);
 				}
 			}
-			if (authenticated) {
-				send(socket, label, data);
+			else
+			{
+				data = label;
+				forward (socket, data);
 			}
 		};
 
@@ -211,8 +223,8 @@ function initSocket(route, server) {
 								if (userShells !== undefined) {
 									let currentCourse = openCourses[userId][courseId];
 									if (currentCourse) {
-										if (_.isString(data.t) || _.isBuffer(data.t)) {
-											currentCourse.write(data.t);
+										if (_.isString(data.k) || _.isBuffer(data.k)) {
+											currentCourse.write(data.k);
 										}
 									} else {
 										send(socket, 's', { a: 'e', id: courseId, err: 'noshell' });
@@ -239,11 +251,11 @@ function initSocket(route, server) {
 						}
 					} else if (data.l === 'b') {
 						//user shell
-						if (await db.board.findByUserIdAndBoardId(userId, data.b)) {
+						if (await db.board.findByUserIdAndBoardId(userId, data.id)) {
 							//userId (user) allowed to use board data.b (board id)
-							if (boardList[data.b] !== undefined) {
+							if (boardList[data.id] !== undefined) {
 								//board is on
-								send(boardList[data.b], 'b', message);
+								forward(boardList[data.id], message);
 							} else {
 								send(socket, 'b', { err: 'noboard' });
 							}

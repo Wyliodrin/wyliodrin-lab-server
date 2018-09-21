@@ -40,7 +40,7 @@ privateApp.get('/', async function(req, res, next) {
 	var userId = req.user.userId;
 
 	try {
-		var courses = await db.course.findByStudentId(userId);
+		var courses = await db.course.findByUserId(userId);
 		for (var course of courses) {
 			delete course.__v;
 			delete course._id;

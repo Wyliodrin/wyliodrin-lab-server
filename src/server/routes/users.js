@@ -173,7 +173,7 @@ privateApp.post('/connect', async function(req, res, next) {
 	} else {
 		try {
 			var board = await db.board.findByBoardId(boardId);
-			var course = await db.course.findByCourseIdAndStudentId(courseId, userId);
+			var course = await db.course.findByCourseAndUserId(courseId, userId);
 		} catch (err) {
 			e = error.serverError(err);
 			next(e);

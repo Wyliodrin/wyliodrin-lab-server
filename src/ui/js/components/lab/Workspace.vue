@@ -18,7 +18,7 @@
 			</div>
 			<div v-show="source && selectedFile" class="h-100 w-80 editor-box" id="sourcePanel">
 				<VisualToolbox></VisualToolbox>
-				<editor v-show="editor" v-model="fileSource" @init="initEditor" lang="python" theme="monokai" :options="editorOptions"></editor>
+				<editor v-show="editor" v-model="fileSource" @init="initEditor" :lang="sourceLanguage" theme="monokai" :options="editorOptions"></editor>
 				<div id="visual" v-show="visual">
 				</div>
 			</div>
@@ -93,6 +93,7 @@ module.exports = {
 			visual:false,
 			workspace: null,
 			editor: false,
+			sourceLanguage: 'python',
 			source: true,
 			visualSource: '',
 			reloadFreeboard: false,
@@ -127,6 +128,8 @@ module.exports = {
 			else
 			{
 				this.editor = true;
+				if (ext === '.py') this.sourceLanguage = 'python';
+				if (ext === '.js') this.sourceLanguage = 'javascript';
 			}
 			this.source = true;
 			let readOnly = false;
@@ -327,6 +330,7 @@ module.exports = {
 			require('brace/ext/language_tools'); //language extension prerequsite...
 			// require('brace/mode/html');                
 			require('brace/mode/python');    //language
+			require('brace/mode/javascript');    //language
 			require('brace/mode/less');
 			require('brace/theme/monokai');
 			require('brace/snippets/python'); //snippet

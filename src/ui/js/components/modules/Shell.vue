@@ -41,53 +41,60 @@ $(window).resize (function ()
 	}
 });
 
-Vue.socket.on ('s', function (data)
+function executeShell (data)
 {
-	if (data.id)
+	if (data.l === 's' || (data.l === 'b' && data.t === 's'))
 	{
-		let shellData = shells [data.id];
-		if (shellData)
+		if (data.id)
 		{
-			let shell = shellData.shell;
-			if (data.a === 'e')
+			let shellData = shells [data.id];
+			if (shellData)
 			{
-				if (data.err === 'noshell')
+				let shell = shellData.shell;
+				if (data.a === 'e')
 				{
-					console.log ({
-						t: 's',
-						id: data.id,
-						a: 'o',
-						c: shell.cols,
-						r: shell.rows
-					});
-					Vue.socket.send ('s', {
-						id: data.id,
-						a: 'o',
-						c: shell.cols,
-						r: shell.rows
-					});			
+					if (data.err === 'noshell')
+					{
+						console.log ({
+							t: 's',
+							id: data.id,
+							a: 'o',
+							c: shell.cols,
+							r: shell.rows
+						});
+						Vue.socket.send (data.l, {
+							t: 's',
+							id: data.id,
+							a: 'o',
+							c: shell.cols,
+							r: shell.rows
+						});			
+					}
+				}
+				else
+				if (data.a === 'k')
+				{
+					shell.write (data.k);
 				}
 			}
 			else
-			if (data.a === 'k')
 			{
-				shell.write (data.t);
+				console.error ('Shell data with id '+data.id+' does not exist');
 			}
 		}
 		else
 		{
-			console.error ('Shell data with id '+data.id+' does not exist');
+			console.error ('Shell data without id received');
 		}
 	}
-	else
-	{
-		console.error ('Shell data without id received');
-	}
-});
+}
+
+Vue.socket.on ('s', executeShell);
+Vue.socket.on ('b', executeShell);
 
 module.exports = {
 	name: 'Shell',
-	props: ['courseId'],
+	props: ['courseId', 'boardId'],
 	data ()
 	{
 		return {
@@ -123,13 +130,25 @@ module.exports = {
 	components: {
 		HalfCircleSpinner
 	},
+	computed: {
+		l ()
+		{
+			if (this.courseId) return 's';
+			else return 'b';
+		},
+		id ()
+		{
+			if (this.courseId) return this.courseId;
+			else return this.boardId;
+		}
+	},
 	methods: {
 		start ()
 		{
 			this.starter = false;
 			this.exit ();
 			let shell = new xterm.Terminal ();
-			shells[this.courseId] = {
+			shells[this.id] = {
 				shell
 			};
 			shell.open (this.$el);
@@ -138,17 +157,18 @@ module.exports = {
 			var that = this;
 			shell.on ('data', function (data)
 			{
-				Vue.socket.send ('s', {
-					id: that.courseId,
+				Vue.socket.send (that.l, {
+					t: 's',
+					id: that.id,
 					a:'k',
-					t:data
+					k:data
 				});
 			});
 		},
 		exit ()
 		{
-			if (shells[this.courseId]) shells[this.courseId].shell.destroy ();
-			delete shells[this.courseId];
+			if (shells[this.id]) shells[this.id].shell.destroy ();
+			delete shells[this.id];
 			// Vue.socket.removeListener ('packet:'+productId, packet);
 			// shell.destroy ();
 			return true;
