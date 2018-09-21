@@ -10,6 +10,7 @@
 				</span>
 				<button v-show="!run"><img src="img/device-running.png"></button>
 				<button v-show="run"><img src="img/device-stopped.png"></button>
+				<button @click="shell" data-toggle="modal" data-target="#shell"><img src="img/device-running.png"></button>
 
 			</div>
 			<button class="navbar-toggler hidden-sm-up" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
@@ -76,6 +77,7 @@
 			</div>
 		</div>-->
 
+		<BoardShell v-if="board" :boardId="board.boardId"></BoardShell>
 		<Projects></Projects>
 		<!-- <UserSettings></UserSettings> -->
 		
@@ -178,6 +180,7 @@
 var Vue = require ('vue');
 var Workspace = require ('./Workspace.vue');
 var Projects = require ('./Projects.vue');
+var BoardShell = require ('./BoardShell.vue');
 // var UserSettings = require ('../modules/UserSettings.vue');
 // var ProvisionModal = require ('../modules/ProvisionModal.vue');
 var mapGetters = require ('vuex').mapGetters;
@@ -194,6 +197,7 @@ module.exports = {
 		};
 	},
 	components: {
+		BoardShell,
 		Workspace,
 		Projects,
 	},
