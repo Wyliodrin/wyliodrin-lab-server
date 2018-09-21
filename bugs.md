@@ -23,7 +23,7 @@
 * Stânga sus, boards are imaginea de la users, nu de boards
 
 ### Courses
-* Remove course nu merge
+* Remove course nu merge. Lista de boards este goala dar primești mesaj "Please disconnect all boards". 
 * Daca am setat o imagine pentru curs, nu o pot deasigna
 
 
