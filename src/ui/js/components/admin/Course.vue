@@ -204,7 +204,7 @@
 					</div>
 					<div class="tab-pane fade" id="software" role="tabpanel" aria-labelledby="software-tab">
 						<h4>Software</h4>
-						<div>
+						<div class="w-100 h-100">
 							<div class="input-group mb-3">
 								<div class="input-group-prepend">
 									<span class="input-group-text" id="inputGroup-sizing-default">Image</span>
@@ -214,6 +214,9 @@
 								</select>
 							</div>
 							<a @click="changeImage">Change Image</a>
+							<a @click="setupImage">Setup Image</a>
+							<Shell v-if="setup" :courseId="course.courseId">
+							</Shell>
 						</div>
 					</div>
 				</div>
@@ -233,15 +236,18 @@ var _ = require ('lodash');
 var timeout = null;
 var md5 = require ('md5');
 var moment = require ('moment');
+var Shell = require ('../modules/Shell.vue');
 module.exports = {
 	name: 'Course',
 	data ()
 	{
 		return {
-			imageId: null
+			imageId: null,
+			setup: false
 		};
 	},
 	components: {
+		Shell,
 		HalfCircleSpinner
 	},
 	async created () {
@@ -294,7 +300,7 @@ module.exports = {
 	methods: {
 		gravatar (user, size)
 		{
-			console.log (user);
+			// console.log (user);
 			return 'https://www.gravatar.com/avatar/'+md5 (user.email)+'?d=mp&s='+size;
 		},
 		addNewStudent () {
@@ -438,6 +444,10 @@ module.exports = {
 				Vue.bootbox.alert ('Please disconnect all the boards before deleteing the course');
 			}
 		},
+		setupImage ()
+		{
+			this.setup = true;
+		}
 	},
 	destroyed ()
 	{

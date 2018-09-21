@@ -23,9 +23,11 @@ module.exports.install = function (Vue)
 		{
 			if (socket && (authenticated || label === 'a'))
 			{
-				socket.send (msgpack.encode (_.assign ({
+				let packet = _.assign ({
 					l:label, 
-				}, data)).toString ('base64'));
+				}, data);
+				console.log (packet);
+				socket.send (msgpack.encode (packet).toString ('base64'));
 			}
 			else
 			{
@@ -60,7 +62,7 @@ module.exports.install = function (Vue)
 			socket.onmessage = function (evt)
 			{
 				let m = evt.data;
-				console.log (m);
+				// console.log (m);
 				try
 				{
 					let data = msgpack.decode (new Buffer (m, 'base64'));
@@ -83,7 +85,7 @@ module.exports.install = function (Vue)
 					// }
 					else
 					{
-						Vue.socket.emit (data.l, data.d);
+						Vue.socket.emit (data.l, data);
 					}
 				}
 				catch (e)

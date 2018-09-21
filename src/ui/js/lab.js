@@ -10,6 +10,7 @@ var $ = require ('jquery');
 var bootbox = require ('./vue-bootbox.js');
 Vue.use (bootbox);
 
+// socket
 var socket = require ('./vue-socket.js');
 Vue.use (socket);
 

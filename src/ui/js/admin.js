@@ -12,6 +12,10 @@ Vue.mixin({
 	store
 });
 
+// socket
+var socket = require ('./vue-socket.js');
+Vue.use (socket);
+
 var Admin = require ('./components/admin/Admin.vue');
 var Loading = require ('./components/Loading.vue');
 
@@ -95,7 +99,7 @@ new Vue({
 		else
 		{
 			this.loading = false;
-			// Vue.socket.connect (this.$store.getters ['user/token']);
+			Vue.socket.connect (this.$store.getters ['user/token']);
 		}
 	}
 });
