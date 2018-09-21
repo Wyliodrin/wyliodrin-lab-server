@@ -80,7 +80,7 @@ function boardStatus(boardId, status, ip) {
 	let update = {
 		status
 	};
-	if (ip) update.ip = ip;
+	if (ip !== undefined) update.ip = ip;
 	return Board.findOneAndUpdate({ boardId }, { $set: update, lastInfo: Date.now() }, { upsert: true, setDefaultsOnInsert: true, new: true }).lean();
 }
 

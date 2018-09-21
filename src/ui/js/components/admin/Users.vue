@@ -74,7 +74,7 @@
 				</thead>
 				<tbody class="users-list">
 					<tr v-for="user in filterUsers" :key="user.userId" @click="editUser (user.userId)" class="handpointer">
-						<td class="user-pic" style="width:70px"><img src="img/pics/boy.png" class="ml-2"></td>
+						<td class="user-pic" style="width:70px"><img :src="gravatar(user, 32)" class="ml-2"></td>
 						<td>{{user.firstName+' '+user.lastName}}</td>
 						<td class="text-center">{{user.username}}</td>
 						<td class="text-center">{{user.email}}</td>
@@ -97,6 +97,7 @@ var AddUserModal = require ('./AddUserModal.vue');
 var mapGetters = require('vuex').mapGetters;
 
 var _ = require ('lodash');
+var md5 = require ('md5');
 
 var HalfCircleSpinner = require ('epic-spinners/dist/lib/epic-spinners.min.js').HalfCircleSpinner;
 
@@ -169,6 +170,11 @@ module.exports = {
 				return recvUser.firstName;
 			else
 				return null;
+		},
+		gravatar (user, size)
+		{
+			// console.log (user);
+			return 'https://www.gravatar.com/avatar/'+md5 (user.email)+'?d=mp&s='+size;
 		},
 	},
 	computed: {

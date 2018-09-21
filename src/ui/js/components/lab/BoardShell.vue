@@ -14,7 +14,7 @@
 					<div class="pointer"></div>
 				</div>
 				<div class="modal-body w-100 h-100">
-					<Shell :boardId="boardId">
+					<Shell v-if="init" :boardId="boardId">
 					</Shell>
 				</div>
 
@@ -26,7 +26,7 @@
 <script>
 var Shell = require ('../modules/Shell.vue');
 module.exports = {
-	props: ['boardId'],
+	props: ['boardId', 'init'],
 	name: 'BoardShell',
 	data () {
 		return {

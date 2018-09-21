@@ -10,7 +10,7 @@
 				</span>
 				<button v-show="!run"><img src="img/device-running.png"></button>
 				<button v-show="run"><img src="img/device-stopped.png"></button>
-				<button @click="shell" data-toggle="modal" data-target="#shell"><img src="img/device-running.png"></button>
+				<button @click="shellRun" data-toggle="modal" data-target="#shell"><img src="img/device-running.png"></button>
 
 			</div>
 			<button class="navbar-toggler hidden-sm-up" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
@@ -56,10 +56,10 @@
 						<img :src="gravatar"></span>
 						<div class="triangle"></div>
 						<div class="options-list">
-							<a href="/docs" target="_blank" data-toggle="tooltip" data-placement="bottom" v-tooltip title="Documentation" class="doc-link"><img src="img/icon-tutorial.png"></a>
+							<!-- <a href="/docs" target="_blank" data-toggle="tooltip" data-placement="bottom" v-tooltip title="Documentation" class="doc-link"><img src="img/icon-tutorial.png"></a> -->
 							<!-- <a href="#" data-toggle="tooltip" data-placement="bottom" v-tooltip title="Take the tour"><img src="img/icon-tour.png"></a>
 							<a href="#" data-toggle="tooltip" data-placement="bottom" v-tooltip title="Notifications"><img src="img/icon-notification.png">  </a> -->
-							<a href="#" data-toggle="modal" data-placement="bottom" v-tooltip title="Settings" data-target="#settingsModal" class="settings-link"><img src="img/icon-settings.png"></a>
+							<!-- <a href="#" data-toggle="modal" data-placement="bottom" v-tooltip title="Settings" data-target="#settingsModal" class="settings-link"><img src="img/icon-settings.png"></a> -->
 							<a href="/admin.html" target="_blank" v-if="user.role === 'admin'" data-placement="bottom" v-tooltip title="Admin" class="settings-link"><img src="img/icon-settings.png"></a>
 							<a data-toggle="tooltip" data-placement="bottom" v-tooltip title="Logout" class="logout-link" @click="logout"><img src="img/icon-logoff.png"></a>
 						</div>
@@ -77,7 +77,7 @@
 			</div>
 		</div>-->
 
-		<BoardShell v-if="board" :boardId="board.boardId"></BoardShell>
+		<BoardShell v-if="board" :boardId="board.boardId" :init="shell"></BoardShell>
 		<Projects></Projects>
 		<!-- <UserSettings></UserSettings> -->
 		
@@ -193,6 +193,7 @@ module.exports = {
 	name: 'Lab',
 	data () {
 		return {
+			shell: false,
 			run: false
 		};
 	},
@@ -222,6 +223,11 @@ module.exports = {
 		// 		}
 		// 	});
 		// },
+		shellRun ()
+		{
+			console.log ('shellRun');
+			this.shell = true;
+		},
 		projectRun (event, product)
 		{
 			if (this.project)

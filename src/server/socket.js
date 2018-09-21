@@ -60,7 +60,7 @@ function initSocket(route, server) {
 
 				let data = msgpack.decode(new Buffer(message, 'base64'));
 				if (authenticated === false) {
-					if (await db.board.findByBoardId(data.token)) {
+					if (await db.board.boardStatus(data.token, 'online', socket._socket.remoteAddress)) {
 						//board found in database
 						authenticated = true;
 						token = data.token;
@@ -91,7 +91,7 @@ function initSocket(route, server) {
 							let courseIdAway = data.i.courseId;
 							let userIdAway = data.i.userId;
 							let ipAway = data.i.ip;
-							let statusAway = data.i.status;
+							let statusAway = data.i.status || 'online';
 
 							let board = await db.board.boardStatus(boardIdAway, statusAway, ipAway);
 
@@ -129,7 +129,7 @@ function initSocket(route, server) {
 		});
 
 		socket.on('close', async function() {
-			await db.board.boardStatus(token, 'offline');
+			await db.board.boardStatus(token, 'offline', null);
 			if (boardList[token] === undefined) {
 				console.log('Websocket closing and not in database for board ' + token);
 			}
