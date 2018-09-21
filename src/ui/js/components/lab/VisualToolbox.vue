@@ -297,7 +297,7 @@
 						</block>
 					</value>
 				</block>
-				<block type="start_labnetwork" />
+				<!-- <block type="start_labnetwork" /> -->
 
 
 

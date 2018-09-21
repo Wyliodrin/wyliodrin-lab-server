@@ -130,7 +130,7 @@ Blockly.Python['analogread'] = function(block) {
   Blockly.Python['pause'] = function(block) {
   	Blockly.Python.setUp();
 	// TODO: Assemble Python into code variable.
-	var code = '...\n';
+	var code = 'pause()';
 	return code;
   };
   
