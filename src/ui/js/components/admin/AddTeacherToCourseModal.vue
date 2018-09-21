@@ -26,7 +26,7 @@
 						<td class="text-center col-md-6">{{user.firstName+' '+user.lastName}}</td>
 						<td class="text-center col-md-3">{{user.username}}</td>
 						<td class="text-center col-md-3">
-							<a v-tooltip data-toggle="tooltip" data-placement="top" title="Add Student" @click="add(user)"><img src="img/icons/add.png"></a>
+							<a v-tooltip data-toggle="tooltip" data-placement="top" title="Add Teacher" @click="add(user)"><img src="img/icons/add.png"></a>
 						</td>
 					</tr>
 				</tbody>
