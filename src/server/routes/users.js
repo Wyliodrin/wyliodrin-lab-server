@@ -37,7 +37,7 @@ publicApp.post('/login', async function(req, res, next) {
 		if (user) {
 			debug('Found user ' + user);
 			var token = tokens.createToken();
-			await tokens.set(tokens.KEY + token, user.userId);
+			await tokens.set(token, user.userId);
 			debug('User ' + user.username + ':' + user.userId + ' logged in');
 
 			try {
@@ -86,7 +86,7 @@ async function security(req, res, next) {
 	let user;
 	if (token) {
 		debug('got token', token);
-		var userId = await tokens.get(tokens.KEY + token);
+		var userId = await tokens.get(token);
 		user = await db.user.findByUserId(userId);
 	}
 	if (user) {
@@ -157,7 +157,7 @@ privateApp.post('/password/edit', async function(req, res, next) {
 
 privateApp.get('/logout', async function(req, res) {
 	debug(req.user.userId + ' logged out');
-	await tokens.del(tokens.KEY + req.token);
+	await tokens.del(req.token);
 
 	res.status(200).send({ err: 0 });
 });

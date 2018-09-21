@@ -17,8 +17,19 @@ client.on('error', function(err) {
 	console.log('Error' + err);
 });
 
-module.exports.get = getAsync;
-module.exports.set = setAsync;
-module.exports.del = delAsync;
-module.exports.KEY = KEY;
+function set(key, value) {
+	return setAsync(KEY + key, value);
+}
+
+function get(key) {
+	return getAsync(KEY + key);
+}
+
+function del(key) {
+	return delAsync(KEY + key);
+}
+
+module.exports.get = get;
+module.exports.set = set;
+module.exports.del = del;
 module.exports.createToken = createToken;
