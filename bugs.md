@@ -20,6 +20,7 @@
 * Toate elementele din tabelul de boards sunt deplasate spre dreapta. Trebuie aranjate
 * Disconnect board nu șterge board din lista / schimba status la disconnected. 
 * Status boards nu se updatează
+* Stânga sus, boards are imaginea de la users, nu de boards
 
 ### Courses
 * Remove course nu merge
