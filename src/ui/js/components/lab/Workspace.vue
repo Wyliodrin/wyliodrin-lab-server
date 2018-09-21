@@ -8,7 +8,7 @@
 			</ul>
 		</div>
 		<div v-else class="h-100 w-100 m-0 p-0 projectbox">
-			<div class="projectcode w-80">
+			<div class="projectcode w-80 h-80">
 				<span>{{project.name}}</span>
 				<a href="#" @click="settings(project)" class="projsettings" data-toggle="tooltip" data-placement="bottom" v-tooltip title="Project settings"><img src="img/icons/settings-icon-16.png"></a>
 				<div class="right">
@@ -16,7 +16,13 @@
 					<a @click="showSource" :class="{'active':source}"><img src="img/code.png"> Code</a>
 				</div>
 			</div>
-			<div v-show="source && selectedFile" class="h-100 w-80 editor-box" id="sourcePanel">
+			<div class="h-20 w-80 editor-console">
+				<pre>Compiling
+					<div class="console-hide-btn"><i></i></div>
+				</pre>
+				
+			</div>
+			<div v-show="source && selectedFile" class="h-80 w-80 editor-box" id="sourcePanel">
 				<VisualToolbox></VisualToolbox>
 				<editor v-show="editor" v-model="fileSource" @init="initEditor" lang="python" theme="monokai" :options="editorOptions"></editor>
 				<div id="visual" v-show="visual">
