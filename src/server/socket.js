@@ -254,7 +254,7 @@ function initSocket(route, server){
 							}
 						}
 						else{
-							send(socket, 's', {id: courseId, err:'noteacher'});
+							send(socket, 's', {id: data.id, err:'noteacher'});
 						}
 					}
 
