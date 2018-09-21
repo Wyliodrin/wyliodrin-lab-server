@@ -209,12 +209,12 @@
 								<div class="input-group-prepend">
 									<span class="input-group-text" id="inputGroup-sizing-default">Image</span>
 								</div>
-								<select name="image" class="custom-select" v-model="imageId">
+								<select name="image" class="custom-select" v-model="imageId" :disabled="setup">
 									<option v-for="image in images" :key="image.id" :value="image.id">{{image.filename}}</option>
 								</select>
 							</div>
-							<a @click="changeImage">Change Image</a>
-							<a @click="setupImage">Setup Image</a>
+							<a v-if="change" @click="changeImage">Change Image</a>
+							<a v-if="!change" @click="setupImage">Setup Image</a>
 							<Shell v-if="setup" :courseId="course.courseId">
 							</Shell>
 						</div>
@@ -243,7 +243,8 @@ module.exports = {
 	{
 		return {
 			imageId: null,
-			setup: false
+			setup: false,
+			chnage: false
 		};
 	},
 	components: {
@@ -463,6 +464,20 @@ module.exports = {
 			else
 			{
 				this.imageId = null;
+			}
+		},
+		imageId ()
+		{
+			if (this.course)
+			{
+				if (this.course.imageId !== this.imageId)
+				{
+					this.change = true;
+				}
+				else
+				{
+					this.change = false;
+				}
 			}
 		}
 	}
