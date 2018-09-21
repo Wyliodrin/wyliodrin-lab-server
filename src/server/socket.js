@@ -158,9 +158,9 @@ function initSocket(route, server){
 		let token = null;
 		let userId = null;
 
-		let pushToSocket = function(data){
+		let pushToSocket = function(label, data){
 			if (authenticated){
-				send(socket, data);
+				send(socket, label, data);
 			}
 		};
 
@@ -177,9 +177,7 @@ function initSocket(route, server){
 						//user found in database
 						authenticated = true;
 						userList.on(EMIT_SOCK_SEND_PREFIX + userId, pushToSocket);
-						send (socket, 'a', {
-							err: 0
-						});
+						send (socket, 'a', {err: 0});
 					}
 					else{
 						socket.close ();
@@ -188,46 +186,69 @@ function initSocket(route, server){
 				else if (authenticated === true){
 					if (data.l === 's'){
 						//shell for courses
-						if (await db.board.findByCourseIdAndTeacher(data.x, userId)){ 
-							//userId (user prof) allowed to modify course data.x
+						if (await db.board.findByCourseIdAndTeacher(data.id, userId)){
+							let courseId = data.id;
+							//userId (user prof) allowed to modify course data.id
 							if (data.a === 'o'){
 								//open
-								let currentCourse = openCourses[userId];
-								if (!currentCourse){
-									openCourses[userId] = await raspberrypi.setupCourse(data.x, undefined, userList, EMIT_SOCK_SEND_PREFIX + userId);
+								let userShells = openCourses[userId];
+								if (userShells === undefined){
+									openCourses[userId] = {};
+								}
+								let currentCourse = openCourses[userId][courseId];
+								if (currentCourse === undefined){
+									openCourses[userId][courseId] = await raspberrypi.setupCourse(courseId, undefined, userList, EMIT_SOCK_SEND_PREFIX + userId);
 								}
 							}
 							else if (data.a === 'c'){
 								//close
-								let currentCourse = openCourses[userId];
-								if (currentCourse){
-									currentCourse.kill();
-								}
-								else{
-									send(socket, {t:'s', a:'e', e:'noshell'});
-								}
-								openCourses[userId] = undefined;
-							}
-							else if (data.a === 'k'){
-								//key
-								let currentCourse = openCourses[userId];
-								if (currentCourse){
-									if (_.isString(data.c) || _.isBuffer (data.c)){
-										currentCourse.write(data.c);
+								let userShells = openCourses[userId];
+								if (userShells !== undefined){
+									let currentCourse = openCourses[userId][courseId];
+									if (currentCourse){
+										currentCourse.kill();
+										openCourses[userId][courseId] = undefined;
+									}
+									else{
+										send(socket, 's', {err:'noshell'});
 									}
 								}
 								else{
-									send(socket, {t:'s', a:'e', e:'noshell'});
+									send(socket, 's', {err:'noshell'});
+								}
+							}
+							else if (data.a === 'k'){
+								//key
+								let userShells = openCourses[userId];
+								if (userShells !== undefined){
+									let currentCourse = openCourses[userId][courseId];
+									if (currentCourse){
+										if (_.isString(data.k) || _.isBuffer (data.k)){
+											currentCourse.write(data.k);
+										}
+									}
+									else{
+										send(socket, 's', {err:'noshell'});
+									}
+								}
+								else{
+									send(socket, 's', {err:'noshell'});
 								}
 							}
 							else if (data.a === 'r'){
 								//resize
-								let currentCourse = openCourses[userId];
-								if (currentCourse){
-									currentCourse.resize(data.c, data.d);
+								let userShells = openCourses[userId];
+								if (userShells !== undefined){
+									let currentCourse = openCourses[userId][courseId];
+									if (currentCourse){
+										currentCourse.resize(data.c, data.r);
+									}
+									else{
+										send(socket, 's', {err:'noshell'});
+									}
 								}
 								else{
-									send(socket, {t:'s', a:'e', e:'noshell'});
+									send(socket, 's', {err:'noshell'});
 								}
 							}
 						}
@@ -239,10 +260,10 @@ function initSocket(route, server){
 							//userId (user) allowed to use board data.b (board id)
 							if (boardList[data.b] !== undefined){
 								//board is on
-								send(boardList[data.b], message);
+								send(boardList[data.b], 'b', message);
 							}
 							else{
-								send(socket, {t:'s', a:'e', e:'noboard'});
+								send(socket, 'b', {err:'noboard'});
 							}
 						}
 					}
@@ -256,7 +277,7 @@ function initSocket(route, server){
 			}
 			if (err)
 			{
-				send(socket, {t:'e', a:'e', e:'servererror'});
+				send(socket, 'e', {err:'servererror'});
 				socket.close ();
 			}
 		});
@@ -267,7 +288,7 @@ function initSocket(route, server){
 
 		socket.on ('error', function (e){
 			console.log('WebSocket error : ' + e);
-			send(socket, {t:'e', a:'e', e:'servererror'});
+			send(socket, 'e', {err:'servererror'});
 		});
 	});
 }
