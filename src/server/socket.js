@@ -125,6 +125,7 @@ function initSocket(route, server) {
 		});
 
 		socket.on('close', function() {
+			await db.board.boardStatus(token, 'offline');
 			if (boardList[token] === undefined) {
 				console.log('Websocket closing and not in database for board ' + token);
 			}
