@@ -54,7 +54,7 @@ function initSocket(route, server) {
 			let err = false;
 			try {
 
-				let data = msgpack.decode(message);
+				let data = msgpack.decode(new Buffer(message, 'base64'));
 				if (authenticated === false) {
 					if (await db.board.findByBoardId(data.token)) {
 						//board found in database
@@ -96,18 +96,18 @@ function initSocket(route, server) {
 							if (board) {
 								if (board.courseId !== courseIdAway || board.userId !== userIdAway) {
 									await db.board.boardStatus(boardIdAway, 'desync');
-									send(socket, { t: 'p', c: 'reboot' });
+									send(socket, 'p' ,{ c: 'reboot' });
 								} else {
 									if (board.command) {
 										await db.board.resetCommand(boardIdAway);
 									}
-									send(socket, { t: 'p', c: board.command });
+									send(socket, 'p',{ c: board.command });
 								}
 							} else {
-								send(socket, { t: 'e', a: 'e', e: 'boardregerror' });
+								send(socket, 'p',{ a: 'e', err: 'boardregistererror' });
 							}
 						} else {
-							send(socket, { t: 'e', a: 'e', e: 'boardiderror' });
+							send(socket, 'p',{ a: 'e', err: 'boardiderror' });
 						}
 
 					}
