@@ -187,6 +187,7 @@ function initSocket(route, server){
 					if (data.l === 's'){
 						//shell for courses
 						if (await db.course.findByCourseIdAndTeacher(data.id, userId)){
+							console.log ('course shell');
 							let courseId = data.id;
 							//userId (user prof) allowed to modify course data.id
 							if (data.a === 'o'){
@@ -210,11 +211,11 @@ function initSocket(route, server){
 										openCourses[userId][courseId] = undefined;
 									}
 									else{
-										send(socket, 's', {id: courseId, err:'noshell'});
+										send(socket, 's', {a: 'e', id: courseId, err:'noshell'});
 									}
 								}
 								else{
-									send(socket, 's', {id: courseId, err:'noshell'});
+									send(socket, 's', {a: 'e', id: courseId, err:'noshell'});
 								}
 							}
 							else if (data.a === 'k'){
@@ -228,11 +229,11 @@ function initSocket(route, server){
 										}
 									}
 									else{
-										send(socket, 's', {id: courseId, err:'noshell'});
+										send(socket, 's', {a: 'e', id: courseId, err:'noshell'});
 									}
 								}
 								else{
-									send(socket, 's', {id: courseId, err:'noshell'});
+									send(socket, 's', {a: 'e', id: courseId, err:'noshell'});
 								}
 							}
 							else if (data.a === 'r'){
@@ -244,11 +245,11 @@ function initSocket(route, server){
 										currentCourse.resize(data.c, data.r);
 									}
 									else{
-										send(socket, 's', {id: courseId, err:'noshell'});
+										send(socket, 's', {a: 'e', id: courseId, err:'noshell'});
 									}
 								}
 								else{
-									send(socket, 's', {id: courseId, err:'noshell'});
+									send(socket, 's', {a: 'e', id: courseId, err:'noshell'});
 								}
 							}
 						}

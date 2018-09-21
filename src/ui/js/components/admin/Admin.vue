@@ -5,7 +5,7 @@
 	</div>
 	<div class="w-100" v-else>
 		<nav class="navbar navbar-expand-lg navbar-inverse navbar-static-top p-0 w-100 welcome-menu" id="slide-nav">
-			<a class="navbar-brand pt-0 pb-0 pl-4" href="index.html"><img src="img/logo.png"></a>
+			<a class="navbar-brand pt-0 pb-0 pl-4" href="/admin.html"><img src="img/logo.png"></a>
 			<button class="navbar-toggler hidden-sm-up" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
 				<img src="img/icons/menu-icon.png">
 			</button>
