@@ -244,11 +244,11 @@ function initSocket(route, server){
 										currentCourse.resize(data.c, data.r);
 									}
 									else{
-										send(socket, 's', {err:'noshell'});
+										send(socket, 's', {id: courseId, err:'noshell'});
 									}
 								}
 								else{
-									send(socket, 's', {err:'noshell'});
+									send(socket, 's', {id: courseId, err:'noshell'});
 								}
 							}
 						}
