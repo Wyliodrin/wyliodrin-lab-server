@@ -34,8 +34,12 @@
 
 ### Projects
 * api/v1/project/dashboard/undefined - asta se apelează când dai project rename. Nu merge.
+* api/v1/project/edit/undefined 
 
 ### Login
 * Dacă dai login fără user și pass sau user și pass greșite, aplicația rămâne în loading.
 * Dacă assignezi o placă greșită la login, nu îți zice că este greșită
+
+### Editor proiecte
+* Indicatorul de editor indică cu un caracter mai mult spre stânga.
 	
