@@ -186,7 +186,7 @@ function initSocket(route, server){
 				else if (authenticated === true){
 					if (data.l === 's'){
 						//shell for courses
-						if (await db.board.findByCourseIdAndTeacher(data.id, userId)){
+						if (await db.course.findByCourseIdAndTeacher(data.id, userId)){
 							let courseId = data.id;
 							//userId (user prof) allowed to modify course data.id
 							if (data.a === 'o'){
