@@ -4,9 +4,6 @@
 
 ### Main page
 * Remove course button not working
-* Colț dreapta sus "Username" în loc de numele utilizatorului 
-* Settings button nu face nimic
-* Portret user nu face nimic
 * Buton username nu merge
 
 ### Users

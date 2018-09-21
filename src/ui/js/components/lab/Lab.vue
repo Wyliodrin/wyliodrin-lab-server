@@ -8,8 +8,8 @@
 					<h4>{{board.boardId}}</h4>
 					<p>{{board.ip}}</p>
 				</span>
-				<button v-show="!run"><img src="img/device-running.png"></button>
-				<button v-show="run"><img src="img/device-stopped.png"></button>
+				<button v-show="!isRunning" @click="projectRun"><img src="img/device-running.png"></button>
+				<button v-show="isRunning" @click="projectStop"><img src="img/device-stopped.png"></button>
 				<button @click="shellRun" data-toggle="modal" data-target="#shell"><img src="img/device-running.png"></button>
 
 			</div>
@@ -170,7 +170,12 @@
 			</div>
 			<div style="width: 100%">
 			</div>-->
-			<Workspace></Workspace>
+			<div class="h-80 w-100">
+				<Workspace></Workspace>
+			</div>
+			<div class="h-20 w-100 editor-console">
+				<Shell :boardId="board.boardId" :projectId="projectName" :runId="runId" @run="projectStatus"></Shell>
+			</div>
 		</div>
 	</div>
 </template>
@@ -185,7 +190,8 @@ var BoardShell = require ('./BoardShell.vue');
 // var ProvisionModal = require ('../modules/ProvisionModal.vue');
 var mapGetters = require ('vuex').mapGetters;
 var md5 = require ('md5');
-// var uuid = require ('uuid');
+var uuid = require ('uuid');
+var Shell = require ('../modules/Shell.vue');
 // var $ = require ('jquery');
 // var Vue = require ('vue');
 
@@ -194,12 +200,15 @@ module.exports = {
 	data () {
 		return {
 			shell: false,
-			run: false
+			run: false,
+			isRunning: false,
+			runId: null,
 		};
 	},
 	components: {
 		BoardShell,
 		Workspace,
+		Shell,
 		Projects,
 	},
 	methods: {
@@ -228,18 +237,11 @@ module.exports = {
 			console.log ('shellRun');
 			this.shell = true;
 		},
-		projectRun (event, product)
+		projectRun ()
 		{
 			if (this.project)
 			{
-				console.log ('ctrl '+event.ctrlKey);
-				this.$store.dispatch ('settings/runWorkspace', {
-					projectId: this.project.projectId,
-					productId: product.productId,
-					session: this.session,
-					reset: event.ctrlKey
-				});
-				// $('#myRunModal').modal ('hide');
+				this.runId = uuid.v4 ();
 			}
 			else
 			{
@@ -254,6 +256,14 @@ module.exports = {
 					}}
 				);
 			}
+		},
+		projectStatus (runStatus)
+		{
+			this.isRunning = runStatus;
+		},
+		projectStop ()
+		{
+			this.runId = null;
 		},
 		async logout ()
 		{
@@ -284,6 +294,11 @@ module.exports = {
 		gravatar ()
 		{
 			return 'https://www.gravatar.com/avatar/'+md5 (this.user.email)+'?d=mp';
+		},
+		projectName ()
+		{
+			if (this.project) return this.project.name;
+			else return 'project';
 		}
 	},
 	created () {

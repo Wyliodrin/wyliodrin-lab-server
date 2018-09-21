@@ -8,19 +8,13 @@
 			</ul>
 		</div>
 		<div v-else class="h-100 w-100 m-0 p-0 projectbox">
-			<div class="projectcode w-80 h-80">
+			<div class="projectcode w-80 h-100">
 				<span>{{project.name}}</span>
 				<a href="#" @click="settings(project)" class="projsettings" data-toggle="tooltip" data-placement="bottom" v-tooltip title="Project settings"><img src="img/icons/settings-icon-16.png"></a>
 				<div class="right">
 					<a @click="showDashboard" :class="{'active':source === false}"><img src="img/dashboard.png"> Dashboard</a>
 					<a @click="showSource" :class="{'active':source}"><img src="img/code.png"> {{filename}}</a>
 				</div>
-			</div>
-			<div class="h-20 w-80 editor-console">
-				<pre>Compiling
-					<div class="console-hide-btn"><i></i></div>
-				</pre>
-				
 			</div>
 			<div v-show="source && selectedFile" class="h-80 w-80 editor-box" id="sourcePanel">
 				<VisualToolbox></VisualToolbox>
@@ -89,6 +83,7 @@ let saveFile = {};
 console.log (Blockly);
 module.exports = {
 	name: 'Workspace',
+	props: ['runId'],
 	data () {
 		return {
 			selectedFile: null,
@@ -503,7 +498,8 @@ module.exports = {
 		...mapGetters ({
 			token: 'user/token',
 			WORKSPACE: 'settings/WORKSPACE',
-			project: 'project/project'	,
+			board: 'board/board',
+			project: 'project/project',
 		}),
 		base64ProjectId ()
 		{
