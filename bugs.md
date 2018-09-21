@@ -32,6 +32,8 @@
 
 ## User 
 
+### Main page
+* Butonul de run nu merge
 ### Projects
 * api/v1/project/dashboard/undefined - asta se apelează când dai project rename. Nu merge.
 * api/v1/project/edit/undefined 
