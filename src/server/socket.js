@@ -148,6 +148,11 @@ function initSocket(route, server) {
 		let userId = null;
 
 		let pushToSocket = function(label, data) {
+			if (data.l === 's' && data.a === 'c'){
+				if (openCourses[userId] !== undefined && openCourses[userId][data.id] !== undefined) {
+					openCourses[userId][data.id] = undefined;
+				}
+			}
 			if (authenticated) {
 				send(socket, label, data);
 			}
