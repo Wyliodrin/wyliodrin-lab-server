@@ -18,7 +18,8 @@
 
 ### Boards
 * Toate elementele din tabelul de boards sunt deplasate spre dreapta. Trebuie aranjate
-* Disconnect board nu șterge board din lista / schimba status la disconnected. 
+* Disconnect board nu șterge board din lista / schimba status la disconnected.
+* Butonul de reboot nu face nimic.
 * Status boards nu se updatează
 * Stânga sus, boards are imaginea de la users, nu de boards
 
