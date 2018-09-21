@@ -253,6 +253,9 @@ function initSocket(route, server){
 								}
 							}
 						}
+						else{
+							send(socket, 's', {id: courseId, err:'noteacher'});
+						}
 					}
 
 					else if (data.l === 'b'){
