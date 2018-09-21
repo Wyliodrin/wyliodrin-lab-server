@@ -13,7 +13,7 @@
 				<a href="#" @click="settings(project)" class="projsettings" data-toggle="tooltip" data-placement="bottom" v-tooltip title="Project settings"><img src="img/icons/settings-icon-16.png"></a>
 				<div class="right">
 					<a @click="showDashboard" :class="{'active':source === false}"><img src="img/dashboard.png"> Dashboard</a>
-					<a @click="showSource" :class="{'active':source}"><img src="img/code.png"> Code</a>
+					<a @click="showSource" :class="{'active':source}"><img src="img/code.png"> {{filename}}</a>
 				</div>
 			</div>
 			<div class="h-20 w-80 editor-console">
@@ -24,7 +24,7 @@
 			</div>
 			<div v-show="source && selectedFile" class="h-80 w-80 editor-box" id="sourcePanel">
 				<VisualToolbox></VisualToolbox>
-				<editor v-show="editor" v-model="fileSource" @init="initEditor" lang="python" theme="monokai" :options="editorOptions"></editor>
+				<editor v-show="editor" v-model="fileSource" @init="initEditor" :lang="sourceLanguage" theme="monokai" :options="editorOptions"></editor>
 				<div id="visual" v-show="visual">
 				</div>
 			</div>
@@ -37,8 +37,8 @@
 								<i class="ion-android-document"></i>
 								{{ node.text }}
 								<div v-if="isHover(node)" class="explorer-actions">
-									<a href="#" v-if="node.text!=='(empty)'" @mouseup.stop="renameFile(node)" data-toggle="tooltip" data-placement="left" v-tooltip title="Rename File"><i class="ion-android-create"></i></a>
-									<a href="#" v-if="node.text!=='(empty)'" @mouseup.stop="del(node)" data-toggle="tooltip" data-placement="left" v-tooltip title="Delete"><i class="ion-android-close"></i></a>
+									<a href="#" v-if="allowModify (node)" @mouseup.stop="renameFile(node)" data-toggle="tooltip" data-placement="left" v-tooltip title="Rename File"><i class="ion-android-create"></i></a>
+									<a href="#" v-if="allowModify (node)" @mouseup.stop="del(node)" data-toggle="tooltip" data-placement="left" v-tooltip title="Delete"><i class="ion-android-close"></i></a>
 								</div>
 							</template>
 
@@ -75,11 +75,16 @@ var editor = require ('vue2-ace-editor');
 var blockly = require ('blockly/blockly_compressed_wyliolab.js');
 var Blockly = blockly.Blockly;
 require ('blockly/blocks_compressed_wyliolab.js')(blockly);
-require ('blockly/msg_en_wyliolab.js')(blockly);
+require ('blockly/msg/js/en_wyliolab.js')(blockly);
 require ('blockly/python_compressed_wyliolab.js')(blockly);
 var VisualToolbox = require ('./VisualToolbox.vue');
 var _ = require ('lodash');
 var onresize = function () {};
+
+require ('../../blockly/definitions_wyliolab.js') (blockly);
+require ('../../blockly/code_wyliolab.js') (blockly);
+
+let saveFile = {};
 
 console.log (Blockly);
 module.exports = {
@@ -94,9 +99,12 @@ module.exports = {
 			visual:false,
 			workspace: null,
 			editor: false,
+			sourceLanguage: 'python',
 			source: true,
+			visualSource: '',
 			reloadFreeboard: false,
 			treeOptions: {
+				parentSelect: true,
 				store: {
 					store: this.$store,
 					getter: 'project/projectFolder'
@@ -108,6 +116,7 @@ module.exports = {
 			},
 			editorOptions: {
 				fontSize: '14pt',
+				readOnly: true
 			}
 		};
 	},
@@ -125,8 +134,16 @@ module.exports = {
 			else
 			{
 				this.editor = true;
+				if (ext === '.py') this.sourceLanguage = 'python';
+				if (ext === '.js') this.sourceLanguage = 'javascript';
 			}
 			this.source = true;
+			let readOnly = false;
+			if (filename === '/wylioproject.json') readOnly = true;
+			this.editorOptions = _.assign ({}, this.editorOptions, { 
+				readOnly
+			});
+			console.log ('readOnly: '+this.editorOptions.readOnly);
 		},
 		addProject () {
 			Vue.bootbox.dialog (AddProjectModal, {}, {
@@ -166,11 +183,11 @@ module.exports = {
 				title: 'New File',
 				className: 'regularModal',
 				message: 'Enter the new file\' name', 
-				callback: function (result) {
+				callback: async function (result) {
 					if (result)
 					{
 						// TODO full path
-						if (that.$store.dispatch ('project/setFile', {
+						if (await that.$store.dispatch ('project/setFile', {
 							project: that.project.name,
 							file: path.join (that.getPath (node), result),
 							data: ''
@@ -235,14 +252,17 @@ module.exports = {
 				className: 'regularModal',
 				value: node.text,
 				message: 'Are you sure you want to delete '+node.text+' ?',
-				callback: function (result) {
+				callback: async function (result) {
 					if (result)
 					{
 						// TODO full path
-						that.$store.dispatch ('project/del', {
-							project: this.project.name,
-							file: this.getPath (node),
-						});
+						if (await that.$store.dispatch ('project/delFileOrFolder', {
+							project: that.project.name,
+							file: that.getPath (node),
+						}))
+						{
+							that.dispatch ('project/listProjectFolder', that.project.name);
+						}
 					}
 				}
 			});
@@ -316,6 +336,7 @@ module.exports = {
 			require('brace/ext/language_tools'); //language extension prerequsite...
 			// require('brace/mode/html');                
 			require('brace/mode/python');    //language
+			require('brace/mode/javascript');    //language
 			require('brace/mode/less');
 			require('brace/theme/monokai');
 			require('brace/snippets/python'); //snippet
@@ -358,9 +379,23 @@ module.exports = {
 				if (that.selectedFile && that.visual)
 				{
 					that.fileSource = visual;
+					that.visualSource = Blockly.Python.workspaceToCode(workspace);
 				}
 				// console.log (code);
 			});
+		},
+		allowModify (node)
+		{
+			let filename = this.getPath(node);
+			console.log ('allow del '+filename);
+			if (node.text === '(empty)') return false;
+			else
+			if (filename === '/wylioproject.json') return false;
+			else
+			if (filename === '/main.py') return false;
+			else
+			if (filename === '/main.visual') return false;
+			else return true;
 		}
 	},
 	watch: {
@@ -371,14 +406,6 @@ module.exports = {
 			if (this.source) this.reloadFreeboard = true;
 			else this.reloadFreeboard = false;
 			this.selectedFile = null;
-			if (!this.workspace) 
-			{
-				var that = this;
-				setTimeout (function ()
-				{
-					that.initVisual ();
-				}, 500);
-			}
 		},
 		source ()
 		{
@@ -407,16 +434,31 @@ module.exports = {
 					this.loadedSource = new Buffer (fileData, 'base64').toString ();
 					this.selectFile (this.selectedFile);
 					this.fileSource = this.loadedSource;
+					this.visualSource = '';
 
-					this.workspace.clear ();
+					// if (this.workspace) this.workspace.clear ();
 					var that = this;
 					if (this.visual) setTimeout (function ()
 					{
-						var xml = Blockly.Xml.textToDom(that.fileSource);
-						Blockly.Xml.domToWorkspace(xml, Blockly.mainWorkspace);  
+						if (!that.workspace) 
+						{
+							that.initVisual ();
+						}
+						console.log ('clear workspace');
+						Blockly.mainWorkspace.clear ();
+						try
+						{
+							let xml = Blockly.Xml.textToDom(that.fileSource);
+							Blockly.Xml.domToWorkspace(xml, Blockly.mainWorkspace);  
+						}
+						catch (e)
+						{
+							let xml = Blockly.Xml.textToDom('<xml></xml>');
+							Blockly.Xml.domToWorkspace(xml, Blockly.mainWorkspace);
+						}
 						onresize ();
-						// this.workspace.zoomReset ();
-					}, 500);
+						// that.workspace.zoomReset ();
+					});
 				}
 			}
 		},
@@ -424,13 +466,37 @@ module.exports = {
 		{
 			if (this.loadedSource !== this.fileSource)
 			{
-				this.$store.dispatch ('project/setFile', {
-					project: this.project.name,
-					file: this.selectedFile,
-					data: new Buffer (this.fileSource).toString ('base64')
-				});
+				let project = this.project.name;
+				let filename = this.selectedFile;
+				let source = this.fileSource;
+				console.log ('schediule save '+filename);
+				var that = this;
+				clearTimeout (saveFile[filename]);
+				saveFile[filename] = setTimeout (function ()
+				{
+					that.$store.dispatch ('project/setFile', {
+						project: project,
+						file: filename,
+						data: new Buffer (source).toString ('base64')
+					});
+				}, 600);
+				if (this.visual)
+				{
+					let extension = path.extname (this.selectedFile);
+					let filename = this.selectedFile.substring (0, this.selectedFile.length-extension.length)+'.py';
+					let source = this.visualSource;
+					clearTimeout (saveFile[filename]);
+					saveFile[filename] = setTimeout (function ()
+					{
+						that.$store.dispatch ('project/setFile', {
+							project: project,
+							file: filename,
+							data: new Buffer (source).toString ('base64')
+						});
+					}, 600);
+				}
 			}
-		}
+		},
 	},
 	computed: 
 	{
@@ -449,6 +515,17 @@ module.exports = {
 			else
 			{
 				return null;
+			}
+		},
+		filename ()
+		{
+			if (this.selectedFile)
+			{
+				return path.basename(this.selectedFile);
+			}
+			else
+			{
+				return 'Code';
 			}
 		}
 	},

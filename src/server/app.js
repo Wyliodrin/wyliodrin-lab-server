@@ -56,14 +56,15 @@ app.use('/api/v1', apiv1);
 app.use(express.static(path.join(__dirname, '../ui')));
 
 app.get('/', function(req, res) {
-	res.redirect('/login.html');
+	res.redirect('/lab.html');
 });
 
 /** */
 app.use(function(err, req, res, next) {
 	next;
+	console.log (err);
 	if (err.status === statusCodes.INTERNAL_SERVER_ERROR) {
-		error.sendError(res, error.serverError('Something went wrong with your request. Try again later!'));
+		error.sendError(res, error.serverError('Something went wrong with your request. ('+err.data.err+')'));
 		debug(err);
 	} else {
 		error.sendError(res, err);

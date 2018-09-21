@@ -466,23 +466,28 @@ async function setupCourse(courseId, imageInfo, userList, emitString, cmd = 'bas
 			params.splice(0, 0, command);
 			command = 'sudo';
 		}
+		console.log (command+' '+params.join (' '));
 		let run = pty.spawn(command, params, {
 			rows,
 			cols,
-			HOME: '/home/pi',
-			USER: 'pi',
-			USERNAME: 'pi'
+			env: _.assign ({}, process.env,
+				{
+					HOME: '/home/pi',
+					USER: 'pi',
+					USERNAME: 'pi',
+					HOSTNAME: 'raspberry'
+				})
 		});
 		run.on('exit', async function(exitCode) {
-			let toSend = { t: 's', a: 'c', b: courseId };
-			userList.emit(emitString, toSend);
+			let toSend = {a: 'c', id: courseId};
+			userList.emit(emitString, 's', toSend);
 
 			debug('setup course ' + exitCode);
 			await unmountSetupCourse(courseId);
 		});
 		run.on('data', function(data) {
-			let toSend = { t: 's', a: 'k', b: courseId, c: data };
-			userList.emit(emitString, toSend);
+			let toSend = {a: 'k', id: courseId, k: data };
+			userList.emit(emitString, 's', toSend);
 		});
 		run.on('error', function(error) {
 			if (error.message.indexOf('EIO') === -1) {

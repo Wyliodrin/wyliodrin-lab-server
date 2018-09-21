@@ -295,6 +295,8 @@ async function getFolder(userId, project, folder) {
 	var normalized_path = pathIsValid.normalizedPath;
 
 	var data = [];
+	var dirs = [];
+	var	fls = [];
 	try {
 		var files = (await fs.readdir(normalized_path));
 		for (let file of files)
@@ -309,10 +311,18 @@ async function getFolder(userId, project, folder) {
 				{
 					f.type = 'dir';
 					f.files = (await getFolder (userId, project, path.join (folder, file))).data;
+					dirs.push (f);
 				}
-				if (stat.isFile()) f.type = 'file';
-				data.push (f);
+				else
+				{
+					if (stat.isFile())
+					{
+						f.type = 'file';
+					}
+					fls.push (f);
+				}
 			}
+			data = dirs.concat (fls);
 		}
 	} catch (err) {
 		console.log(err);

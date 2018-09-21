@@ -10,8 +10,9 @@ var $ = require ('jquery');
 var bootbox = require ('./vue-bootbox.js');
 Vue.use (bootbox);
 
-// var socket = require ('./vue-socket.js');
-// Vue.use (socket);
+// socket
+var socket = require ('./vue-socket.js');
+Vue.use (socket);
 
 // store
 var store = require ('./store/lab/store.js');
@@ -67,21 +68,30 @@ new Vue ({
 		await this.$store.dispatch ('user/updateUser');
 		await this.$store.dispatch ('board/getBoard');
 		this.loading = false;
-		// if (!this.$store.getters ['user/token']) 
-		// {
-		// 	this.$store.dispatch ('settings/redirect', 'LOGIN');
-		// }
-		// else
-		// {
-		// 	this.loading = false;
-		// 	Vue.socket.connect (this.$store.getters ['user/token']);
-		// }
+		console.log ('token '+this.token);
+		if (this.token) this.connectSocket ();
 	},
 	
 	computed: {
 		...mapGetters ({
 			user: 'user/user',
-			board: 'board/board'
+			token: 'user/token',
+			board: 'board/board',
 		})
+	},
+
+	watch: {
+		token ()
+		{
+			// console.log ('token');
+			if (this.token !== undefined) this.connectSocket ();
+		}
+	},
+
+	methods: {
+		connectSocket ()
+		{
+			Vue.socket.connect (this.token);
+		}
 	}
 });

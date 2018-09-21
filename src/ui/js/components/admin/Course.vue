@@ -204,16 +204,19 @@
 					</div>
 					<div class="tab-pane fade" id="software" role="tabpanel" aria-labelledby="software-tab">
 						<h4>Software</h4>
-						<div>
+						<div class="w-100 h-100">
 							<div class="input-group mb-3">
 								<div class="input-group-prepend">
 									<span class="input-group-text" id="inputGroup-sizing-default">Image</span>
 								</div>
-								<select name="image" class="custom-select" v-model="imageId">
+								<select name="image" class="custom-select" v-model="imageId" :disabled="setup">
 									<option v-for="image in images" :key="image.id" :value="image.id">{{image.filename}}</option>
 								</select>
 							</div>
-							<a @click="changeImage">Change Image</a>
+							<a v-if="change" @click="changeImage">Change Image</a>
+							<a v-if="!change" @click="setupImage">Setup Image</a>
+							<Shell v-if="setup" :courseId="course.courseId">
+							</Shell>
 						</div>
 					</div>
 				</div>
@@ -233,15 +236,19 @@ var _ = require ('lodash');
 var timeout = null;
 var md5 = require ('md5');
 var moment = require ('moment');
+var Shell = require ('../modules/Shell.vue');
 module.exports = {
 	name: 'Course',
 	data ()
 	{
 		return {
-			imageId: null
+			imageId: null,
+			setup: false,
+			chnage: false
 		};
 	},
 	components: {
+		Shell,
 		HalfCircleSpinner
 	},
 	async created () {
@@ -294,7 +301,7 @@ module.exports = {
 	methods: {
 		gravatar (user, size)
 		{
-			console.log (user);
+			// console.log (user);
 			return 'https://www.gravatar.com/avatar/'+md5 (user.email)+'?d=mp&s='+size;
 		},
 		addNewStudent () {
@@ -408,7 +415,7 @@ module.exports = {
 		},
 		changeImage ()
 		{
-
+			
 		},
 		deleteCourse () {
 			var that = this;
@@ -438,6 +445,10 @@ module.exports = {
 				Vue.bootbox.alert ('Please disconnect all the boards before deleteing the course');
 			}
 		},
+		setupImage ()
+		{
+			this.setup = true;
+		}
 	},
 	destroyed ()
 	{
@@ -453,6 +464,20 @@ module.exports = {
 			else
 			{
 				this.imageId = null;
+			}
+		},
+		imageId ()
+		{
+			if (this.course)
+			{
+				if (this.course.imageId !== this.imageId)
+				{
+					this.change = true;
+				}
+				else
+				{
+					this.change = false;
+				}
 			}
 		}
 	}

@@ -1,7 +1,7 @@
 <template>
 	<div>
 		<nav class="navbar navbar-expand-lg navbar-inverse navbar-static-top p-0 w-100" id="slide-nav">
-			<a class="navbar-brand pt-0 pb-0 pl-4" href="index.html"><img src="img/logo.png"></a>
+			<a class="navbar-brand pt-0 pb-0 pl-4" href="/"><img src="img/logo.png"></a>
 			<div class="board-connected">
 				<img src="img/pics/raspberry-pi.png">
 				<span>
@@ -10,6 +10,7 @@
 				</span>
 				<button v-show="!run"><img src="img/device-running.png"></button>
 				<button v-show="run"><img src="img/device-stopped.png"></button>
+				<button @click="shell" data-toggle="modal" data-target="#shell"><img src="img/device-running.png"></button>
 
 			</div>
 			<button class="navbar-toggler hidden-sm-up" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
@@ -59,6 +60,7 @@
 							<!-- <a href="#" data-toggle="tooltip" data-placement="bottom" v-tooltip title="Take the tour"><img src="img/icon-tour.png"></a>
 							<a href="#" data-toggle="tooltip" data-placement="bottom" v-tooltip title="Notifications"><img src="img/icon-notification.png">  </a> -->
 							<a href="#" data-toggle="modal" data-placement="bottom" v-tooltip title="Settings" data-target="#settingsModal" class="settings-link"><img src="img/icon-settings.png"></a>
+							<a href="/admin.html" target="_blank" v-if="user.role === 'admin'" data-placement="bottom" v-tooltip title="Admin" class="settings-link"><img src="img/icon-settings.png"></a>
 							<a data-toggle="tooltip" data-placement="bottom" v-tooltip title="Logout" class="logout-link" @click="logout"><img src="img/icon-logoff.png"></a>
 						</div>
 					</div>
@@ -75,6 +77,7 @@
 			</div>
 		</div>-->
 
+		<BoardShell v-if="board" :boardId="board.boardId"></BoardShell>
 		<Projects></Projects>
 		<!-- <UserSettings></UserSettings> -->
 		
@@ -177,6 +180,7 @@
 var Vue = require ('vue');
 var Workspace = require ('./Workspace.vue');
 var Projects = require ('./Projects.vue');
+var BoardShell = require ('./BoardShell.vue');
 // var UserSettings = require ('../modules/UserSettings.vue');
 // var ProvisionModal = require ('../modules/ProvisionModal.vue');
 var mapGetters = require ('vuex').mapGetters;
@@ -193,6 +197,7 @@ module.exports = {
 		};
 	},
 	components: {
+		BoardShell,
 		Workspace,
 		Projects,
 	},
@@ -217,7 +222,7 @@ module.exports = {
 		// 		}
 		// 	});
 		// },
-		run (event, product)
+		projectRun (event, product)
 		{
 			if (this.project)
 			{
