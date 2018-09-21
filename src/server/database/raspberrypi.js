@@ -481,7 +481,7 @@ async function setupCourse(courseId, imageInfo, userList, emitString, cmd = 'bas
 			await unmountSetupCourse(courseId);
 		});
 		run.on('data', function(data) {
-			let toSend = {a: 'k', id: courseId, k: data };
+			let toSend = {a: 'k', id: courseId, t: data };
 			userList.emit(emitString, 's', toSend);
 		});
 		run.on('error', function(error) {

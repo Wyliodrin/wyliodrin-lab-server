@@ -223,8 +223,8 @@ function initSocket(route, server){
 								if (userShells !== undefined){
 									let currentCourse = openCourses[userId][courseId];
 									if (currentCourse){
-										if (_.isString(data.k) || _.isBuffer (data.k)){
-											currentCourse.write(data.k);
+										if (_.isString(data.t) || _.isBuffer (data.t)){
+											currentCourse.write(data.t);
 										}
 									}
 									else{
