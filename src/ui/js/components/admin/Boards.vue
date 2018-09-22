@@ -4,7 +4,7 @@
 		<div class="content w-100 d-flex flex-row proj-bar">
 			<div class="content-top w-100 pt-2">
 				<div class="content-title float-left">
-					<span><img src="img/users.png" class="mr-2">Boards</span>
+					<span><img src="img/my-boards.png" class="mr-2">Boards</span>
 					<div class="search"><img src="/img/icons/search-icon.png">
 						<input type="text" v-model="search" placeholder="Search" class="search-input">
 					</div>

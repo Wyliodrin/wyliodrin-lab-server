@@ -1,9 +1,9 @@
 <template>
 	<div>
 		<div class="courseinfo">
-		<h1><img src="/img/idea.png"> Welcome to the Intermediate IoT Course</h1>
-		<span>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</span>
-		<span>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.</span>
+		<h1><img src="/img/idea.png">{{NAME}}</h1>
+		<span>Plesae sign in and select a course and a board.</span>
+		<!-- <span>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.</span> -->
 		</div>
 		<div class="login-box d-flex align-items-center">
 			<div class="triangle"></div>
@@ -28,9 +28,9 @@
 						<input type="password" class="form-control" name="Password" placeholder="Password" required="" @keyup.enter="login" v-model="password"/>
 						<button class="btn btn-login btn-block" name="Submit" value="Login" @click="login">Sign In</button>
 					</div>
-					<div v-else>
+					<div v-else-if="user && (!board || !board.courseId)">
 						<div v-if="!courses">
-							You have no course assigned, please contact the teacher.
+							You have no courses assigned, please contact the teacher.
 						</div>
 						<div v-else class="input-group mb-3" v-show="courses.length>1">
 							<div class="input-group-prepend">
@@ -48,6 +48,12 @@
 						</div>
 						<button class="btn btn-login btn-block" name="Submit" value="Login" @click="login">Start Lab</button>
 					</div>
+					<div v-else>
+						<div class="input-group mb-3">You are connected to board {{board.boardId}}.<br>
+							Please logout first to use another board.</div>
+						<button class="btn btn-login btn-block" name="Submit" value="Got to " @click="lab">Start Lab</button>
+						<br>
+					</div>
 					<!-- <button class="btn btn-signup btn-block" value="Create account" @click="createAccount">Create account</button> -->
 					<!-- <button class="btn btn-signup btn-block" value="Create account" @click="requestDemo">Request demo account</button> -->
 					<!-- <a href="#" class="recoverpass" @click="recoverPassword">Forgot password</a> -->
@@ -63,12 +69,13 @@
 var mapGetters = require('vuex').mapGetters;
 
 module.exports = {
-	name: 'Login',
+	name: 'SignIn',
 	data() {
 		var urlParams = new URLSearchParams(window.location.search);
 		return {
 			username: '',
 			password: '',
+			isAssciated: false,
 			courseId: null,
 			originalBoardId: urlParams.get ('boardId'),
 			boardId: urlParams.get ('boardId')
@@ -86,11 +93,11 @@ module.exports = {
 				if (login)
 				{
 					await this.$store.dispatch ('user/updateUser');
-					await this.$store.dispatch ('board/getBoard');
+					this.username = '';
+					this.password = '';
 					this.lab ();
 				}
 				else {
-					this.username = '';
 					this.password = '';
 				}
 			}
@@ -101,6 +108,11 @@ module.exports = {
 		},
 		async lab ()
 		{
+			if (this.isAssciated)
+			{
+				this.$store.dispatch ('settings/redirect', 'LAB');
+			}
+			else
 			if (this.user && this.courseId && this.boardId)
 			{
 				if (await this.$store.dispatch ('user/connect', {
@@ -115,20 +127,34 @@ module.exports = {
 		},
 		async logout () {
 			await this.$store.dispatch ('user/logout');
-			this.$store.dispatch ('board/updateUser');
+			this.$store.dispatch ('user/updateUser');
+		},
+		async update ()
+		{
+			let board = this.$store.dispatch ('board/getBoard');
+			let course = this.$store.dispatch ('course/listUserCourses');
+			await Promise.all ([board, course]);
+			if (this.board && this.board.courseId)
+			{
+				this.isAssciated = true;
+			}
 		}
 	},
 	computed: mapGetters ({
 		user: 'user/user',
 		courses: 'course/userCourses',
-		board: 'board/userBoard',
+		board: 'board/board',
+		NAME: 'settings/NAME'
 	}),
-	async created ()
+	created ()
 	{
-		await this.$store.dispatch ('course/listUserCourses');
-		await this.$store.dispatch ('board/getBoard');
+		this.update ();
 	},
 	watch: {
+		user ()
+		{
+			this.update ();
+		},
 		courses ()
 		{
 			if (this.courses && this.courses.length === 1) 

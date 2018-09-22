@@ -69,7 +69,7 @@
 							<a href="#" class="sort-by"></a></th>
 						<!-- <th scope="col" class="text-center">Iterations
 							<a href="#" class="sort-by"></a></th> -->
-						<!-- <th scope="col" class="text-center" style="width:130px">Actions</th> -->
+						<th scope="col" class="text-center" style="width:130px">Actions</th>
 					</tr>
 				</thead>
 				<tbody class="users-list">
@@ -80,7 +80,9 @@
 						<td class="text-center">{{user.email}}</td>
 						<td class="text-center">{{user.role}}</td>
 						<!-- <td class="text-center">17</td> -->
-						<!-- <td class="text-center" style="width:130px"></td> -->
+						<td class="text-center" style="width:130px">
+							<a class="iconbtn" @click.stop="del(user)" v-tooltip data-toggle="tooltip" data-placement="top" title="Delete"><img src="/img/icons/erase-16.png"></a>
+						</td>
 					</tr>
 				</tbody>
 			</table>
@@ -159,6 +161,33 @@ module.exports = {
 					}
 				}
 			});
+		},
+
+		del (user)
+		{
+			if (this.user.userId !== user.userId)
+			{
+				Vue.bootbox.confirm ({
+					title: 'Delete user',
+					message: 'Are you sure you want to delete the user '+user.firstName+' '+user.lastName+' ('+user.username+')?',
+					className: 'regularModal',
+					callback: function (result)
+					{
+						if (result)
+						{
+							// TODO
+						}
+					}
+				});
+			}
+			else
+			{
+				Vue.bootbox.alert ({
+					title: 'Unable to delete',
+					message: 'You cannot delete yourself',
+					className: 'regularModal'
+				});
+			}
 		},
 
 		async getUserById(userId) {

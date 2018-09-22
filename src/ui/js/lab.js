@@ -40,6 +40,8 @@ Vue.directive ('tooltip', {
 });
 
 var mapGetters = require('vuex').mapGetters;
+var urlParams = new URLSearchParams(window.location.search);
+let boardId = urlParams.get ('boardId');
 
 new Vue ({
 	el: '#lab',
@@ -51,7 +53,7 @@ new Vue ({
 	{
 		// console.log ('render');\
 		if (this.loading) return render (Loading);
-		else if (this.user && this.board && this.board.boardId && this.board.courseId)
+		else if (this.user && this.board && this.board.boardId && (!boardId || this.board.boardId === boardId) && this.board.courseId)
 		{
 			return render (Lab);
 		}
@@ -64,7 +66,7 @@ new Vue ({
 
 	async created ()
 	{
-		// await this.$store.dispatch ('settings/init');	
+		await this.$store.dispatch ('settings/init');	
 		await this.$store.dispatch ('user/updateUser');
 		await this.$store.dispatch ('board/getBoard');
 		this.loading = false;

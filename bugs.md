@@ -4,11 +4,9 @@
 
 ### Main page
 * Remove course button not working
-* Buton username nu merge
 
 ### Users
-* No remove user button!!
-* 
+* Remove user button not working
 
 ### Images
 * Imaginea pentru setup image este cea de la delete image
@@ -39,6 +37,7 @@
 * Dacă dai login fără user și pass sau user și pass greșite, aplicația rămâne în loading.
 * Dacă assignezi o placă greșită la login, nu îți zice că este greșită
 * După ce treci de login, la choose boardId. Dacă dai change user, nu merge.
+* Socket-ul nu se deconecteaza automat la logout
 
 ### Editor proiecte
 * Indicatorul de editor indică cu un caracter mai mult spre stânga.

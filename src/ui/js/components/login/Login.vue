@@ -1,9 +1,9 @@
 <template>
 	<div>
 		<div class="courseinfo">
-		<h1><img src="/img/idea.png"> Welcome to the Intermediate IoT Course</h1>
-		<span>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</span>
-		<span>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.</span>
+		<h1><img src="/img/idea.png">{{NAME}} Admin</h1>
+		<span>This section if for administration only</span>
+		<!-- <span>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.</span> -->
 		</div>
 		<div class="login-box d-flex align-items-center">
 			<div class="triangle"></div>
@@ -11,7 +11,7 @@
 			<div class="form-signin">
 				<center><img src="/img/logo.png" class="m-3"></center>
 				<hr class="colorgraph">
-				<h5 class="form-signin-heading">Welcome! Please sign in</h5>
+				<h5 class="form-signin-heading">Administration Sign In</h5>
 				<br>
 				
 				<div class="d-flex h-100 justify-content-center align-items-center" v-if="waitingForLogin">
@@ -69,7 +69,6 @@ module.exports = {
 			{
 				if (this.role === 'admin')
 				{
-					this.waitingForLogin = false;
 					this.$store.dispatch ('settings/redirect', 'ADMIN');
 				}
 				else
@@ -78,13 +77,14 @@ module.exports = {
 				}
 			}
 			else {
-				
-				this.username = '';
+				this.waitingForLogin = false;
+				// this.username = '';
 				this.password = '';
 			}
 		}
 	},
 	computed: mapGetters ({
+		NAME: 'settings/NAME',
 		role: 'user/role'
 	})
 };

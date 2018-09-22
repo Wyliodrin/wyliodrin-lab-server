@@ -91,6 +91,7 @@ new Vue({
 	}, 
 	async created ()
 	{
+		await this.$store.dispatch ('settings/init');	
 		await this.$store.dispatch ('user/updateUser');
 		if (!this.$store.getters ['user/token']) 
 		{

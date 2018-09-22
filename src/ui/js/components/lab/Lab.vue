@@ -52,7 +52,7 @@
 						</div>
 					</div>
 					<div class="user right connected" style="float: right">
-						<a href="#">{{user.firstName}} {{user.lastName}}</a><span class="user-image">
+						{{user.firstName}} {{user.lastName}}<span class="user-image">
 						<img :src="gravatar"></span>
 						<div class="triangle"></div>
 						<div class="options-list">
@@ -269,7 +269,7 @@ module.exports = {
 		{
 			if (await this.$store.dispatch ('user/logout'))
 			{
-				this.$store.dispatch ('settings/redirect', 'LOGIN');
+				this.$store.dispatch ('settings/redirect', 'LAB');
 			}
 		},
 		// productsForCluster (clusterId)

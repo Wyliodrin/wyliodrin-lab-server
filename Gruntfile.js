@@ -169,6 +169,9 @@ module.exports = function(grunt) {
 		{
 			wrap ('src/ui/js/blockly/definitions.js');
 			wrap ('src/ui/js/blockly/code.js');
+
+			wrap ('src/ui/js/blockly/language_definitions.js');
+			wrap ('src/ui/js/blockly/language_code.js');
 		}
 	});
 

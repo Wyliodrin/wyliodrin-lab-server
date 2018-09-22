@@ -78,6 +78,9 @@ var onresize = function () {};
 require ('../../blockly/definitions_wyliolab.js') (blockly);
 require ('../../blockly/code_wyliolab.js') (blockly);
 
+require ('../../blockly/language_definitions_wyliolab.js') (blockly);
+require ('../../blockly/language_code_wyliolab.js') (blockly);
+
 let saveFile = {};
 
 console.log (Blockly);

@@ -421,21 +421,26 @@ module.exports = {
 			var that = this;
 			if (this.boards && this.boards.length === 0)
 			{
-				Vue.bootbox.confirm ('Are you sure you want to delete the course? This will delete all the setup files', async function (result)
-				{
-					if (result)
+				Vue.bootbox.confirm ({
+					title: 'Delete course',
+					message: 'Are you sure you want to delete the course? This will delete all the setup files', 
+					className: 'regularModal',
+					callback: async function (result)
 					{
-						console.log(that.course.courseId);
-						that.courseIndex = null;
-						let recvDelete = await that.$store.dispatch ('course/deleteCourse',{
-							courseId: that.course.courseId
-						});
-
-						if (!recvDelete)
-							console.log('Could not delete course...');
-						else
+						if (result)
 						{
-							that.$router.push ('/courses');
+							console.log(that.course.courseId);
+							that.courseIndex = null;
+							let recvDelete = await that.$store.dispatch ('course/deleteCourse',{
+								courseId: that.course.courseId
+							});
+
+							if (!recvDelete)
+								console.log('Could not delete course...');
+							else
+							{
+								that.$router.push ('/courses');
+							}
 						}
 					}
 				});
