@@ -2,6 +2,7 @@ var mongoose = require('mongoose');
 var validator = require('validator');
 var _ = require('lodash');
 var debug = require('debug')('wyliodrin-lab-server:board-database');
+var moment = require ('moment');
 debug.log = console.info.bind(console);
 
 var boardSchema = mongoose.Schema({
@@ -113,6 +114,10 @@ function assignCourseAndUser(boardId, userId, courseId) {
 	return Board.findOneAndUpdate({ boardId: boardId, userId: null }, { $set: { userId: userId, courseId: courseId, lastInfo: Date.now() } }, { upsert: true, new: true }).lean();
 }
 
+function unassignCourseAndUser(userId) {
+	return Board.findOneAndUpdate({ userId: userId }, { $unset: { courseId: '', userId: '' }, lastInfo: Date.now() }).lean();
+}
+
 function unsetCourseAndUser(boardId) {
 	return Board.findOneAndUpdate({ boardId: boardId }, { $unset: { courseId: '', userId: '' }, lastInfo: Date.now() }).lean();
 }
@@ -151,6 +156,7 @@ var board = {
 	assignUserToBoard,
 	assignCourseToBoard,
 	assignCourseAndUser,
+	unassignCourseAndUser,
 	unsetCourseAndUser,
 	findByUserIdAndBoardId,
 	listBoards,
@@ -159,5 +165,23 @@ var board = {
 	deleteUsersFromBoards,
 	deleteByBoardId
 };
+
+async function refreshOffline ()
+{
+	try
+	{
+		await Board.update ({ lastInfo: {$lt: moment().subtract (process.env.WYLIODRIN_BOARD_OFFLINE_TIMEOUT || 60, 's').toDate ()} }, { status: 'offline' }, { multi: true });
+		// TODO flush product
+		// await Promise.all ([db.cache.flushObject ('location:'+product.ownerId), db.cache.flushObject ('product:'+product.productId), db.cache.flushObject ('products:'+product.clusterId)]);
+	}
+	catch (e)
+	{
+		console.error ('Status update '+e.message);
+	}
+}
+
+setInterval (refreshOffline, process.env.WYLIODRIN_BOARD_OFFLINE_TIMEOUT_REFRESH*1000 || 60*1000);
+
+refreshOffline ();
 
 module.exports = board;

@@ -351,7 +351,11 @@
 }
 
 .board-connected {
-	> img {float: left; padding:1px 5px; margin-right: 5px; margin-left: 20px;}
+	> img {float: left; padding:1px 5px; margin-right: 5px; margin-left: 20px; filter: grayscale(100%); 
+		&.online {filter: grayscale(0%); }
+		&.bootup {filter: grayscale(60%); }
+	}
+
 	span {float: left; font-weight: 300; margin-right: 10px;
 		h4 {font-size: 16px; margin: 0; font-weight: 300;}
 		p {font-size: 11px; margin: 1px 0 0 0; font-weight: 300; color: @color-grey-4;}

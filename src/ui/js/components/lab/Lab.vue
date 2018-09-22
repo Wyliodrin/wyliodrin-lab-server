@@ -2,15 +2,17 @@
 	<div>
 		<nav class="navbar navbar-expand-lg navbar-inverse navbar-static-top p-0 w-100" id="slide-nav">
 			<a class="navbar-brand pt-0 pb-0 pl-4" href="/"><img src="img/logo.png"></a>
-			<div class="board-connected">
-				<img src="img/pics/raspberry-pi.png">
+			<div v-if="board" class="board-connected">
+				<img :class="board.status" v-tooltip :title="boardStatus[board.status]" data-placement="bottom" src="img/pics/raspberry-pi.png">
 				<span>
 					<h4>{{board.boardId}}</h4>
 					<p>{{board.ip}}</p>
 				</span>
-				<button v-show="!isRunning" @click="projectRun"><img src="img/device-running.png"></button>
-				<button v-show="isRunning" @click="projectStop"><img src="img/device-stopped.png"></button>
-				<button @click="shellRun" data-toggle="modal" data-target="#shell"><img src="img/device-running.png"></button>
+				<span v-show="board.status === 'online'">
+					<button v-show="!isRunning" @click="projectRun"><img src="img/device-running.png"></button>
+					<button v-show="isRunning" @click="projectStop"><img src="img/device-stopped.png"></button>
+					<button @click="shellRun" data-toggle="modal" data-target="#shell"><img src="img/device-running.png"></button>
+				</span>
 
 			</div>
 			<button class="navbar-toggler hidden-sm-up" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
@@ -203,6 +205,11 @@ module.exports = {
 			run: false,
 			isRunning: false,
 			runId: null,
+			boardStatus: {
+				bootup: 'Booting',
+				online: 'Online',
+				offline: 'Offline',
+			}
 		};
 	},
 	components: {
@@ -265,12 +272,23 @@ module.exports = {
 		{
 			this.runId = null;
 		},
-		async logout ()
+		logout ()
 		{
-			if (await this.$store.dispatch ('user/logout'))
-			{
-				this.$store.dispatch ('settings/redirect', 'LAB');
-			}
+			var that = this;
+			Vue.bootbox.confirm ({
+				title: 'Logout',
+				className: 'regularModal',
+				message: 'Are you sure you want to logout? This will disconnect your board.',
+				callback: async function (result) {
+					if (result)
+					{
+						if (await that.$store.dispatch ('user/logout'))
+						{
+							that.$store.dispatch ('settings/redirect', 'LAB');
+						}
+					}
+				}
+			});
 		},
 		// productsForCluster (clusterId)
 		// {

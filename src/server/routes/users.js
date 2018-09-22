@@ -157,8 +157,8 @@ privateApp.post('/password/edit', async function(req, res, next) {
 
 privateApp.get('/logout', async function(req, res) {
 	debug(req.user.userId + ' logged out');
+	await db.board.unassignCourseAndUser (req.user.userId);
 	await tokens.del(req.token);
-
 	res.status(200).send({ err: 0 });
 });
 
