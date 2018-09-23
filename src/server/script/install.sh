@@ -54,11 +54,34 @@ else
 	echo "supervisor is already installed"
 fi
 
+# install python and python-pip
+
+echo "Install Python and Pyhton Pip"
+if ! python --version &> /dev/null;
+then
+	sudo apt-get update
+	sudo apt-get install -y python
+else
+	echo "python is already installed"
+fi
+
+if ! which pip &> /dev/null;
+then
+	sudo apt-get update
+	sudo apt-get install -y python-pip
+else
+	echo "pip is already installed"
+fi
+
 # install wylio
 
 echo "Install Raspberry Pi Server"
 
-sudo npm install -g wyliolab@1.1.2 --unsafe-perm
+sudo npm install -g wyliolab --unsafe-perm
+
+# install wyliozero
+echo "Install wyliozero"
+sudo pip install wyliozero
 
 # Writing fstab
 echo "Setting mount /proc"

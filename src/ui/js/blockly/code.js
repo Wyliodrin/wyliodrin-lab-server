@@ -1,6 +1,6 @@
 Blockly.Python.setUp = function(){
 	if (!Blockly.Python.definitions_['setUp']){
-		Blockly.Python.definitions_['setUp'] = 'from wyliolab import * \n';
+		Blockly.Python.definitions_['setUp'] = 'from wyliozero import * \n';
 	}
 };
 

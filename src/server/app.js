@@ -55,6 +55,11 @@ apiv1.use(function(req, res) {
 app.use('/docs', express.static(path.join(__dirname, '/../docs')));
 app.use('/api/v1', apiv1);
 
+app.get ('/:boardId([0-9a-e]+)/', function (req, res) {
+	// TODO move to boards and verify if board exists
+	res.redirect ('/lab.html?boardId='+req.params.boardId);
+});
+
 app.use(express.static(path.join(__dirname, '../ui')));
 
 app.get('/', function(req, res) {

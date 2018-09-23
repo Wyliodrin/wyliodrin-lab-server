@@ -46,6 +46,25 @@ module.exports = {
 				return false;
 			}
 		},
+		async command(store, data) {
+			try {
+				let response = await Vue.http.post(setup.API + '/boards/command', {
+					boardId: data.boardId,
+					command: data.command
+				});
+				// console.log(response.data.role);
+				if (response.data.err === 0) {
+					return true;
+				}
+				return false;
+			} catch (e) {
+				if (e.status === 0)
+					Vue.toast.connectionError();
+				else if (e.status >= 500)
+					Vue.toast.warning({title:'Warning!', message: 'You couldn\'t send '+data.command+'!<br>Server error: ' + e.body.err});
+				return false;
+			}
+		},
 		async getBoard(store) {
 			try {
 				store.commit ('board', null);
@@ -77,7 +96,7 @@ module.exports = {
 				if (e.status === 0)
 					Vue.toast.connectionError();
 				else if (e.status >= 500)
-					Vue.toast.warning({title:'Warning!', message: 'You couldn\'t log in!<br>Server error: ' + e.body.err});
+					Vue.toast.warning({title:'Warning!', message: 'You couldn\'t disconnect the board!<br>Server error: ' + e.body.err});
 				return false;
 			}
 		},

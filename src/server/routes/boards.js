@@ -134,7 +134,7 @@ privateApp.post('/command', async function(req, res, next) {
 			if (board) {
 				var course = await db.course.findByCourseId(board.courseId);
 				if (userCanCommandBoard(req.user, course, board)) {
-					socket.emit ('board', boardId, 'send', 'p', command);
+					socket.emit ('board', boardId, 'send', 'p', {c: command});
 					res.status(200).send({ err: 0 });
 				} else {
 					e = error.unauthorized('User cannot reboot board');
@@ -238,6 +238,8 @@ privateApp.post('/disconnect', async function(req, res, next) {
 				if (await userCanDisconnectBoard(board, req.user)) {
 					await db.board.unsetCourseAndUser(boardId);
 					db.image.unsetupDelay (board.boardId, 20000);
+					socket.emit ('board', boardId, 'send', 'p', {c: 'reboot'});
+					socket.emit ('board', boardId, 'disconnect');
 					res.status(200).send({ err: 0 });
 				} else {
 					e = error.unauthorized('User cannot disconnect board');

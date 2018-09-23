@@ -183,10 +183,13 @@ socket.on ('board:received', async function (boardId, label, data)
 
 			if (board) {
 				if (board.courseId !== courseIdAway || board.userId !== userIdAway) {
-					await board.boardStatus(boardIdAway, 'desync');
-					socket.emit ('board', boardId, 'send', 'p' ,{ c: 'reboot' });
+					await boardStatus(boardIdAway, 'desync');
+					if (statusAway !== 'reboot' && statusAway !== 'poweroff')
+					{
+						socket.emit ('board', boardId, 'send', 'p' ,{ c: 'reboot' });
+					}
 				} else {
-					socket.emit ('board', boardId, 'send', 'p',{ c: board.command });
+					// socket.emit ('board', boardId, 'send', 'p',{ c: board.command });
 				}
 			} else {
 				socket.emit ('board', boardId, 'send', 'p',{ a: 'e', err: 'boardregistererror' });
@@ -202,7 +205,9 @@ async function refreshOffline ()
 {
 	try
 	{
-		let boards = await Board.update ({ lastInfo: {$lt: moment().subtract (process.env.WYLIODRIN_BOARD_OFFLINE_TIMEOUT || 60, 's').toDate ()} }, { status: 'offline' }, { new: true, multi: true });
+		let boards = await Board.find ({ lastInfo: {$lt: moment().subtract (process.env.WYLIODRIN_BOARD_OFFLINE_TIMEOUT || 60, 's').toDate ()}, status:{$ne: 'offline'} }, { boardId: 1 });
+		await Board.update ({ lastInfo: {$lt: moment().subtract (process.env.WYLIODRIN_BOARD_OFFLINE_TIMEOUT || 60, 's').toDate ()},  }, { status: 'offline' }, { new: true, multi: true });
+		console.log (boards);
 		for (let board of boards)
 		{
 			socket.emit ('user:board', board.boardId, 'send', 'u', { t:'board', s: 'offline'});

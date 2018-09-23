@@ -110,7 +110,7 @@ function initSocket(route, server) {
 						// 	console.log('Websocket overwriting ond websocket for board ' + token);
 						// }
 						// boardList[token] = socket;
-						boardSockets.on('user:'+token, pushToSocket);
+						boardSockets.on('board:'+token, pushToSocket);
 					} else {
 						socket.close();
 					}
@@ -125,7 +125,7 @@ function initSocket(route, server) {
 						// 	//board no longer in database
 						// 	socket.close();
 						// }
-						if (!socketEvents.emit ('user:board', token, 'forward', data))
+						if (!socketEvents.emit ('user:board', token, 'forward', message))
 						{
 							//board no longer in database
 							socket.close ();
@@ -150,7 +150,7 @@ function initSocket(route, server) {
 			// 	console.log('Websocket closing and not in database for board ' + token);
 			// }
 			// boardList[token] = undefined;
-			boardSockets.removeListener('user:'+token, pushToSocket);
+			boardSockets.removeListener('board:'+token, pushToSocket);
 		});
 
 		socket.on('error', function(e) {
@@ -206,6 +206,15 @@ function initSocket(route, server) {
 						socket.close();
 					}
 				} else if (authenticated === true) {
+					if (data.l === 'b') {
+						//user shell
+						if (await db.board.findByUserIdAndBoardId(userId, data.id)) {
+							boardSockets.emit ('board:'+data.id, 'forward', message);
+						} else {
+							// send(socket, 'b', { err: 'noboard' });
+							userSockets.emit ('user:'+userId, 'send', 'b', { id: data.id, err: 'noboard' });
+						}
+					}
 					socketEvents.emit ('user:'+data.l, userId, data);
 					//  else if (data.l === 'b') {
 					// 	//user shell

@@ -171,6 +171,17 @@ module.exports = {
 					title: 'Delete user',
 					message: 'Are you sure you want to delete the user '+user.firstName+' '+user.lastName+' ('+user.username+')?',
 					className: 'regularModal',
+					buttons:
+					{
+						confirm: {
+							label: 'Yes',
+							className: 'wyliodrin-active'
+						},
+						cancel: {
+							label: 'No',
+							className: 'wyliodrin-back'
+						}
+					},
 					callback: function (result)
 					{
 						if (result)

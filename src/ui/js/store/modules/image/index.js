@@ -81,6 +81,25 @@ module.exports = {
 				return false;
 			}
 		},
+		async setBoot(store, id) {
+			try {
+				// store.commit('images', null);
+				let response = await Vue.http.get(setup.API + '/images/boot/'+id);
+				if (response.data.err === 0) {
+					// console.log(response.data.images);
+					store.dispatch ('listImages');
+					return true;
+				}
+				Vue.toast.warning({title:'Warning!', message:'Couldn\'t set boot the image.<br>Server error: ' + response.data.err});
+				return false;
+			} catch (e) {
+				if (e.status === 0)
+					Vue.toast.connectionError();
+				else if (e.status >= 500)
+					Vue.toast.warning({title:'Warning!', message:'Couldn\'t set boot the image.<br>Server error: ' + e.body.err});
+				return false;
+			}
+		},
 		async deleteImage(store, id) {
 			try {
 				// store.commit('images', null);
