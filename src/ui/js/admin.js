@@ -100,7 +100,7 @@ new Vue({
 		else
 		{
 			this.loading = false;
-			Vue.socket.connect (this.$store.getters ['user/token']);
+			this.$store.dispatch ('socket/connect');
 		}
 	}
 });

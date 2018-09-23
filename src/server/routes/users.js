@@ -5,6 +5,7 @@ var debug = require('debug')('wyliodrin-lab-server:user-routes');
 var db = require('../database/database.js');
 var error = require('../error.js');
 var tokens = require('./redis-tokens.js');
+var socket = require ('../socket');
 
 var publicApp = express.Router();
 var privateApp = express.Router();
@@ -159,6 +160,7 @@ privateApp.get('/logout', async function(req, res) {
 	debug(req.user.userId + ' logged out');
 	await db.board.unassignCourseAndUser (req.user.userId);
 	await tokens.del(req.token);
+	socket.emit ('user', req.user.userId, 'disconnect');
 	res.status(200).send({ err: 0 });
 });
 
@@ -359,6 +361,12 @@ adminApp.post('/delete', async function(req, res, next) {
 	var e;
 	var userId = req.body.userId;
 	try {
+		let board = await db.findByUserId (userId);
+		if (board)
+		{
+			await db.board.unsetupDelay (board.boardId);
+		}
+		await db.workspace.deleteByUserId (userId);
 		await db.user.deleteByUserId(userId);
 		res.status(200).send({ err: 0 });
 	} catch (err) {

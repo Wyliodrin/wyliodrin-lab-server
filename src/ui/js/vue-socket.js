@@ -36,6 +36,25 @@ module.exports.install = function (Vue)
 		},
 		connect (token)
 		{
+			let authenticate = function ()
+			{
+				if (_.isFunction (token))
+				{
+					let t = token ();
+					if (t)
+					{
+						Vue.socket.send ('a', {token:t});
+					}
+					else
+					{
+						setTimeout (authenticate, 1000);
+					}
+				}
+				else
+				{
+					Vue.socket.send ('a', {token: token});
+				}
+			};
 			socket = new ReconnectingWebSocket ((location.protocol==='http:'?'ws':'wss')+'://'+location.hostname+':'+location.port+'/socket/user');
 			// socket.on ('packet', function ()
 			// {
@@ -45,7 +64,10 @@ module.exports.install = function (Vue)
 			{
 				connected = true;
 				console.log ('UI Socket connected');
-				Vue.socket.send ('a', {token: token});
+				Vue.socket.emit ('status', {
+					status: 'authenticate'
+				});
+				authenticate ();
 				// console.log ('UI Socket sent authenticate');
 			};
 			// socket.on ('reconnect', function ()
@@ -72,6 +94,9 @@ module.exports.install = function (Vue)
 						if (data.err === 0)
 						{
 							authenticated = true;
+							Vue.socket.emit ('status', {
+								status: 'connected'
+							});
 							console.log ('Socket authenticated');
 						}
 					}
@@ -101,9 +126,16 @@ module.exports.install = function (Vue)
 			{
 				connected = false;
 				authenticated = false;
+				Vue.socket.emit ('status', {
+					status: 'disconnected'
+				});
 				console.log ('UI Socket disconnected');
 			};
 			return socket;
+		},
+		disconnect ()
+		{
+			socket.refresh ();
 		}
 	});
 };

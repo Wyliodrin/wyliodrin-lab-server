@@ -16,13 +16,16 @@ var project = require ('../modules/project');
 
 var board = require ('../modules/board');
 
+var socket = require ('../modules/socket');
+
 module.exports = new Vuex.Store ({
 	modules: {
 		settings,
 		user,
 		course,
 		project,
-		board
+		board,
+		socket
 	},
 	strict: process.env.NODE_ENV !== 'production'
 });

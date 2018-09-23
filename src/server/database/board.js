@@ -4,6 +4,8 @@ var _ = require('lodash');
 var debug = require('debug')('wyliodrin-lab-server:board-database');
 var moment = require ('moment');
 debug.log = console.info.bind(console);
+var socket = require ('../socket');
+var db = require ('./database');
 
 var boardSchema = mongoose.Schema({
 	boardId: {
@@ -36,9 +38,6 @@ var boardSchema = mongoose.Schema({
 		default: Date.now,
 		required: true
 	},
-	command: {
-		type: String
-	},
 	ip: {
 		type: String,
 	}
@@ -65,11 +64,10 @@ var Board = mongoose.model('Board', boardSchema);
  * @param {String} course - the course for which the board is used
  * @param {String} status - current status of the board
  */
-function createBoard(boardId, userId, courseId, command, ip) {
+function createBoard(boardId, userId, courseId, ip) {
 	var board = new Board(_.assign({}, {
 		boardId: boardId,
 		userId: userId,
-		command: command,
 		courseId: courseId,
 		ip: ip
 	}));
@@ -82,12 +80,13 @@ function boardStatus(boardId, status, ip) {
 		status
 	};
 	if (ip !== undefined) update.ip = ip;
+	socket.emit ('user:board', boardId, 'send', 'u', { t: 'board', s: status });
 	return Board.findOneAndUpdate({ boardId }, { $set: update, lastInfo: Date.now() }, { upsert: true, setDefaultsOnInsert: true, new: true }).lean();
 }
 
-function resetCommand(boardId) {
-	return Board.findOneAndUpdate({ boardId }, { $set: { command: null } }).lean();
-}
+// function resetCommand(boardId) {
+// 	return Board.findOneAndUpdate({ boardId }, { $set: { command: null } }).lean();
+// }
 
 
 function findByBoardId(boardId) {
@@ -122,9 +121,9 @@ function unsetCourseAndUser(boardId) {
 	return Board.findOneAndUpdate({ boardId: boardId }, { $unset: { courseId: '', userId: '' }, lastInfo: Date.now() }).lean();
 }
 
-function issueCommand(boardId, command) {
-	return Board.findOneAndUpdate({ boardId }, { $set: { command: command }, lastInfo: Date.now() }, { upsert: true, new: true }).lean();
-}
+// function issueCommand(boardId, command) {
+// 	return Board.findOneAndUpdate({ boardId }, { $set: { command: command }, lastInfo: Date.now() }, { upsert: true, new: true }).lean();
+// }
 
 function listBoards() {
 	return Board.find().lean();
@@ -150,9 +149,9 @@ var board = {
 	createBoard,
 	findByBoardId,
 	boardStatus,
-	resetCommand,
+	// resetCommand,
 	findByUserId,
-	issueCommand,
+	// issueCommand,
 	assignUserToBoard,
 	assignCourseToBoard,
 	assignCourseAndUser,
@@ -166,11 +165,48 @@ var board = {
 	deleteByBoardId
 };
 
+socket.on ('board:received', async function (boardId, label, data)
+{
+	if (data.l === 'p') {
+		//ping pong
+		let boardIdAway = data.i.boardId;
+
+		if (boardIdAway) {
+			let courseIdAway = data.i.courseId;
+			let userIdAway = data.i.userId;
+			let ipAway = data.i.ip;
+			let statusAway = data.i.status || 'online';
+
+			let board = await boardStatus(boardIdAway, statusAway, ipAway);
+
+			if (statusAway === 'reboot' || statusAway === 'poweroff') db.image.unsetupDelay(boardIdAway);
+
+			if (board) {
+				if (board.courseId !== courseIdAway || board.userId !== userIdAway) {
+					await board.boardStatus(boardIdAway, 'desync');
+					socket.emit ('board', boardId, 'send', 'p' ,{ c: 'reboot' });
+				} else {
+					socket.emit ('board', boardId, 'send', 'p',{ c: board.command });
+				}
+			} else {
+				socket.emit ('board', boardId, 'send', 'p',{ a: 'e', err: 'boardregistererror' });
+			}
+		} else {
+			socket.emit ('board', boardId, 'send', 'p',{ a: 'e', err: 'boardiderror' });
+		}
+
+	}
+});
+
 async function refreshOffline ()
 {
 	try
 	{
-		await Board.update ({ lastInfo: {$lt: moment().subtract (process.env.WYLIODRIN_BOARD_OFFLINE_TIMEOUT || 60, 's').toDate ()} }, { status: 'offline' }, { multi: true });
+		let boards = await Board.update ({ lastInfo: {$lt: moment().subtract (process.env.WYLIODRIN_BOARD_OFFLINE_TIMEOUT || 60, 's').toDate ()} }, { status: 'offline' }, { new: true, multi: true });
+		for (let board of boards)
+		{
+			socket.emit ('user:board', board.boardId, 'send', 'u', { t:'board', s: 'offline'});
+		}
 		// TODO flush product
 		// await Promise.all ([db.cache.flushObject ('location:'+product.ownerId), db.cache.flushObject ('product:'+product.productId), db.cache.flushObject ('products:'+product.clusterId)]);
 	}

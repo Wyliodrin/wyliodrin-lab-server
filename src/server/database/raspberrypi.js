@@ -17,6 +17,8 @@ var uuid = require('uuid');
 
 let boards = {};
 
+var openCourses = {};
+
 // let unsetupReqests = {};
 
 function getBoardSetup (boardId)
@@ -453,7 +455,7 @@ async function unmountSetupCourse(courseId) {
 	return await unmount(folderSetupCourse);
 }
 
-async function setupCourse(courseId, imageInfo, userList, emitString, cmd = 'bash', cols = 80, rows = 24) {
+async function setupCourse(courseId, imageInfo, userId, cmd = 'bash', cols = 80, rows = 24) {
 	if (!imageInfo) {
 		debug('mount root fs using default image id ' + defaultImage.id);
 		imageInfo = defaultImage;
@@ -480,14 +482,16 @@ async function setupCourse(courseId, imageInfo, userList, emitString, cmd = 'bas
 		});
 		run.on('exit', async function(exitCode) {
 			let toSend = {a: 'c', id: courseId};
-			userList.emit(emitString, 's', toSend);
+			socket.emit ('user', userId, 'send', 's', toSend);
 
 			debug('setup course ' + exitCode);
 			await unmountSetupCourse(courseId);
+
+			delete openCourses[userId][courseId];
 		});
 		run.on('data', function(data) {
 			let toSend = {a: 'k', id: courseId, k: data };
-			userList.emit(emitString, 's', toSend);
+			socket.emit ('user', userId, 'send', 's', toSend);
 		});
 		run.on('error', function(error) {
 			if (error.message.indexOf('EIO') === -1) {
@@ -971,6 +975,76 @@ run();
 
 process.on('exit', function() {
 	// TODO unexport all images
+});
+
+
+var socket = require ('../socket');
+
+socket.on ('user:s', async function (userId, data)
+{
+	//shell for courses
+	if (await db.course.findByCourseIdAndTeacher(data.id, userId)) {
+		console.log('course shell');
+		let courseId = data.id;
+		//userId (user prof) allowed to modify course data.id
+		if (data.a === 'o') {
+			//open
+			let userShells = openCourses[userId];
+			if (userShells === undefined) {
+				openCourses[userId] = {};
+			}
+			let currentCourse = openCourses[userId][courseId];
+			if (currentCourse === undefined) {
+				openCourses[userId][courseId] = await setupCourse(courseId, undefined, userId, 'bash', data.c, data.r);
+			}
+		} else if (data.a === 'c') {
+			//close
+			let userShells = openCourses[userId];
+			if (userShells !== undefined) {
+				let currentCourse = openCourses[userId][courseId];
+				if (currentCourse) {
+					currentCourse.kill();
+					openCourses[userId][courseId] = undefined;
+				} else {
+					socket.emit ('user', userId, 'send', 's', { a: 'e', id: courseId, err: 'noshell' });
+				}
+			} else {
+				socket.emit ('user', userId, 'send', 's', { a: 'e', id: courseId, err: 'noshell' });
+			}
+		} else if (data.a === 'k') {
+			//key
+			console.log ('keys');
+			let userShells = openCourses[userId];
+			if (userShells !== undefined) {
+				let currentCourse = openCourses[userId][courseId];
+				if (currentCourse) {
+					if (_.isString(data.k) || _.isBuffer(data.k)) {
+						currentCourse.write(data.k);
+					}
+				} else {
+					socket.emit ('user', userId, 'send', 's', { a: 'e', id: courseId, err: 'noshell' });
+				}
+			} else {
+				console.log ('noshell');
+				socket.emit ('user', userId, 'send', 's', { a: 'e', id: courseId, err: 'noshell' });
+			}
+		} else if (data.a === 'r') {
+			//resize
+			let userShells = openCourses[userId];
+			if (userShells !== undefined) {
+				let currentCourse = openCourses[userId][courseId];
+				if (currentCourse) {
+					currentCourse.resize(data.c, data.r);
+				} else {
+					socket.emit ('user', userId, 'send', 's', { a: 'e', id: courseId, err: 'noshell' });
+				}
+			} else {
+				socket.emit ('user', userId, 'send', 's', { a: 'e', id: courseId, err: 'noshell' });
+			}
+		}
+	} else {
+		socket.emit ('user', userId, 'send', 's', { id: data.id, err: 'noteacher' });
+	}
 });
 
 // TODO export install image instead of this

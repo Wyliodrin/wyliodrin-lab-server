@@ -71,7 +71,7 @@ new Vue ({
 		await this.$store.dispatch ('board/getBoard');
 		this.loading = false;
 		console.log ('token '+this.token);
-		if (this.token) this.connectSocket ();
+		this.connectSocket ();
 	},
 	
 	computed: {
@@ -86,14 +86,14 @@ new Vue ({
 		token ()
 		{
 			// console.log ('token');
-			if (this.token !== undefined) this.connectSocket ();
+			// this.connectSocket ();
 		}
 	},
 
 	methods: {
 		connectSocket ()
 		{
-			Vue.socket.connect (this.token);
+			this.$store.dispatch ('socket/connect');
 		}
 	}
 });
