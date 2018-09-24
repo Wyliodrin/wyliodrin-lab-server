@@ -81,7 +81,7 @@ sudo npm install -g wyliolab --unsafe-perm
 
 # install wyliozero
 echo "Install wyliozero"
-sudo pip install wyliozero
+sudo pip install PyMata gpiozero pyserial paho-mqtt Adafruit_CharLCD Adafruit_DHT wyliozero
 
 # Writing fstab
 echo "Setting mount /proc"

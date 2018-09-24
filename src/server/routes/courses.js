@@ -93,8 +93,9 @@ privateApp.post('/image', async function(req, res, next) {
 	if (userCanAddStudents(req.user, courseId)) {
 		try {
 			if (db.image.existsImageId(imageId)) {
-				await db.image.removeSetupCourse(courseId);
+				// await db.image.removeSetupCourse(courseId);
 				await db.course.editCourse(courseId, null, imageId);
+				res.send ({err:0});
 			}
 		} catch (err) {
 			debug(err);
@@ -195,8 +196,9 @@ adminApp.post('/remove', async function(req, res, next) {
 	var courseId = req.body.courseId;
 	try {
 		var boards = await db.board.listBoardsByCourseId(courseId);
-		if (!boards) {
+		if (boards && boards.length === 0) {
 			await db.course.deleteByCourseId(courseId);
+			await db.image.removeSetupUserCourse (courseId);
 			await db.image.removeSetupCourse (courseId);
 			res.status(200).send({ err: 0 });
 		} else {

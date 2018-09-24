@@ -449,6 +449,11 @@ function removeSetupCourse(courseId) {
 	return fs.remove(folderCourse);
 }
 
+function removeSetupUserCourse(courseId) {
+	let folderUserCourse = path.join(USER, courseId);
+	return fs.remove(folderUserCourse);
+}
+
 async function unmountSetupCourse(courseId) {
 	let folderSetupCourse = path.join(SETUP_COURSE, courseId);
 	// umount /proc
@@ -793,6 +798,13 @@ async function cmdline(courseId, imageId, boardId, userId, parameters) {
 	return cmdline;
 }
 
+async function config(courseId, imageId, boardId, userId, parameters) {
+	let folderBoot = path.join(BOOT, imageId);
+	let contents = (await fs.readFile(path.join(folderBoot, 'config.txt'))).toString();
+	contents = contents+'\nenable_uart=1'+(parameters?+'\n'+parameters:''); // TODO modify parameters
+	return contents;
+}
+
 function defaultImageId() {
 	console.log(defaultImage);
 	if (!defaultImage) {
@@ -1061,6 +1073,7 @@ module.exports.unsetup = unsetup;
 module.exports.unsetupDelay = unsetupDelay;
 module.exports.setupCourse = setupCourse;
 
+module.exports.config = config;
 module.exports.cmdline = cmdline;
 
 module.exports.defaultImageId = defaultImageId;
@@ -1079,4 +1092,5 @@ module.exports.saveDefaultImage = saveDefaultImage;
 module.exports.loadDefaultImage = loadDefaultImage;
 
 module.exports.removeSetupCourse = removeSetupCourse;
+module.exports.removeSetupUserCourse = removeSetupUserCourse;
 module.exports.existsImageId = existsImageId;

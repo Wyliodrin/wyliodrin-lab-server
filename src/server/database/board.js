@@ -40,6 +40,11 @@ var boardSchema = mongoose.Schema({
 	},
 	ip: {
 		type: String,
+	},
+	project: {
+		type: Boolean,
+		required: true,
+		default: false
 	}
 }, {
 	toObject: {
@@ -75,13 +80,18 @@ function createBoard(boardId, userId, courseId, ip) {
 	return board.save();
 }
 
-function boardStatus(boardId, status, ip) {
+async function boardStatus(boardId, status, ip, project) {
 	let update = {
 		status
 	};
-	if (ip !== undefined) update.ip = ip;
-	socket.emit ('user:board', boardId, 'send', 'u', { t: 'board', s: status });
-	return Board.findOneAndUpdate({ boardId }, { $set: update, lastInfo: Date.now() }, { upsert: true, setDefaultsOnInsert: true, new: true }).lean();
+	if (status === 'online')
+	{
+		update.ip = ip;
+		update.project = project;
+	}
+	let board = await Board.findOneAndUpdate({ boardId }, { $set: update, lastInfo: Date.now() }, { upsert: true, setDefaultsOnInsert: true, new: true }).lean();
+	if (board && board.userId) socket.emit ('user:board', boardId, 'send', 'board', board);
+	return board;
 }
 
 // function resetCommand(boardId) {
@@ -176,8 +186,9 @@ socket.on ('board:received', async function (boardId, label, data)
 			let userIdAway = data.i.userId;
 			let ipAway = data.i.ip;
 			let statusAway = data.i.status || 'online';
+			let project = data.i.project;
 
-			let board = await boardStatus(boardIdAway, statusAway, ipAway);
+			let board = await boardStatus(boardIdAway, statusAway, ipAway, project);
 
 			if (statusAway === 'reboot' || statusAway === 'poweroff') db.image.unsetupDelay(boardIdAway);
 
@@ -205,12 +216,14 @@ async function refreshOffline ()
 {
 	try
 	{
-		let boards = await Board.find ({ lastInfo: {$lt: moment().subtract (process.env.WYLIODRIN_BOARD_OFFLINE_TIMEOUT || 60, 's').toDate ()}, status:{$ne: 'offline'} }, { boardId: 1 });
-		await Board.update ({ lastInfo: {$lt: moment().subtract (process.env.WYLIODRIN_BOARD_OFFLINE_TIMEOUT || 60, 's').toDate ()},  }, { status: 'offline' }, { new: true, multi: true });
+		let boards = await Board.find ({ lastInfo: {$lt: moment().subtract (process.env.WYLIODRIN_BOARD_OFFLINE_TIMEOUT || 60, 's').toDate ()}, status:{$ne: 'offline'} }, { boardId: 1 }).lean();
+		await Board.update ({ lastInfo: {$lt: moment().subtract (process.env.WYLIODRIN_BOARD_OFFLINE_TIMEOUT || 60, 's').toDate ()},  }, { status: 'offline', ip: '' }, { new: true, multi: true });
 		console.log (boards);
 		for (let board of boards)
 		{
-			socket.emit ('user:board', board.boardId, 'send', 'u', { t:'board', s: 'offline'});
+			board.ip = '';
+			board.status = 'offline';
+			socket.emit ('user:board', board.boardId, 'send', 'board', board);
 		}
 		// TODO flush product
 		// await Promise.all ([db.cache.flushObject ('location:'+product.ownerId), db.cache.flushObject ('product:'+product.productId), db.cache.flushObject ('products:'+product.clusterId)]);

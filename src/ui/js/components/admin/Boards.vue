@@ -61,7 +61,7 @@
 						<td class="text-center" style="width:130px">
 							<a class="iconbtn" v-show="board.status === 'online'" @click="reboot(board)" v-tooltip data-toggle="tooltip"  data-placement="top" title="Reboot"><img src="/img/icons/restart-16.png"></a>
 							<a class="iconbtn" @click="disconnect(board)" v-tooltip data-toggle="tooltip" data-placement="top" title="Disconnect"><img src="/img/icons/disconnect-16.png"></a>
-							<a class="iconbtn" v-tooltip data-toggle="tooltip" data-placement="top" title="Delete"><img src="/img/icons/erase-16.png"></a>
+							<a class="iconbtn" v-tooltip data-toggle="tooltip" data-placement="top" @click="del(board)" title="Delete"><img src="/img/icons/erase-16.png"></a>
 						</td>
 					</tr>
 				</tbody>
@@ -158,6 +158,54 @@ module.exports = {
 					}
 				}
 			});
+		},
+		del (board)
+		{
+			if (!board.userId)
+			{
+				var that = this;
+				Vue.bootbox.confirm ({
+					title: 'Delete '+board.boardId,
+					message: 'Are you sure you want to delete?', 
+					className: 'regularModal',
+					buttons:
+					{
+						confirm: {
+							label: 'Yes',
+							className: 'wyliodrin-active'
+						},
+						cancel: {
+							label: 'No',
+							className: 'wyliodrin-back'
+						}
+					},
+					callback: async function (result)
+					{
+						if (result)
+						{
+							if (await that.$store.dispatch ('board/del', board.boardId))
+							{
+								that.$store.dispatch ('board/listBoards');
+							}
+						}
+					}
+				});
+			}
+			else
+			{
+				Vue.bootbox.alert ({
+					title: 'Delete '+board.boardId,
+					message: 'Please disconnect the boards before trying to delete it',
+					className: 'regularModal',
+					buttons:
+					{
+						ok: {
+							label: 'OK',
+							className: 'wyliodrin-active'
+						},
+					},
+				});
+			}
 		},
 		lastSeen (board)
 		{

@@ -28,6 +28,14 @@ module.exports = {
 		}
 	},
 	actions: {
+		init (store)
+		{
+			Vue.socket.on ('board', function (data)
+			{
+				console.log ('board');
+				store.commit ('board', data);
+			});
+		},
 		async listBoards (store)
 		{
 			try {
@@ -97,6 +105,24 @@ module.exports = {
 					Vue.toast.connectionError();
 				else if (e.status >= 500)
 					Vue.toast.warning({title:'Warning!', message: 'You couldn\'t disconnect the board!<br>Server error: ' + e.body.err});
+				return false;
+			}
+		},
+		async del(store, boardId) {
+			try {
+				let response = await Vue.http.post(setup.API + '/boards/remove', {
+					boardId
+				});
+				// console.log(response.data.role);
+				if (response.data.err === 0) {
+					return true;	
+				}
+				return false;
+			} catch (e) {
+				if (e.status === 0)
+					Vue.toast.connectionError();
+				else if (e.status >= 500)
+					Vue.toast.warning({title:'Warning!', message: 'You couldn\'t delete the board!<br>Server error: ' + e.body.err});
 				return false;
 			}
 		},

@@ -66,8 +66,9 @@ new Vue ({
 
 	async created ()
 	{
-		await this.$store.dispatch ('settings/init');	
+		await this.$store.dispatch ('settings/init');
 		await this.$store.dispatch ('user/updateUser');
+		await this.$store.dispatch ('board/init');	
 		await this.$store.dispatch ('board/getBoard');
 		this.loading = false;
 		console.log ('token '+this.token);

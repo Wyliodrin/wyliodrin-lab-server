@@ -77,7 +77,15 @@ adminApp.post('/download', function(req, res, next) {
 adminApp.get('/delete/:id', async function(req, res, next) {
 	try {
 		// TODO Delete image
-		await db.image.deleteImage(req.params.id);
+		if (db.image.defaultImageId() !== req.params.id)
+		{
+			await db.image.deleteImage(req.params.id);
+		}
+		else
+		{
+			let e = error.unauthorized('Cannot delete Default Image');
+			return next(e);
+		}
 	} catch (err) {
 		let e = error.serverError(err);
 		return next(e);

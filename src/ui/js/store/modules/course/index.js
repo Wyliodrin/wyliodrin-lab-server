@@ -184,6 +184,28 @@ module.exports = {
 			}
 		},
 
+		async setImage(store, data) {
+			try {
+				let response = await Vue.http.post(setup.API + '/courses/image', {
+					courseId: data.courseId,
+					imageId: data.imageId
+				});
+				if (response.data.err === 0) {
+					await store.dispatch('listCourses');
+					return true;
+				} else {
+					Vue.toast.warning({title:'Warning!', message:'Couldn\'t create the course.<br>Server error: ' + response.data.err});
+					return false;
+				}
+			} catch (e) {
+				if (e.status === 0)
+					Vue.toast.connectionError();
+				else if (e.status >= 500)
+					Vue.toast.warning({title:'Warning!', message:'Couldn\'t create the course.<br>Server error: ' + e.body.err});
+				return false;
+			}
+		},
+
 		async deleteCourse(store, courseId) {
 			try {
 				let response = await Vue.http.post(setup.API + '/courses/remove', courseId);

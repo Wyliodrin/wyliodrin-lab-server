@@ -88,6 +88,21 @@ var server = tftp.createServer ({
 					}
 				}
 				else
+				if (filename === 'config.txt')
+				{
+					try 
+					{
+						let params = await imageData (boardId);
+						data = await db.image.config (params.courseId, params.id, boardId, params.userId);
+						console.log ('config '+data);
+					}
+					catch (e)
+					{
+						console.log (e);
+						console.error ('ERROR: config.txt '+e.message);
+					}
+				}
+				else
 				{
 					// console.log (filename);
 					data = await fs.readFile (path.join (pathBoot, filename));
@@ -98,7 +113,7 @@ var server = tftp.createServer ({
 			}
 			catch (e)
 			{
-				// console.log (e);
+				console.log (e);
 				if (e.message.indexOf ('ENOENT')<0)
 				{
 					console.log (filename+' '+e.message);
@@ -109,6 +124,7 @@ var server = tftp.createServer ({
 		}
 		else
 		{
+			console.log ('Board id is .');
 			req.abort (tftp.ENOENT);
 		}
 	}
