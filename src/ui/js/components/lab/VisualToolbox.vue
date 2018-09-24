@@ -368,8 +368,6 @@
 			</category>
 
 			<category name="LCD" colour="100">
-				<block type="lab_lcd"> 
-				</block>
 				<block type="lcd_write"> 
 				</block>
 
