@@ -337,26 +337,11 @@ Blockly.Blocks['pinmode'] = {
 	}
   };
   
-
-  Blockly.Blocks['lab_lcd'] = {
-	init: function() {
-	  this.appendDummyInput()
-		  .appendField("Lab LCD");
-	  this.setOutput(true, "LCD");
-	  this.setColour(0);
-   this.setTooltip("");
-   this.setHelpUrl("");
-	}
-  };
-  
   Blockly.Blocks['lcd_write'] = {
 	init: function() {
-	  this.appendValueInput("lcd")
-		  .setCheck("LCD")
-		  .appendField("LCD");
 	  this.appendValueInput("str")
 		  .setCheck("String")
-		  .appendField("write");
+		  .appendField("LCD write");
 	  this.appendDummyInput()
 		  .appendField("on line");
 	  this.appendDummyInput()
