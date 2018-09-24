@@ -205,6 +205,28 @@ Blockly.Python['analogread'] = function(block) {
 	return code;
   };
   
+  Blockly.Python['lab_lcd'] = function(block) {
+	// TODO: Assemble Python into code variable.
+	var code = 'LabLCD()\n';
+	// TODO: Change ORDER_NONE to the correct strength.
+	return [code, Blockly.Python.ORDER_NONE];
+  };
+  
+  Blockly.Python['lcd_write'] = function(block) {
+	var value_lcd = Blockly.Python.valueToCode(block, 'lcd', Blockly.Python.ORDER_ATOMIC);
+	var value_str = Blockly.Python.valueToCode(block, 'str', Blockly.Python.ORDER_ATOMIC);
+	var dropdown_line = block.getFieldValue('line');
+	// TODO: Assemble Python into code variable.
+
+	var code;
+	if (value_str.toString() === '1') {
+		code = lcd.toString() + '.clear()\n' + lcd.toString() + '.setCursor(0,0)\n' + lcd.toString() + '.message(' + value_str.toString() + ')\n';
+	}
+	else if (value_str.toString() === '2'){
+		code = lcd.toString() + '.clear()\n' + lcd.toString() + '.setCursor(0,1)\n' + lcd.toString() + '.message(' + value_str.toString() + ')\n';
+	}
+	return code;
+  };
 
   
 };
