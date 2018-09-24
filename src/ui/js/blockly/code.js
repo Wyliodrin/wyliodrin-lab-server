@@ -209,10 +209,10 @@ Blockly.Python['analogread'] = function(block) {
 
 	var code;
 	if (value_str.toString() === '2') {
-		code = lcd + '.clear()\n' + lcd + '.setCursor(0,0)\n' + lcd + '.message(' + value_str.toString() + ')\n';
+		code = value_lcd + '.clear()\n' + value_lcd + '.setCursor(0,0)\n' + value_lcd + '.message(' + value_str.toString() + ')\n';
 	}
 	else {
-		code = lcd + '.clear()\n' + lcd + '.setCursor(0,1)\n' + lcd + '.message(' + value_str.toString() + ')\n';
+		code = value_lcd + '.clear()\n' + value_lcd + '.setCursor(0,1)\n' + value_lcd + '.message(' + value_str.toString() + ')\n';
 	}
 	return code;
   };
