@@ -201,6 +201,7 @@ Blockly.Python['analogread'] = function(block) {
   };
   
   Blockly.Python['lcd_write'] = function(block) {
+	Blockly.Python.setUp();
 	var value_lcd = 'LabLCD()'
 	var value_str = Blockly.Python.valueToCode(block, 'str', Blockly.Python.ORDER_ATOMIC);
 	var dropdown_line = block.getFieldValue('line');
