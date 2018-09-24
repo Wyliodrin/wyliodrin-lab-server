@@ -69,18 +69,20 @@
 							<a href="#" class="sort-by"></a></th>
 						<!-- <th scope="col" class="text-center">Iterations
 							<a href="#" class="sort-by"></a></th> -->
-						<!-- <th scope="col" class="text-center" style="width:130px">Actions</th> -->
+						<th scope="col" class="text-center" style="width:130px">Actions</th>
 					</tr>
 				</thead>
 				<tbody class="users-list">
 					<tr v-for="user in filterUsers" :key="user.userId" @click="editUser (user.userId)" class="handpointer">
-						<td class="user-pic" style="width:70px"><img src="img/pics/boy.png" class="ml-2"></td>
+						<td class="user-pic" style="width:70px"><img :src="gravatar(user, 32)" class="ml-2"></td>
 						<td>{{user.firstName+' '+user.lastName}}</td>
 						<td class="text-center">{{user.username}}</td>
 						<td class="text-center">{{user.email}}</td>
 						<td class="text-center">{{user.role}}</td>
 						<!-- <td class="text-center">17</td> -->
-						<!-- <td class="text-center" style="width:130px"></td> -->
+						<td class="text-center" style="width:130px">
+							<a class="iconbtn" @click.stop="del(user)" v-tooltip data-toggle="tooltip" data-placement="top" title="Delete"><img src="/img/icons/erase-16.png"></a>
+						</td>
 					</tr>
 				</tbody>
 			</table>
@@ -97,6 +99,7 @@ var AddUserModal = require ('./AddUserModal.vue');
 var mapGetters = require('vuex').mapGetters;
 
 var _ = require ('lodash');
+var md5 = require ('md5');
 
 var HalfCircleSpinner = require ('epic-spinners/dist/lib/epic-spinners.min.js').HalfCircleSpinner;
 
@@ -160,6 +163,44 @@ module.exports = {
 			});
 		},
 
+		del (user)
+		{
+			if (this.user.userId !== user.userId)
+			{
+				Vue.bootbox.confirm ({
+					title: 'Delete user',
+					message: 'Are you sure you want to delete the user '+user.firstName+' '+user.lastName+' ('+user.username+')?',
+					className: 'regularModal',
+					buttons:
+					{
+						confirm: {
+							label: 'Yes',
+							className: 'wyliodrin-active'
+						},
+						cancel: {
+							label: 'No',
+							className: 'wyliodrin-back'
+						}
+					},
+					callback: function (result)
+					{
+						if (result)
+						{
+							// TODO
+						}
+					}
+				});
+			}
+			else
+			{
+				Vue.bootbox.alert ({
+					title: 'Unable to delete',
+					message: 'You cannot delete yourself',
+					className: 'regularModal'
+				});
+			}
+		},
+
 		async getUserById(userId) {
 			let recvUser = await this.$store.dispatch ('user/getUser', userId);
 
@@ -169,6 +210,11 @@ module.exports = {
 				return recvUser.firstName;
 			else
 				return null;
+		},
+		gravatar (user, size)
+		{
+			// console.log (user);
+			return 'https://www.gravatar.com/avatar/'+md5 (user.email)+'?d=mp&s='+size;
 		},
 	},
 	computed: {

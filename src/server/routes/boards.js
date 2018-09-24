@@ -8,6 +8,7 @@ var error = require('../error.js');
 var privateApp = express.Router();
 var remoteApp = express.Router();
 var adminApp = express.Router();
+var socket = require ('../socket');
 
 debug.log = console.info.bind(console);
 
@@ -22,7 +23,7 @@ function userIsValidForCourse(user, course) {
 	}
 }
 
-function userCanRebootBoard(user, course, board) {
+function userCanCommandBoard(user, course, board) {
 	if (user.role === 'admin') {
 		return true;
 	}
@@ -123,16 +124,17 @@ privateApp.get('/user', async function(req, res, next) {
 	}
 });
 
-privateApp.post('/reboot', async function(req, res, next) {
+privateApp.post('/command', async function(req, res, next) {
 	var e;
 	var boardId = req.body.boardId;
+	var command = req.body.command;
 	if (boardId) {
 		try {
 			var board = await db.board.findByBoardId(boardId);
 			if (board) {
 				var course = await db.course.findByCourseId(board.courseId);
-				if (userCanRebootBoard(req.user, course, board)) {
-					await db.board.issueCommand(boardId, 'reboot');
+				if (userCanCommandBoard(req.user, course, board)) {
+					socket.emit ('board', boardId, 'send', 'p', {c: command});
 					res.status(200).send({ err: 0 });
 				} else {
 					e = error.unauthorized('User cannot reboot board');
@@ -236,6 +238,8 @@ privateApp.post('/disconnect', async function(req, res, next) {
 				if (await userCanDisconnectBoard(board, req.user)) {
 					await db.board.unsetCourseAndUser(boardId);
 					db.image.unsetupDelay (board.boardId, 20000);
+					socket.emit ('board', boardId, 'send', 'p', {c: 'reboot'});
+					socket.emit ('board', boardId, 'disconnect');
 					res.status(200).send({ err: 0 });
 				} else {
 					e = error.unauthorized('User cannot disconnect board');

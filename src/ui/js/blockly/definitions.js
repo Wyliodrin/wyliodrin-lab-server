@@ -48,7 +48,7 @@ Blockly.Blocks['analogread'] = {
 		  .setAlign(Blockly.ALIGN_RIGHT)
 		  .appendField("digitalWrite");
 	  this.appendValueInput("value")
-		  .setCheck("Number")
+		  .setCheck("Boolean", "Number")
 		  .setAlign(Blockly.ALIGN_RIGHT)
 		  .appendField("value");
 	  this.setInputsInline(true);
@@ -60,18 +60,20 @@ Blockly.Blocks['analogread'] = {
 	}
   };
   
-  Blockly.Blocks['pinmode'] = {
-	init: function() {
-	  this.appendValueInput("NAME")
-		  .setCheck(["String", "pinNumber"])
-		  .appendField("pinMode");
-	  this.appendDummyInput()
-		  .appendField(new Blockly.FieldDropdown([["INPUT","INPUT"], ["OUTPUT","OUTPUT"]]), "mode");
-	  this.setColour(105);
-   this.setTooltip("");
-   this.setHelpUrl("");
-	}
-  };
+Blockly.Blocks['pinmode'] = {
+  init: function() {
+    this.appendValueInput("NAME")
+        .setCheck(["String", "pinNumber"])
+        .appendField("pinMode");
+    this.appendDummyInput()
+        .appendField(new Blockly.FieldDropdown([["INPUT","INPUT"], ["OUTPUT","OUTPUT"]]), "mode");
+    this.setPreviousStatement(true, null);
+    this.setNextStatement(true, null);
+    this.setColour(105);
+ this.setTooltip("");
+ this.setHelpUrl("");
+  }
+};
   
   Blockly.Blocks['pin'] = {
 	init: function() {
@@ -114,17 +116,8 @@ Blockly.Blocks['analogread'] = {
 	}
   };
   
-  Blockly.Blocks['start_wyliolab'] = {
-	init: function() {
-	  this.appendDummyInput()
-		  .appendField("Start Wyliolab");
-	  this.setNextStatement(true, null);
-	  this.setColour(180);
-   this.setTooltip("");
-   this.setHelpUrl("");
-	}
-  };
-  
+
+
   Blockly.Blocks['led'] = {
 	init: function() {
 	  this.appendValueInput("pin")
@@ -139,7 +132,7 @@ Blockly.Blocks['analogread'] = {
   
   Blockly.Blocks['pwm_led'] = {
 	init: function() {
-	  this.appendValueInput("led")
+	  this.appendValueInput("pin")
 		  .setCheck(["String", "pinNumber"])
 		  .appendField("PWM LED");
 	  this.setOutput(true, "PWM_LED");
@@ -180,9 +173,10 @@ Blockly.Blocks['analogread'] = {
 	  this.appendValueInput("led")
 		  .setCheck(["PWM_LED", "LED", "traffic"])
 		  .setAlign(Blockly.ALIGN_CENTRE)
-		  .appendField("Blink");
+		  .appendField("Blink LED ");
 	  this.setInputsInline(true);
 	  this.setPreviousStatement(true, null);
+	  this.setNextStatement(true, null);
 	  this.setColour(105);
    this.setTooltip("");
    this.setHelpUrl("");
@@ -197,8 +191,8 @@ Blockly.Blocks['analogread'] = {
 	  this.appendValueInput("value")
 		  .setCheck("Number")
 		  .appendField("with value");
-	  this.appendDummyInput()
-		  .appendField("(between 0 and 1)");
+	//   this.appendDummyInput()
+	// 	  .appendField("(between 0 and 255)");
 	  this.setInputsInline(true);
 	  this.setPreviousStatement(true, null);
 	  this.setNextStatement(true, null);
@@ -250,11 +244,12 @@ Blockly.Blocks['analogread'] = {
 	}
   };
   
-  Blockly.Blocks['turn_on'] = {
+  Blockly.Blocks['led_turn_on'] = {
 	init: function() {
 	  this.appendValueInput("NAME")
-		  .setCheck(["PWM_LED", "LED", "traffic"])
-		  .appendField("Turn on");
+		  .setCheck(["PWM_LED", "LED"])
+		  .appendField("Turn on LED");
+	  this.setInputsInline(true);
 	  this.setPreviousStatement(true, null);
 	  this.setNextStatement(true, null);
 	  this.setColour(105);
@@ -263,11 +258,12 @@ Blockly.Blocks['analogread'] = {
 	}
   };
   
-  Blockly.Blocks['turn_off'] = {
+  Blockly.Blocks['led_turn_off'] = {
 	init: function() {
 	  this.appendValueInput("NAME")
-		  .setCheck(["PWM_LED", "LED", "traffic"])
-		  .appendField("Turn off");
+		  .setCheck(["PWM_LED", "LED"])
+		  .appendField("Turn off LED");
+	  this.setInputsInline(true);
 	  this.setPreviousStatement(true, null);
 	  this.setNextStatement(true, null);
 	  this.setColour(105);
@@ -336,3 +332,22 @@ Blockly.Blocks['analogread'] = {
 	}
   };
   
+  Blockly.Blocks['lcd_write'] = {
+	init: function() {
+	  this.appendValueInput("str")
+		  .setCheck("String")
+		  .appendField("LCD write");
+	  this.appendDummyInput()
+		  .appendField("on line");
+	  this.appendDummyInput()
+		  .appendField(new Blockly.FieldDropdown([["1","1"], ["2","2"]]), "line");
+	  this.setInputsInline(true);
+	  this.setPreviousStatement(true, null);
+	  this.setNextStatement(true, null);
+	  this.setColour(0);
+   this.setTooltip("");
+   this.setHelpUrl("");
+	}
+  };
+
+

@@ -10,8 +10,9 @@ var $ = require ('jquery');
 var bootbox = require ('./vue-bootbox.js');
 Vue.use (bootbox);
 
-// var socket = require ('./vue-socket.js');
-// Vue.use (socket);
+// socket
+var socket = require ('./vue-socket.js');
+Vue.use (socket);
 
 // store
 var store = require ('./store/lab/store.js');
@@ -39,6 +40,8 @@ Vue.directive ('tooltip', {
 });
 
 var mapGetters = require('vuex').mapGetters;
+var urlParams = new URLSearchParams(window.location.search);
+let boardId = urlParams.get ('boardId');
 
 new Vue ({
 	el: '#lab',
@@ -50,7 +53,7 @@ new Vue ({
 	{
 		// console.log ('render');\
 		if (this.loading) return render (Loading);
-		else if (this.user && this.board && this.board.boardId && this.board.courseId)
+		else if (this.user && this.board && this.board.boardId && (!boardId || this.board.boardId === boardId) && this.board.courseId)
 		{
 			return render (Lab);
 		}
@@ -63,25 +66,34 @@ new Vue ({
 
 	async created ()
 	{
-		// await this.$store.dispatch ('settings/init');	
+		await this.$store.dispatch ('settings/init');	
 		await this.$store.dispatch ('user/updateUser');
 		await this.$store.dispatch ('board/getBoard');
 		this.loading = false;
-		// if (!this.$store.getters ['user/token']) 
-		// {
-		// 	this.$store.dispatch ('settings/redirect', 'LOGIN');
-		// }
-		// else
-		// {
-		// 	this.loading = false;
-		// 	Vue.socket.connect (this.$store.getters ['user/token']);
-		// }
+		console.log ('token '+this.token);
+		this.connectSocket ();
 	},
 	
 	computed: {
 		...mapGetters ({
 			user: 'user/user',
-			board: 'board/board'
+			token: 'user/token',
+			board: 'board/board',
 		})
+	},
+
+	watch: {
+		token ()
+		{
+			// console.log ('token');
+			// this.connectSocket ();
+		}
+	},
+
+	methods: {
+		connectSocket ()
+		{
+			this.$store.dispatch ('socket/connect');
+		}
 	}
 });

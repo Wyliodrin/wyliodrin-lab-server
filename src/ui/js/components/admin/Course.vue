@@ -195,8 +195,8 @@
 									<td class="text-center" :class="board.status">{{board.status}}</td>
 									<td class="text-center">{{lastSeen(board)}}</td>
 									<td class="text-center" style="width:190px">
-										<a class="iconbtn"  v-tooltip data-toggle="tooltip" data-placement="top" title="Reboot"><img src="/img/icons/restart-16.png"></a>
-										<a class="iconbtn"  v-tooltip data-toggle="tooltip" data-placement="top" title="Disconnect"><img src="/img/icons/disconnect-16.png"></a>
+										<a class="iconbtn"  @click="reboot(board)" v-tooltip data-toggle="tooltip" data-placement="top" title="Reboot"><img src="/img/icons/restart-16.png"></a>
+										<a class="iconbtn"  @click="disconnect(board)" v-tooltip data-toggle="tooltip" data-placement="top" title="Disconnect"><img src="/img/icons/disconnect-16.png"></a>
 									</td>
 								</tr>
 							</tbody>
@@ -204,16 +204,19 @@
 					</div>
 					<div class="tab-pane fade" id="software" role="tabpanel" aria-labelledby="software-tab">
 						<h4>Software</h4>
-						<div>
+						<div class="w-100 h-100">
 							<div class="input-group mb-3">
 								<div class="input-group-prepend">
 									<span class="input-group-text" id="inputGroup-sizing-default">Image</span>
 								</div>
-								<select name="image" class="custom-select" v-model="imageId">
+								<select name="image" class="custom-select" v-model="imageId" :disabled="setup">
 									<option v-for="image in images" :key="image.id" :value="image.id">{{image.filename}}</option>
 								</select>
 							</div>
-							<a @click="changeImage">Change Image</a>
+							<a v-if="change" @click="changeImage">Change Image</a>
+							<a v-if="!change" @click="setupImage">Setup Image</a>
+							<Shell v-if="setup" :courseId="course.courseId">
+							</Shell>
 						</div>
 					</div>
 				</div>
@@ -233,15 +236,19 @@ var _ = require ('lodash');
 var timeout = null;
 var md5 = require ('md5');
 var moment = require ('moment');
+var Shell = require ('../modules/Shell.vue');
 module.exports = {
 	name: 'Course',
 	data ()
 	{
 		return {
-			imageId: null
+			imageId: null,
+			setup: false,
+			chnage: false
 		};
 	},
 	components: {
+		Shell,
 		HalfCircleSpinner
 	},
 	async created () {
@@ -292,9 +299,66 @@ module.exports = {
 		},
 	},
 	methods: {
+		reboot (board)
+		{
+			var that = this;
+			Vue.bootbox.confirm ({
+				title: 'Reboot '+board.boardId+'?',
+				message: 'Are you sure you want to reboot the board?',
+				className: 'regularModal',
+				buttons:
+				{
+					confirm: {
+						label: 'Yes',
+						className: 'wyliodrin-active'
+					},
+					cancel: {
+						label: 'No',
+						className: 'wyliodrin-back'
+					}
+				},
+				callback: function (result)
+				{
+					if (result)
+					{
+						that.$store.dispatch ('board/command', {
+							boardId: board.boardId,
+							command: 'reboot'
+						});
+					}
+				}
+			});
+		},
+		disconnect (board)
+		{
+			var that = this;
+			Vue.bootbox.confirm ({
+				title: 'Disconnect '+board.boardId,
+				message: 'Are you sure you want to disconnect?', 
+				className: 'regularModal',
+				buttons:
+				{
+					confirm: {
+						label: 'Yes',
+						className: 'wyliodrin-active'
+					},
+					cancel: {
+						label: 'No',
+						className: 'wyliodrin-back'
+					}
+				},
+				callback: function (result)
+				{
+					if (result)
+					{
+						that.$store.dispatch ('board/disconnect', board.boardId);
+					}
+				}
+			});
+		},
 		gravatar (user, size)
 		{
-			console.log (user);
+			// console.log (user);
 			return 'https://www.gravatar.com/avatar/'+md5 (user.email)+'?d=mp&s='+size;
 		},
 		addNewStudent () {
@@ -311,22 +375,38 @@ module.exports = {
 
 		deleteStudentFromCourse(student){
 			var that = this;
-			Vue.bootbox.confirm ('Are you sure you want to delete the student '+student.firstName+' '+student.lastName+' from the course?', async function (result)
-			{
-				if (result)
+			Vue.bootbox.confirm ({
+				title: 'Delete student',
+				message: 'Are you sure you want to delete the student '+student.firstName+' '+student.lastName+' from the course?',
+				className: 'regularModal',
+				buttons:
 				{
-					let courseId = that.course.courseId;
+					confirm: {
+						label: 'Yes',
+						className: 'wyliodrin-active'
+					},
+					cancel: {
+						label: 'No',
+						className: 'wyliodrin-back'
+					}
+				},
+				callback: async function (result)
+				{
+					if (result)
+					{
+						let courseId = that.course.courseId;
 
-					console.log(student.studentId);
-					console.log(courseId);
+						console.log(student.studentId);
+						console.log(courseId);
 
-					let recvDelStudent = await that.$store.dispatch ('course/deleteStudentFromCourse', {
-						courseId: courseId,
-						studentId: student.userId
-					});
+						let recvDelStudent = await that.$store.dispatch ('course/deleteStudentFromCourse', {
+							courseId: courseId,
+							studentId: student.userId
+						});
 
-					if (!recvDelStudent)
-						console.log('Could not delete student from course..');
+						if (!recvDelStudent)
+							console.log('Could not delete student from course..');
+					}
 				}
 			});
 		},
@@ -345,19 +425,35 @@ module.exports = {
 
 		deleteTeacherFromCourse(teacher){
 			var that = this;
-			Vue.bootbox.confirm ('Are you sure you want to delete teacher '+teacher.firstName+' '+teacher.lastName+' from the course?', async function (result)
-			{
-				if (result)
+			Vue.bootbox.confirm ({
+				title: 'Delete teacher',
+				message: 'Are you sure you want to delete teacher '+teacher.firstName+' '+teacher.lastName+' from the course?', 
+				className: 'regularModal',
+				buttons:
 				{
-					let courseId = that.course.courseId;
+					confirm: {
+						label: 'Yes',
+						className: 'wyliodrin-active'
+					},
+					cancel: {
+						label: 'No',
+						className: 'wyliodrin-back'
+					}
+				},
+				callback: async function (result)
+				{
+					if (result)
+					{
+						let courseId = that.course.courseId;
 
-					let recvDelTeacher = await that.$store.dispatch ('course/deleteTeacherFromCourse', {
-						courseId: courseId,
-						teacherId: teacher.userId
-					});
+						let recvDelTeacher = await that.$store.dispatch ('course/deleteTeacherFromCourse', {
+							courseId: courseId,
+							teacherId: teacher.userId
+						});
 
-					if (!recvDelTeacher)
-						console.log('Could not delete teacher from course..');
+						if (!recvDelTeacher)
+							console.log('Could not delete teacher from course..');
+					}
 				}
 			});
 		},
@@ -408,36 +504,115 @@ module.exports = {
 		},
 		changeImage ()
 		{
-
-		},
-		deleteCourse () {
 			var that = this;
 			if (this.boards && this.boards.length === 0)
 			{
-				Vue.bootbox.confirm ('Are you sure you want to delete the course? This will delete all the setup files', async function (result)
-				{
-					if (result)
+				Vue.bootbox.confirm ({
+					title: 'Change Course Image',
+					message: 'Are you sure you want to change the image for the course? You might have to setup the course', 
+					className: 'regularModal',
+					buttons:
 					{
-						console.log(that.course.courseId);
-						that.courseIndex = null;
-						let recvDelete = await that.$store.dispatch ('course/deleteCourse',{
-							courseId: that.course.courseId
-						});
-
-						if (!recvDelete)
-							console.log('Could not delete course...');
-						else
+						confirm: {
+							label: 'Yes',
+							className: 'wyliodrin-active'
+						},
+						cancel: {
+							label: 'No',
+							className: 'wyliodrin-back'
+						}
+					},
+					callback: async function (result)
+					{
+						if (result)
 						{
-							that.$router.push ('/courses');
+							console.log(that.course.courseId);
+							that.courseIndex = null;
+							await that.$store.dispatch ('course/setImage',{
+								courseId: that.course.courseId,
+								imageId: that.imageId
+							});
+
+							
 						}
 					}
 				});
 			}
 			else
 			{
-				Vue.bootbox.alert ('Please disconnect all the boards before deleteing the course');
+				Vue.bootbox.alert ({
+					title: 'Change Course Image',
+					message: 'Please disconnect all the boards before changing the course image',
+					className: 'regularModal',
+					buttons:
+					{
+						ok: {
+							label: 'OK',
+							className: 'wyliodrin-active'
+						},
+					},
+				});
 			}
 		},
+		deleteCourse () {
+			var that = this;
+			if (this.boards && this.boards.length === 0)
+			{
+				Vue.bootbox.confirm ({
+					title: 'Delete course',
+					message: 'Are you sure you want to delete the course? This will delete all the setup files', 
+					className: 'regularModal',
+					buttons:
+					{
+						confirm: {
+							label: 'Yes',
+							className: 'wyliodrin-active'
+						},
+						cancel: {
+							label: 'No',
+							className: 'wyliodrin-back'
+						}
+					},
+					callback: async function (result)
+					{
+						if (result)
+						{
+							console.log(that.course.courseId);
+							that.courseIndex = null;
+							let recvDelete = await that.$store.dispatch ('course/deleteCourse',{
+								courseId: that.course.courseId
+							});
+
+							if (!recvDelete)
+								console.log('Could not delete course...');
+							else
+							{
+								that.$router.push ('/courses');
+							}
+						}
+					}
+				});
+			}
+			else
+			{
+				Vue.bootbox.alert ({
+					title: 'Delete course',
+					message: 'Please disconnect all the boards before deleteing the course',
+					className: 'regularModal',
+					buttons:
+					{
+						ok: {
+							label: 'OK',
+							className: 'wyliodrin-active'
+						},
+					},
+				});
+			}
+		},
+		setupImage ()
+		{
+			this.setup = true;
+		}
 	},
 	destroyed ()
 	{
@@ -453,6 +628,20 @@ module.exports = {
 			else
 			{
 				this.imageId = null;
+			}
+		},
+		imageId ()
+		{
+			if (this.course)
+			{
+				if (this.course.imageId !== this.imageId)
+				{
+					this.change = true;
+				}
+				else
+				{
+					this.change = false;
+				}
 			}
 		}
 	}

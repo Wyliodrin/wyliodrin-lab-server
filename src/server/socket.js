@@ -1,34 +1,58 @@
-var WebSocket = require ('ws');
+var WebSocket = require('ws');
 var msgpack = require('msgpack5')();
-var EventEmitter = require ('events').EventEmitter;
+var EventEmitter = require('events').EventEmitter;
 var _ = require('lodash');
 var db = require('./database/database.js');
-var raspberrypi = db.image;
-var url = require ('url');
+var url = require('url');
+var tokenLib = require('./routes/redis-tokens.js');
 
-const EMIT_SOCK_SEND_PREFIX = 'socket:send:';
+let socketEvents = new EventEmitter ();
 
-var userList = new EventEmitter ();
-var boardList = {};
+var userSockets = new EventEmitter();
 
-var openCourses = {};
+var boardSockets = new EventEmitter();
 
-function send(socket, data){
-	socket.send(msgpack.encode(data));
+socketEvents.on ('user', function (userId, command, label, data)
+{
+	userSockets.emit ('user:'+userId, command, label, data);
+});
+
+socketEvents.on ('user:board', async function (boardId, command, label, data)
+{
+	let board = await db.board.findByBoardId (boardId);
+	if (board)
+	{
+		userSockets.emit ('user:'+board.userId, command, label, data);
+		return true;
+	}
+	else return false;
+});
+
+socketEvents.on ('board', function (boardId, command, label, data)
+{
+	boardSockets.emit ('board:'+boardId, command, label, data);
+});
+
+// const EMIT_SOCK_SEND_PREFIX = 'socket:send:';
+// var boardList = {};
+
+function send(socket, label, data) {
+	socket.send(msgpack.encode(_.assign({ l: label }, data)).toString('base64'));
 }
 
-function initSocket(route, server){
-	server.on ('upgrade', function (req, socket, head)
-	{
+function forward(socket, data) {
+	socket.send(data);
+}
+
+function initSocket(route, server) {
+	server.on('upgrade', function(req, socket, head) {
 		const pathname = url.parse(req.url).pathname;
-		if (pathname === route+'/socket/board') 
-		{
+		if (pathname === route + '/socket/board') {
 			socketBoards.handleUpgrade(req, socket, head, function done(ws) {
 				socketBoards.emit('connection', ws, req);
 			});
-		} 
-		else 
-		if (pathname === route+'/socket/user') {
+		} else
+		if (pathname === route + '/socket/user') {
 			socketUsers.handleUpgrade(req, socket, head, function done(ws) {
 				socketUsers.emit('connection', ws, req);
 			});
@@ -37,233 +61,196 @@ function initSocket(route, server){
 		}
 	});
 
-	var socketBoards = new WebSocket.Server ({
+	var socketBoards = new WebSocket.Server({
 		noServer: true,
-		path: route+'/socket/board'
+		path: route + '/socket/board'
 	});
 
-	var socketUsers = new WebSocket.Server ({
+	var socketUsers = new WebSocket.Server({
 		noServer: true,
-		path: route+'/socket/user'
+		path: route + '/socket/user'
 	});
 
-	socketBoards.on ('connection', function (socket){
+	socketBoards.on('connection', function(socket) {
 
 		let authenticated = false;
 		let token = false;
 
-		socket.on ('message', async function (message){
-			let err = false;
-			try
+		let pushToSocket = function(command, label, data) {
+			if (command === 'send')
 			{
-
-				let data =  msgpack.decode (message);
-				if (authenticated === false){
-					if (await db.board.findByBoardId(data.token)){
-						//board found in database
-						authenticated = true;
-						token = data.token;
-						if (boardList[token] !== undefined){
-							console.log('Websocket overwriting ond websocket for board ' + token);
-						}
-						boardList[token] = socket;
-						
-					}
-					else{
-						socket.close ();
-					}
+				send(socket, label, data);
+			}
+			else
+			if (command === 'forward')
+			{
+				data = label;
+				forward (socket, data);
+			}
+			else
+			{
+				if (command === 'disconnect')
+				{
+					socket.close ();
 				}
-				else if (authenticated === true){
-					if (data.t === 'u'){
-						//shell for users
-						let found = await db.board.findByBoardId(token);
-						if (found !== null){
-							let userToken = found.userId;
-							userList.emit(EMIT_SOCK_SEND_PREFIX + userToken, data);
-						}
-						else{
-							//board no longer in database
-							socket.close();
-						}
-					}
-					else if (data.t === 'p'){
-						//ping pong
-						let boardIdAway = data.i.boardId;
-
-						if (boardIdAway) {
-							let courseIdAway = data.i.courseId;
-							let userIdAway = data.i.userId;
-							let ipAway = data.i.ip;
-							let statusAway = data.i.status;
-
-							let board = await db.board.boardStatus(boardIdAway, statusAway, ipAway);
-
-							if (statusAway === 'reboot' || statusAway === 'poweroff') db.image.unsetupDelay (boardIdAway);
-
-							if (board) {
-								if (board.courseId !== courseIdAway || board.userId !== userIdAway) {
-									await db.board.boardStatus(boardIdAway, 'desync');
-									send(socket, {t:'p', c:'reboot'});
-								} else {
-									if (board.command) {
-										await db.board.resetCommand(boardIdAway);
-									}
-									send(socket, {t:'p', c:board.command});
-								}
-							} else {
-								send(socket, {t:'e', a:'e', e:'boardregerror'});
-							}
-						} else {
-							send(socket, {t:'e', a:'e', e:'boardiderror'});
-						}
-					
-					}
-
-				}
-
-			}
-			catch (e)
-			{
-				console.log (e);
-				err = true;
-			}
-			if (err)
-			{
-				send(socket, {t:'e', a:'e', e:'servererror'});
-				socket.close ();
-			}
-		});
-
-		socket.on ('close', function (){
-			if (boardList[token] === undefined){
-				console.log('Websocket closing and not in database for board ' + token);
-			}
-			boardList[token] = undefined;
-		});
-
-		socket.on ('error', function (e){
-			console.log('WebSocket error : ' + e);
-			send(socket, {t:'e', a:'e', e:'servererror'});
-		});
-	});
-
-
-
-
-	socketUsers.on ('connection', function (socket){
-
-		let authenticated = false;
-		let token = null;
-
-		let pushToSocket = function(data){
-			if (authenticated){
-				send(socket, data);
 			}
 		};
 
-		socket.on ('message', async function (message){
+		socket.on('message', async function(message) {
 			let err = false;
-			try
-			{
+			try {
 
-				let data =  msgpack.decode (message);
-				if (authenticated === false){
-					if (await db.user.findByUserId(data.token)){
-						//user found in database
+				let data = msgpack.decode(new Buffer(message, 'base64'));
+				if (authenticated === false) {
+					if (await db.board.boardStatus(data.token, 'online', socket._socket.remoteAddress)) {
+						//board found in database
 						authenticated = true;
 						token = data.token;
-						userList.on(EMIT_SOCK_SEND_PREFIX + token, pushToSocket);
-						
+						// if (boardList[token] !== undefined) {
+						// 	console.log('Websocket overwriting ond websocket for board ' + token);
+						// }
+						// boardList[token] = socket;
+						boardSockets.on('board:'+token, pushToSocket);
+					} else {
+						socket.close();
 					}
-					else{
-						socket.close ();
-					}
-				}
-				else if (authenticated === true){
-					if (data.t === 's'){
-						//shell for courses
-						if (await db.board.findByCourseIdAndTeacher(data.b, token)){ 
-							//token (user prof) allowed to modify course data.b
-							if (data.a === 'o'){
-								//open
-								let currentCourse = openCourses[token];
-								if (!currentCourse){
-									openCourses[token] = await raspberrypi.setupCourse(data.b, undefined, userList, EMIT_SOCK_SEND_PREFIX + token);
-								}
-							}
-							else if (data.a === 'c'){
-								//close
-								let currentCourse = openCourses[token];
-								if (currentCourse){
-									currentCourse.kill();
-								}
-								else{
-									send(socket, {t:'s', a:'e', e:'noshell'});
-								}
-								openCourses[token] = undefined;
-							}
-							else if (data.a === 'k'){
-								//key
-								let currentCourse = openCourses[token];
-								if (currentCourse){
-									if (_.isString(data.c) || _.isBuffer (data.c)){
-										currentCourse.write(data.c);
-									}
-								}
-								else{
-									send(socket, {t:'s', a:'e', e:'noshell'});
-								}
-							}
-							else if (data.a === 'r'){
-								//resize
-								let currentCourse = openCourses[token];
-								if (currentCourse){
-									currentCourse.resize(data.c, data.d);
-								}
-								else{
-									send(socket, {t:'s', a:'e', e:'noshell'});
-								}
-							}
+				} else if (authenticated === true) {
+					if (data.l === 'b') {
+						//shell for users
+						// let found = await db.board.findByBoardId(token);
+						// if (found !== null) {
+						// 	let userToken = found.userId;
+						// 	userSockets.emit('user:'+userToken, 'forward', message);
+						// } else {
+						// 	//board no longer in database
+						// 	socket.close();
+						// }
+						if (!socketEvents.emit ('user:board', token, 'forward', message))
+						{
+							//board no longer in database
+							socket.close ();
 						}
-					}
-
-					else if (data.t === 'u'){
-						//user shell
-						if (await db.board.findByUserIdAndBoardId(token, data.b)){ 
-							//token (user) allowed to use board data.b (board token)
-							if (boardList[data.b] !== undefined){
-								//board is on
-								send(boardList[data.b], message);
-							}
-							else{
-								send(socket, {t:'s', a:'e', e:'noboard'});
-							}
-						}
-					}
+					} 
+					socketEvents.emit ('board:received', token, data.label, data);
 				}
 
-			}
-			catch (e)
-			{
-				console.log (e);
+			} catch (e) {
+				console.log(e);
 				err = true;
 			}
-			if (err)
-			{
-				send(socket, {t:'e', a:'e', e:'servererror'});
-				socket.close ();
+			if (err) {
+				send(socket, { l: 'e', a: 'e', e: 'servererror' });
+				socket.close();
 			}
 		});
 
-		socket.on ('close', function (){
-			userList.removeListener(EMIT_SOCK_SEND_PREFIX + token, pushToSocket);
+		socket.on('close', async function() {
+			await db.board.boardStatus(token, 'offline', null);
+			// if (boardList[token] === undefined) {
+			// 	console.log('Websocket closing and not in database for board ' + token);
+			// }
+			// boardList[token] = undefined;
+			boardSockets.removeListener('board:'+token, pushToSocket);
 		});
 
-		socket.on ('error', function (e){
+		socket.on('error', function(e) {
 			console.log('WebSocket error : ' + e);
-			send(socket, {t:'e', a:'e', e:'servererror'});
+			send(socket, { l: 'e', a: 'e', e: 'servererror' });
+		});
+	});
+
+
+
+
+	socketUsers.on('connection', function(socket) {
+
+		console.log('connection');
+		let authenticated = false;
+		let token = null;
+		let userId = null;
+
+		let pushToSocket = function(command, label, data) {
+			if (command === 'send')
+			{
+				send(socket, label, data);
+			}
+			else
+			if (command === 'forward')
+			{
+				data = label;
+				forward (socket, data);
+			}
+			else
+			{
+				if (command === 'disconnect')
+				{
+					socket.close ();
+				}
+			}
+		};
+
+		socket.on('message', async function(message) {
+			let err = false;
+			try {
+				console.log(message);
+				let data = msgpack.decode(new Buffer(message, 'base64'));
+				token = data.token;
+				if (authenticated === false) {
+					userId = await tokenLib.get(token);
+					if (userId !== null) {
+						//user found in database
+						authenticated = true;
+						userSockets.on('user:'+userId, pushToSocket);
+						send(socket, 'a', { err: 0 });
+					} else {
+						socket.close();
+					}
+				} else if (authenticated === true) {
+					if (data.l === 'b') {
+						//user shell
+						if (await db.board.findByUserIdAndBoardId(userId, data.id)) {
+							boardSockets.emit ('board:'+data.id, 'forward', message);
+						} else {
+							// send(socket, 'b', { err: 'noboard' });
+							userSockets.emit ('user:'+userId, 'send', 'b', { id: data.id, err: 'noboard' });
+						}
+					}
+					socketEvents.emit ('user:'+data.l, userId, data);
+					//  else if (data.l === 'b') {
+					// 	//user shell
+					// 	if (await db.board.findByUserIdAndBoardId(userId, data.id)) {
+					// 		//userId (user) allowed to use board data.b (board id)
+					// 		if (boardList[data.id] !== undefined) {
+					// 			//board is on
+					// 			forward(boardList[data.id], message);
+					// 		} else {
+					// 			send(socket, 'b', { err: 'noboard' });
+					// 		}
+					// 	}
+					// }
+				}
+
+			} catch (e) {
+				console.log(e);
+				err = true;
+			}
+			if (err) {
+				send(socket, 'e', { err: 'servererror' });
+				socket.close();
+			}
+		});
+
+		socket.on('close', function() {
+			userSockets.removeListener('user:'+userId, pushToSocket);
+		});
+
+		socket.on('error', function(e) {
+			console.log('WebSocket error : ' + e);
+			send(socket, 'e', { err: 'servererror' });
 		});
 	});
 }
+
+module.exports = socketEvents;
 
 module.exports.initSocket = initSocket;

@@ -4,7 +4,7 @@
 		<div class="content w-100 d-flex flex-row proj-bar">
 			<div class="content-top w-100 pt-2">
 				<div class="content-title float-left">
-					<span><img src="img/users.png" class="mr-2">Boards</span>
+					<span><img src="img/my-boards.png" class="mr-2">Boards</span>
 					<div class="search"><img src="/img/icons/search-icon.png">
 						<input type="text" v-model="search" placeholder="Search" class="search-input">
 					</div>
@@ -52,15 +52,16 @@
 				<tbody>
 					<tr v-for="board in boards" :key="board.boardId">
 						<td>{{board.boardId}}</td>
-						<td class="text-center">{{user(board.userId)}}</td>
-						<td class="text-center">{{course(board.courseId)}}</td>
-						<td class="text-center">{{board.ip}}</td>
-						<td class="text-center">{{board.status}}</td>
-						<td class="text-center">{{lastSeen (board)}}</td>
+						<td class="text-center" >{{user(board.userId)}}</td>
+						<td class="text-center" >{{course(board.courseId)}}</td>
+						<td class="text-center" >{{board.ip}}</td>
+						<td class="text-center" :class="board.status">{{board.status}}</td>
+						<td class="text-center" >{{lastSeen (board)}}</td>
 						<!-- <td class="text-center">17</td> -->
 						<td class="text-center" style="width:130px">
-							<a class="iconbtn" @click="reboot(board)" v-tooltip data-toggle="tooltip"  data-placement="top" title="Reboot"><img src="/img/icons/restart-16.png"></a>
+							<a class="iconbtn" v-show="board.status === 'online'" @click="reboot(board)" v-tooltip data-toggle="tooltip"  data-placement="top" title="Reboot"><img src="/img/icons/restart-16.png"></a>
 							<a class="iconbtn" @click="disconnect(board)" v-tooltip data-toggle="tooltip" data-placement="top" title="Disconnect"><img src="/img/icons/disconnect-16.png"></a>
+							<a class="iconbtn" v-tooltip data-toggle="tooltip" data-placement="top" title="Delete"><img src="/img/icons/erase-16.png"></a>
 						</td>
 					</tr>
 				</tbody>
@@ -103,16 +104,58 @@ module.exports = {
 	methods: {
 		reboot (board)
 		{
-			board;
+			var that = this;
+			Vue.bootbox.confirm ({
+				title: 'Reboot '+board.boardId+'?',
+				message: 'Are you sure you want to reboot the board?',
+				className: 'regularModal',
+				buttons:
+				{
+					confirm: {
+						label: 'Yes',
+						className: 'wyliodrin-active'
+					},
+					cancel: {
+						label: 'No',
+						className: 'wyliodrin-back'
+					}
+				},
+				callback: function (result)
+				{
+					if (result)
+					{
+						that.$store.dispatch ('board/command', {
+							boardId: board.boardId,
+							command: 'reboot'
+						});
+					}
+				}
+			});
 		},
 		disconnect (board)
 		{
 			var that = this;
-			Vue.bootbox.confirm ('Are you sure you want to disconnect?', function (result)
-			{
-				if (result)
+			Vue.bootbox.confirm ({
+				title: 'Disconnect '+board.boardId,
+				message: 'Are you sure you want to disconnect?', 
+				className: 'regularModal',
+				buttons:
 				{
-					that.$store.dispatch ('board/disconnect', board.boardId);
+					confirm: {
+						label: 'Yes',
+						className: 'wyliodrin-active'
+					},
+					cancel: {
+						label: 'No',
+						className: 'wyliodrin-back'
+					}
+				},
+				callback: function (result)
+				{
+					if (result)
+					{
+						that.$store.dispatch ('board/disconnect', board.boardId);
+					}
 				}
 			});
 		},

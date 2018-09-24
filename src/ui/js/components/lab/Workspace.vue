@@ -8,17 +8,17 @@
 			</ul>
 		</div>
 		<div v-else class="h-100 w-100 m-0 p-0 projectbox">
-			<div class="projectcode w-80">
+			<div class="projectcode w-80 h-100">
 				<span>{{project.name}}</span>
 				<a href="#" @click="settings(project)" class="projsettings" data-toggle="tooltip" data-placement="bottom" v-tooltip title="Project settings"><img src="img/icons/settings-icon-16.png"></a>
 				<div class="right">
 					<a @click="showDashboard" :class="{'active':source === false}"><img src="img/dashboard.png"> Dashboard</a>
-					<a @click="showSource" :class="{'active':source}"><img src="img/code.png"> Code</a>
+					<a @click="showSource" :class="{'active':source}"><img src="img/code.png"> {{filename}}</a>
 				</div>
 			</div>
-			<div v-show="source && selectedFile" class="h-100 w-80 editor-box" id="sourcePanel">
+			<div v-show="source && selectedFile" class="h-80 w-80 editor-box" id="sourcePanel">
 				<VisualToolbox></VisualToolbox>
-				<editor v-show="editor" v-model="fileSource" @init="initEditor" lang="python" theme="monokai" :options="editorOptions"></editor>
+				<editor v-show="editor" v-model="fileSource" @init="initEditor" :lang="sourceLanguage" theme="monokai" :options="editorOptions"></editor>
 				<div id="visual" v-show="visual">
 				</div>
 			</div>
@@ -31,8 +31,8 @@
 								<i class="ion-android-document"></i>
 								{{ node.text }}
 								<div v-if="isHover(node)" class="explorer-actions">
-									<a href="#" v-if="node.text!=='(empty)'" @mouseup.stop="renameFile(node)" data-toggle="tooltip" data-placement="left" v-tooltip title="Rename File"><i class="ion-android-create"></i></a>
-									<a href="#" v-if="node.text!=='(empty)'" @mouseup.stop="del(node)" data-toggle="tooltip" data-placement="left" v-tooltip title="Delete"><i class="ion-android-close"></i></a>
+									<a href="#" v-if="allowModify (node)" @mouseup.stop="renameFile(node)" data-toggle="tooltip" data-placement="left" v-tooltip title="Rename File"><i class="ion-android-create"></i></a>
+									<a href="#" v-if="allowModify (node)" @mouseup.stop="del(node)" data-toggle="tooltip" data-placement="left" v-tooltip title="Delete"><i class="ion-android-close"></i></a>
 								</div>
 							</template>
 
@@ -78,11 +78,15 @@ var onresize = function () {};
 require ('../../blockly/definitions_wyliolab.js') (blockly);
 require ('../../blockly/code_wyliolab.js') (blockly);
 
+require ('../../blockly/language_definitions_wyliolab.js') (blockly);
+require ('../../blockly/language_code_wyliolab.js') (blockly);
+
 let saveFile = {};
 
 console.log (Blockly);
 module.exports = {
 	name: 'Workspace',
+	props: ['runId'],
 	data () {
 		return {
 			selectedFile: null,
@@ -93,6 +97,7 @@ module.exports = {
 			visual:false,
 			workspace: null,
 			editor: false,
+			sourceLanguage: 'python',
 			source: true,
 			visualSource: '',
 			reloadFreeboard: false,
@@ -127,6 +132,8 @@ module.exports = {
 			else
 			{
 				this.editor = true;
+				if (ext === '.py') this.sourceLanguage = 'python';
+				if (ext === '.js') this.sourceLanguage = 'javascript';
 			}
 			this.source = true;
 			let readOnly = false;
@@ -174,11 +181,11 @@ module.exports = {
 				title: 'New File',
 				className: 'regularModal',
 				message: 'Enter the new file\' name', 
-				callback: function (result) {
+				callback: async function (result) {
 					if (result)
 					{
 						// TODO full path
-						if (that.$store.dispatch ('project/setFile', {
+						if (await that.$store.dispatch ('project/setFile', {
 							project: that.project.name,
 							file: path.join (that.getPath (node), result),
 							data: ''
@@ -243,14 +250,17 @@ module.exports = {
 				className: 'regularModal',
 				value: node.text,
 				message: 'Are you sure you want to delete '+node.text+' ?',
-				callback: function (result) {
+				callback: async function (result) {
 					if (result)
 					{
 						// TODO full path
-						that.$store.dispatch ('project/del', {
-							project: this.project.name,
-							file: this.getPath (node),
-						});
+						if (await that.$store.dispatch ('project/delFileOrFolder', {
+							project: that.project.name,
+							file: that.getPath (node),
+						}))
+						{
+							that.dispatch ('project/listProjectFolder', that.project.name);
+						}
 					}
 				}
 			});
@@ -324,6 +334,7 @@ module.exports = {
 			require('brace/ext/language_tools'); //language extension prerequsite...
 			// require('brace/mode/html');                
 			require('brace/mode/python');    //language
+			require('brace/mode/javascript');    //language
 			require('brace/mode/less');
 			require('brace/theme/monokai');
 			require('brace/snippets/python'); //snippet
@@ -370,6 +381,19 @@ module.exports = {
 				}
 				// console.log (code);
 			});
+		},
+		allowModify (node)
+		{
+			let filename = this.getPath(node);
+			console.log ('allow del '+filename);
+			if (node.text === '(empty)') return false;
+			else
+			if (filename === '/wylioproject.json') return false;
+			else
+			if (filename === '/main.py') return false;
+			else
+			if (filename === '/main.visual') return false;
+			else return true;
 		}
 	},
 	watch: {
@@ -470,14 +494,15 @@ module.exports = {
 					}, 600);
 				}
 			}
-		}
+		},
 	},
 	computed: 
 	{
 		...mapGetters ({
 			token: 'user/token',
 			WORKSPACE: 'settings/WORKSPACE',
-			project: 'project/project'	,
+			board: 'board/board',
+			project: 'project/project',
 		}),
 		base64ProjectId ()
 		{
@@ -489,6 +514,17 @@ module.exports = {
 			else
 			{
 				return null;
+			}
+		},
+		filename ()
+		{
+			if (this.selectedFile)
+			{
+				return path.basename(this.selectedFile);
+			}
+			else
+			{
+				return 'Code';
 			}
 		}
 	},

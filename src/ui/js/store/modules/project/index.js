@@ -40,6 +40,7 @@ module.exports ={
 					if (_.isArray (response.data.projects))
 					{
 						store.commit ('projects', response.data.projects);
+						return true;
 					}
 					else
 					{

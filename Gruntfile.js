@@ -1,6 +1,6 @@
 'use strict';
 
-var libs = ['bootstrap-notify', 'bootstrap', 'vue', 'bootbox', 'lodash', 'vuex', 'vue-resource', 'vue-router', 'jquery', 'xterm', 'reconnectingwebsocket', 'md5', 'moment', 'xterm', 'vue2-ace-editor', 'liquor-tree', 'blockly/blockly_compressed.js', 'blockly/blocks_compressed_wyliolab.js', 'blockly/msg/js/en_wyliolab.js', 'blockly/python_compressed_wyliolab.js'];
+var libs = ['bootstrap-notify', 'bootstrap', 'vue', 'bootbox', 'lodash', 'vuex', 'vue-resource', 'vue-router', 'jquery', 'xterm', 'xterm/lib/addons/fit/fit', 'reconnectingwebsocket', 'md5', 'moment', 'xterm', 'vue2-ace-editor', 'liquor-tree', 'blockly/blockly_compressed.js', 'blockly/blocks_compressed_wyliolab.js', 'blockly/msg/js/en_wyliolab.js', 'blockly/python_compressed_wyliolab.js'];
 
 var fs = require ('fs');
 var path = require ('path');
@@ -169,6 +169,9 @@ module.exports = function(grunt) {
 		{
 			wrap ('src/ui/js/blockly/definitions.js');
 			wrap ('src/ui/js/blockly/code.js');
+
+			wrap ('src/ui/js/blockly/language_definitions.js');
+			wrap ('src/ui/js/blockly/language_code.js');
 		}
 	});
 

@@ -3,6 +3,7 @@ var debug = require('debug')('wyliodrin-lab-server:raspberrypi');
 var path = require('path');
 var fs = require('fs-extra');
 var crypto = require('crypto');
+var os = require ('os');
 var pty = require('pty.js');
 var _ = require('lodash');
 var ip = require('ip');
@@ -16,6 +17,8 @@ var uuid = require('uuid');
 // var fsid = 0;
 
 let boards = {};
+
+var openCourses = {};
 
 // let unsetupReqests = {};
 
@@ -192,7 +195,7 @@ async function mountPartition(imageInfo, partition, folder, unmountIfMounted = f
 
 function newImageId(str) {
 	let shasum = crypto.createHash('sha1');
-	shasum.update(str);
+	shasum.update(path.basename(str));
 	return shasum.digest('hex');
 }
 
@@ -453,7 +456,7 @@ async function unmountSetupCourse(courseId) {
 	return await unmount(folderSetupCourse);
 }
 
-async function setupCourse(courseId, imageInfo, userList, emitString, cmd = 'bash', cols = 80, rows = 24) {
+async function setupCourse(courseId, imageInfo, userId, cmd = 'bash', cols = 80, rows = 24) {
 	if (!imageInfo) {
 		debug('mount root fs using default image id ' + defaultImage.id);
 		imageInfo = defaultImage;
@@ -466,23 +469,30 @@ async function setupCourse(courseId, imageInfo, userList, emitString, cmd = 'bas
 			params.splice(0, 0, command);
 			command = 'sudo';
 		}
+		console.log (command+' '+params.join (' '));
 		let run = pty.spawn(command, params, {
 			rows,
 			cols,
-			HOME: '/home/pi',
-			USER: 'pi',
-			USERNAME: 'pi'
+			env: _.assign ({}, process.env,
+				{
+					HOME: '/home/pi',
+					USER: 'pi',
+					USERNAME: 'pi',
+					HOSTNAME: 'raspberry'
+				})
 		});
 		run.on('exit', async function(exitCode) {
-			let toSend = { t: 's', a: 'c', b: courseId };
-			userList.emit(emitString, toSend);
+			let toSend = {a: 'c', id: courseId};
+			socket.emit ('user', userId, 'send', 's', toSend);
 
 			debug('setup course ' + exitCode);
 			await unmountSetupCourse(courseId);
+
+			delete openCourses[userId][courseId];
 		});
 		run.on('data', function(data) {
-			let toSend = { t: 's', a: 'k', b: courseId, c: data };
-			userList.emit(emitString, toSend);
+			let toSend = {a: 'k', id: courseId, k: data };
+			socket.emit ('user', userId, 'send', 's', toSend);
 		});
 		run.on('error', function(error) {
 			if (error.message.indexOf('EIO') === -1) {
@@ -643,6 +653,8 @@ function listImagesAsArray() {
 	}
 	return list.map(function(image) {
 		image.filename = path.basename(image.filename);
+		if (image.id === defaultImageId()) image.boot = true;
+		else image.boot = false;
 		return image;
 	});
 }
@@ -767,8 +779,9 @@ async function cmdline(courseId, imageId, boardId, userId, parameters) {
 	if (!imageId) imageId = defaultImageId();
 	if (!parameters) parameters = {};
 	if (!parameters.server) parameters.server = 'http://' + ip.address();
+	if (!parameters.servername) parameters.servername = process.env.WYLIODRIN_HOSTNAME || os.hostname ()+'.local';
 	if (!parameters.nfsServer) parameters.nfsServer = ip.address();
-	let str = 'root=/dev/nfs nfsroot=' + parameters.nfsServer + ':' + path.join(ROOT_FS, boardId) + ',vers=3 rw ip=dhcp rootwait elevator=deadline ' + (userId ? 'userId=' + userId : '') + ' server=' + parameters.server + ' ' + (courseId ? 'courseId=' + courseId : '');
+	let str = 'root=/dev/nfs nfsroot=' + parameters.nfsServer + ':' + path.join(ROOT_FS, boardId) + ',vers=3 rw ip=dhcp rootwait elevator=deadline ' + (userId ? 'userId=' + userId : '') + ' server=' + parameters.server + ' ' + ' servername=' + parameters.servername + ' ' + (courseId ? 'courseId=' + courseId : '');
 	let folderBoot = path.join(BOOT, imageId);
 	let cmdline = (await fs.readFile(path.join(folderBoot, 'cmdline.txt'))).toString();
 	let pos = cmdline.indexOf('root=');
@@ -966,6 +979,76 @@ run();
 
 process.on('exit', function() {
 	// TODO unexport all images
+});
+
+
+var socket = require ('../socket');
+
+socket.on ('user:s', async function (userId, data)
+{
+	//shell for courses
+	if (await db.course.findByCourseIdAndTeacher(data.id, userId)) {
+		console.log('course shell');
+		let courseId = data.id;
+		//userId (user prof) allowed to modify course data.id
+		if (data.a === 'o') {
+			//open
+			let userShells = openCourses[userId];
+			if (userShells === undefined) {
+				openCourses[userId] = {};
+			}
+			let currentCourse = openCourses[userId][courseId];
+			if (currentCourse === undefined) {
+				openCourses[userId][courseId] = await setupCourse(courseId, undefined, userId, 'bash', data.c, data.r);
+			}
+		} else if (data.a === 'c') {
+			//close
+			let userShells = openCourses[userId];
+			if (userShells !== undefined) {
+				let currentCourse = openCourses[userId][courseId];
+				if (currentCourse) {
+					currentCourse.kill();
+					openCourses[userId][courseId] = undefined;
+				} else {
+					socket.emit ('user', userId, 'send', 's', { a: 'e', id: courseId, err: 'noshell' });
+				}
+			} else {
+				socket.emit ('user', userId, 'send', 's', { a: 'e', id: courseId, err: 'noshell' });
+			}
+		} else if (data.a === 'k') {
+			//key
+			console.log ('keys');
+			let userShells = openCourses[userId];
+			if (userShells !== undefined) {
+				let currentCourse = openCourses[userId][courseId];
+				if (currentCourse) {
+					if (_.isString(data.k) || _.isBuffer(data.k)) {
+						currentCourse.write(data.k);
+					}
+				} else {
+					socket.emit ('user', userId, 'send', 's', { a: 'e', id: courseId, err: 'noshell' });
+				}
+			} else {
+				console.log ('noshell');
+				socket.emit ('user', userId, 'send', 's', { a: 'e', id: courseId, err: 'noshell' });
+			}
+		} else if (data.a === 'r') {
+			//resize
+			let userShells = openCourses[userId];
+			if (userShells !== undefined) {
+				let currentCourse = openCourses[userId][courseId];
+				if (currentCourse) {
+					currentCourse.resize(data.c, data.r);
+				} else {
+					socket.emit ('user', userId, 'send', 's', { a: 'e', id: courseId, err: 'noshell' });
+				}
+			} else {
+				socket.emit ('user', userId, 'send', 's', { a: 'e', id: courseId, err: 'noshell' });
+			}
+		}
+	} else {
+		socket.emit ('user', userId, 'send', 's', { id: data.id, err: 'noteacher' });
+	}
 });
 
 // TODO export install image instead of this

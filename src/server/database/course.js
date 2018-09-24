@@ -175,8 +175,8 @@ async function getUserRole(courseId, userId) {
 
 }
 
-function findByStudentId(studentId) {
-	return Course.find({ students: studentId });
+function findByUserId(userId) {
+	return Course.find({ $or: [ { teachers: userId }, { students: userId } ] } );
 }
 
 function findByCourseIdAndStudentId(courseId, studentId) {
@@ -205,7 +205,7 @@ var course = {
 	// deleteStudent,
 	// deleteTeacher,
 	deleteByCourseId,
-	findByStudentId,
+	findByUserId,
 	findByCourseIdAndStudentId,
 	findByCourseIdAndTeacher,
 	editCourse,

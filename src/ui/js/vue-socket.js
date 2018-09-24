@@ -14,22 +14,20 @@ module.exports.install = function (Vue)
 	{
 		if (socket && connected && authenticated)
 		{
-			socket.send (JSON.stringify ({
-				t: 'ping'
-			}));
+			Vue.socket.send ('ping');
 		}
 	}, 10000);
 
 	Vue.socket = _.assign (new EventEmitter(), {
-		send: function (tag, productId, data)
+		send: function (label, data)
 		{
-			if (socket && authenticated)
+			if (socket && (authenticated || label === 'a'))
 			{
-				socket.send (JSON.stringify ({
-					t:'p',
-					productId: productId, 
-					data: msgpack.encode (data).toString ('base64')
-				}));
+				let packet = _.assign ({
+					l:label, 
+				}, data);
+				console.log (packet);
+				socket.send (msgpack.encode (packet).toString ('base64'));
 			}
 			else
 			{
@@ -38,7 +36,26 @@ module.exports.install = function (Vue)
 		},
 		connect (token)
 		{
-			socket = new ReconnectingWebSocket ((location.protocol==='http:'?'ws':'wss')+'://'+location.hostname+':'+location.port+'/socket/ui');
+			let authenticate = function ()
+			{
+				if (_.isFunction (token))
+				{
+					let t = token ();
+					if (t)
+					{
+						Vue.socket.send ('a', {token:t});
+					}
+					else
+					{
+						setTimeout (authenticate, 1000);
+					}
+				}
+				else
+				{
+					Vue.socket.send ('a', {token: token});
+				}
+			};
+			socket = new ReconnectingWebSocket ((location.protocol==='http:'?'ws':'wss')+'://'+location.hostname+':'+location.port+'/socket/user');
 			// socket.on ('packet', function ()
 			// {
 			// 	Vue.socket.emit ('packet', arguments);
@@ -47,7 +64,10 @@ module.exports.install = function (Vue)
 			{
 				connected = true;
 				console.log ('UI Socket connected');
-				socket.send (JSON.stringify({t:'a', token:token}));
+				Vue.socket.emit ('status', {
+					status: 'authenticate'
+				});
+				authenticate ();
 				// console.log ('UI Socket sent authenticate');
 			};
 			// socket.on ('reconnect', function ()
@@ -64,25 +84,33 @@ module.exports.install = function (Vue)
 			socket.onmessage = function (evt)
 			{
 				let m = evt.data;
-				console.log (m);
+				// console.log (m);
 				try
 				{
-					let data = JSON.parse (m);
-					if (data.t === 'a')
+					let data = msgpack.decode (new Buffer (m, 'base64'));
+					console.log (data);
+					if (data.l === 'a')
 					{
-						if (data.authenticated === true) authenticated = true;
+						if (data.err === 0)
+						{
+							authenticated = true;
+							Vue.socket.emit ('status', {
+								status: 'connected'
+							});
+							console.log ('Socket authenticated');
+						}
 					}
+					// else
+					// if (data.l === 'p')
+					// {
+					// 	let packet = msgpack.decode (new Buffer(data.data, 'base64'));
+					// 	// console.log (packet);
+					// 	Vue.socket.emit ('packet', data.productId, packet);
+					// 	Vue.socket.emit ('packet:'+data.productId, packet);
+					// }
 					else
-					if (data.t === 'p')
 					{
-						let packet = msgpack.decode (new Buffer(data.data, 'base64'));
-						// console.log (packet);
-						Vue.socket.emit ('packet', data.productId, packet);
-						Vue.socket.emit ('packet:'+data.productId, packet);
-					}
-					else
-					{
-						Vue.socket.emit (data.t, data);
+						Vue.socket.emit (data.l, data);
 					}
 				}
 				catch (e)
@@ -98,9 +126,16 @@ module.exports.install = function (Vue)
 			{
 				connected = false;
 				authenticated = false;
+				Vue.socket.emit ('status', {
+					status: 'disconnected'
+				});
 				console.log ('UI Socket disconnected');
 			};
 			return socket;
+		},
+		disconnect ()
+		{
+			socket.refresh ();
 		}
 	});
 };

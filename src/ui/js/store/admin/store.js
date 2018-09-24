@@ -11,6 +11,7 @@ var user = require ('../modules/user');
 var board = require ('../modules/board');
 var course = require ('../modules/course');
 var image = require ('../modules/image');
+var socket = require ('../modules/socket');
 
 module.exports = new Vuex.Store ({
 	modules: {
@@ -18,7 +19,8 @@ module.exports = new Vuex.Store ({
 		user,
 		board,
 		image,
-		course
+		course,
+		socket
 	},
 	strict: process.env.NODE_ENV !== 'production'
 });

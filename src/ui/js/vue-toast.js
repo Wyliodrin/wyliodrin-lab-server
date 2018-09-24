@@ -15,7 +15,7 @@ module.exports.install = function (Vue)
 					data['error'] = null;
 				}, time + 500);
 				$.notify({
-					title: 'DANGER!',
+					title: 'ERROR',
 					message: 'CONNECTION ERROR.<br>Check your internet connection!'
 				},{
 					type: 'danger',

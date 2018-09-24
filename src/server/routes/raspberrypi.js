@@ -21,11 +21,37 @@ privateApp.get('/list', async function(req, res, next) {
 	res.status(200).send({ err: 0, images });
 });
 
-privateApp.get('/setup/:id', function(req, res, next) {
+adminApp.get('/boot/:id', async function(req, res, next) {
+	try {
+		let id = req.params.id;
+		debug('Boot image ' + id);
+		await db.image.saveDefaultImage (id);
+	} catch (err) {
+		let e = error.serverError(err);
+		return next(e);
+	}
+
+	res.status(200).send({ err: 0 });
+});
+
+adminApp.get('/setup/:id', function(req, res, next) {
 	try {
 		let id = req.params.id;
 		debug('Setup image ' + id);
 		db.image.setupServer(id);
+	} catch (err) {
+		let e = error.serverError(err);
+		return next(e);
+	}
+
+	res.status(200).send({ err: 0 });
+});
+
+adminApp.get('/update/:id', function(req, res, next) {
+	try {
+		let id = req.params.id;
+		debug('Setup image ' + id);
+		db.image.setupServer(id, true);
 	} catch (err) {
 		let e = error.serverError(err);
 		return next(e);
