@@ -1,6 +1,29 @@
 var statusCodes = require('http-status-codes');
-var debug = require('debug')('wyliodrin-lab-server:error');
-debug.log = console.info.bind(console);
+// var debug = require('debug')('wyliodrin-lab-server:error');
+// var statusCodes = require('http-status-codes');
+const Layer = require('express/lib/router/layer');
+const shortid = require ('shortid');
+shortid.characters ('0123456789abcdef');
+
+Object.defineProperty(Layer.prototype, 'handle',{
+	enumerable: true,
+	get: function () { return this.__handle; },
+	set: function (fn) {
+		if (fn.length <= 3)
+			fn = wrap(fn);
+		this.__handle = fn;
+	}
+});
+
+function wrap(fn) {
+	return (req, res, next) => {
+		res.requestId = shortid.generate ();
+		const routePromise = fn(req, res, next);
+		if (routePromise && routePromise.catch) {
+			routePromise.catch(err => next(err));
+		}
+	};
+}
 
 function error(status, err) {
 	return {
