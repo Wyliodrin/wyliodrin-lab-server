@@ -147,170 +147,166 @@
 			<category name="Variables" custom="VARIABLE" colour="330" />
 			<category name="Functions" custom="PROCEDURE" colour="290" />
 			<sep />
-			<category name="Pin Input" colour="100">
-			</category>
-			<category name="Button" colour="100">
-				<block type="button">
-					<value name="pin_number">
-						<block type="pin"/>
-					</value>
-				</block>
+			<!-- <category name="Pin Input" colour="100"></category> -->
+			
+				<category name="Button" colour="100">
 
-				<block type="button_is_pressed">
-					<value name="button">
-						<block type="button">
-							<value name="pin_number">
-								<block type="pin"/>
-							</value>
-						</block>
-					</value>
-				</block> 
+					<block type="variables_set">
+						<field name="VAR">button</field>
+						<value name="VALUE">
+							<block type="button">
+								<value name="pin_number">
+									<block type="pin"/>
+								</value>
+							</block>
+						</value>
+					</block>
 
-				
+					
 
-				<block type="button_wait_for_press">
-					<value name="button">
-						<block type="button">
-							<value name="pin_number">
-								<block type="pin"/>
-							</value>
-						</block>
-					</value>
-				</block>
-			</category>
-			<category name="Light" colour="100">
-			</category>
-			<category name="Temperature" colour="100">
-			</category>
-			<category name="Humidity" colour="100">
-			</category>
-			<category name="Power Meter" colour="100">
-			</category>
-			<sep />
-			<category name="Pin Output" colour="100">
-			</category>
-			<category name="LED" colour="100">
-				<block type="variables_set">
-					<field name="VAR">ledName</field>
-					<value name="VALUE">
-						<block type="led">
-							<value name="pin">
-								<block type="pin">
-									<field name="pin">R4</field>
-								</block>
-							</value>
-						</block>
-					</value>
-				</block>
+					<block type="button_is_pressed">
+						<value name="button">
+							<block type="variables_get">
+								<field name="VAR">button</field>
+							</block>
+						</value>
+					</block> 
 
-				<block type="led_turn_on"> 
-					<value name="NAME">
-						<block type="variables_get">
-							<field name="VAR">ledName</field>
-						</block>
-					</value>
-				</block>
+					
 
-				<block type="led_turn_off"> 
-					<value name="NAME">
-						<block type="variables_get">
-							<field name="VAR">ledName</field>
-						</block>
-					</value>
-				</block>
+					<block type="button_wait_for_press">
+						<value name="button">
+							<block type="variables_get">
+								<field name="VAR">button</field>
+							</block>	
+						</value>
+					</block>
+				</category>
+				<category name="Light" colour="100">
+				</category>
+				<category name="Temperature" colour="100">
+				</category>
+				<category name="Humidity" colour="100">
+				</category>
+				<category name="Power Meter" colour="100">
+				</category>
+			
+			
+			<!-- <category name="Pin Output" colour="100"></category> -->
+			
+				<category name="LED" colour="100">
+					<block type="variables_set">
+						<field name="VAR">ledName</field>
+						<value name="VALUE">
+							<block type="led">
+								<value name="pin">
+									<block type="pin">
+										<field name="pin">R4</field>
+									</block>
+								</value>
+							</block>
+						</value>
+					</block>
 
-				<block type="led_blink"> 
-					<value name="led">
-						<block type="variables_get">
-							<field name="VAR">ledName</field>
-						</block>
-					</value>
-				</block>
+					<block type="led_turn_on"> 
+						<value name="NAME">
+							<block type="variables_get">
+								<field name="VAR">ledName</field>
+							</block>
+						</value>
+					</block>
 
-				<block type="variables_set">
-					<field name="VAR">pwmLedName</field>
-					<value name="VALUE">
-						<block type="pwm_led">
-							<value name="pin">
-								<block type="pin">
-									<field name="pin">R4</field>
-								</block>
-							</value>
-						</block>
-					</value>
-				</block>
+					<block type="led_turn_off"> 
+						<value name="NAME">
+							<block type="variables_get">
+								<field name="VAR">ledName</field>
+							</block>
+						</value>
+					</block>
 
-				<block type="pwm_on"> 
-					<value name="pwm_led">
-						<block type="variables_get">
-							<field name="VAR">pwmLedName</field>
-						</block>
-					</value>
-					<value name="value">
-						<block type="math_number"/>
-					</value>
-				</block>
+					<block type="led_blink"> 
+						<value name="led">
+							<block type="variables_get">
+								<field name="VAR">ledName</field>
+							</block>
+						</value>
+					</block>
 
-				<block type="pwm_pulse">
-					<value name="pwm_led">
-						<block type="variables_get">
-							<field name="VAR">pwmLedName</field>
-						</block>
-					</value>
-				</block>
+					<block type="variables_set">
+						<field name="VAR">pwmLedName</field>
+						<value name="VALUE">
+							<block type="pwm_led">
+								<value name="pin">
+									<block type="pin">
+										<field name="pin">R4</field>
+									</block>
+								</value>
+							</block>
+						</value>
+					</block>
 
-				
-			</category>
-			<category name="Traffic Light" colour="100">
-				<block type="trafficlight"> 
-					<value name="red">
-						<block type="pin"/>
-					</value>
-					<value name="yellow">
-						<block type="pin"/>
-					</value>
-					<value name="green">
-						<block type="pin"/>
-					</value>
-				</block>
+					<block type="pwm_on"> 
+						<value name="pwm_led">
+							<block type="variables_get">
+								<field name="VAR">pwmLedName</field>
+							</block>
+						</value>
+						<value name="value">
+							<block type="math_number"/>
+						</value>
+					</block>
 
-				
+					<block type="pwm_pulse">
+						<value name="pwm_led">
+							<block type="variables_get">
+								<field name="VAR">pwmLedName</field>
+							</block>
+						</value>
+					</block>
 
-				<block type="traffic_light_on"> 
-					<value name="NAME">
-						<block type="trafficlight">
-							<value name="red">
-								<block type="pin"/>
-							</value>
-							<value name="yellow">
-								<block type="pin"/>
-							</value>
-							<value name="green">
-								<block type="pin"/>
-							</value>
-						</block>
-					</value>
-				</block>
+					
+				</category>
 
-				<block type="traffic_light_off">
-					<value name="NAME">
-						<block type="trafficlight">
-							<value name="red">
-								<block type="pin"/>
-							</value>
-							<value name="yellow">
-								<block type="pin"/>
-							</value>
-							<value name="green">
-								<block type="pin"/>
-							</value>
-						</block>
-					</value>
-				</block>
-			</category>
-			<category name="LCD" colour="100">
-			</category>
-			<sep />
+				<category name="Traffic Light" colour="100">
+
+					<block type="variables_set">
+						<field name="VAR">trafficLight</field>
+						<value name="VALUE">
+							<block type="trafficlight"> 
+								<value name="red">
+									<block type="pin"/>
+								</value>
+								<value name="yellow">
+									<block type="pin"/>
+								</value>
+								<value name="green">
+									<block type="pin"/>
+								</value>
+							</block>
+						</value>
+					</block>
+	
+
+					<block type="traffic_light_on"> 
+						<value name="NAME">
+							<block type="variables_get">
+								<field name="VAR">trafficLight</field>
+							</block>
+						</value>
+					</block>
+
+					<block type="traffic_light_off">
+						<value name="NAME">
+							<block type="variables_get">
+								<field name="VAR">trafficLight</field>
+							</block>
+						</value>
+					</block>
+				</category>
+				<category name="LCD" colour="100">
+				</category>
+			
+			
 			<category name="Advanced" colour="100">
 				<block type="analogread"> 
 					<value name="pin">
