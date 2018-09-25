@@ -182,10 +182,55 @@
 						</value>
 					</block>
 
-					<block type = "button_wait_for_release"></block>
-					<block type = "button_held_time"></block>
+					<block type = "button_wait_for_release">
+						<value name="button">
+							<block type="variables_get">
+								<field name="VAR">button</field>
+							</block>	
+						</value>
+					</block>
+					<block type = "button_held_time">
+						<value name="button">
+							<block type="variables_get">
+								<field name="VAR">button</field>
+							</block>	
+						</value>
+					</block>
 				</category>
 				<category name="Light" colour="40">
+					<block type="variables_set">
+						<field name="VAR">lightSensor</field>
+							<value name="VALUE">
+								<block type="light_sensor">
+									<value name="pin_number">
+										<block type="pin"/>
+									</value>
+								</block>
+							</value>
+					</block>
+
+					<block type="light_wait_for_dark">
+						<value name="pin_number">
+							<block type="variables_get">
+								<field name="VAR">lightSensor</field>
+							</block>	
+						</value>
+					</block>
+					<block type="light_wait_for_light">
+						<value name="pin_number">
+							<block type="variables_get">
+								<field name="VAR">lightSensor</field>
+							</block>	
+						</value>
+					</block>
+
+					<block type="light_detected">
+						<value name="pin_number">
+							<block type="variables_get">
+								<field name="VAR">lightSensor</field>
+							</block>	
+						</value>
+					</block>
 				</category>
 				<category name="Temperature" colour="80">
 				</category>
