@@ -21,7 +21,7 @@ async function verifyPath(filePath, userId, project) {
 	var absPath = path.join(homeFolder, PROJECTS, project, filePath);
 	var normalizedPath = path.normalize(absPath);
 	var verifyPath = path.join(homeFolder, PROJECTS, project);
-	if (normalizedPath.startsWith(verifyPath) && normalizedPath.indexOf ('(empty)') <0 ) {
+	if (normalizedPath.startsWith(verifyPath) && normalizedPath.indexOf('(empty)') < 0) {
 		return { valid: true, absPath: absPath, normalizedPath: normalizedPath };
 	}
 	return { valid: false, absPath: absPath, normalizedPath: normalizedPath };
@@ -80,6 +80,7 @@ async function createUserHome(userId) {
 		debug('Error making user project folder', err);
 		throw new Error('File System Error', err);
 	}
+	throw new Error('Test error. HI MOM!');
 }
 
 function isValidName(name) {
@@ -296,39 +297,33 @@ async function getFolder(userId, project, folder) {
 
 	var data = [];
 	var dirs = [];
-	var	fls = [];
+	var fls = [];
 	try {
 		var files = (await fs.readdir(normalized_path));
-		for (let file of files)
-		{
-			if (file !== '.' && file !== '..')
-			{
-				let stat = await fs.stat (path.join (normalized_path, file));
+		for (let file of files) {
+			if (file !== '.' && file !== '..') {
+				let stat = await fs.stat(path.join(normalized_path, file));
 				let f = {
 					name: file
 				};
-				if (stat.isDirectory ()) 
-				{
+				if (stat.isDirectory()) {
 					f.type = 'dir';
-					f.files = (await getFolder (userId, project, path.join (folder, file))).data;
-					dirs.push (f);
-				}
-				else
-				{
-					if (stat.isFile())
-					{
+					f.files = (await getFolder(userId, project, path.join(folder, file))).data;
+					dirs.push(f);
+				} else {
+					if (stat.isFile()) {
 						f.type = 'file';
 					}
-					fls.push (f);
+					fls.push(f);
 				}
 			}
-			data = dirs.concat (fls);
+			data = dirs.concat(fls);
 		}
 	} catch (err) {
 		console.log(err);
 		return { success: false, message: 'File system error', err: statusCodes.INTERNAL_SERVER_ERROR };
 	}
-	console.log (data);
+	console.log(data);
 	return { success: true, data, err: 0 };
 }
 

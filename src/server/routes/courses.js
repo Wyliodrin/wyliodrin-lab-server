@@ -29,7 +29,7 @@ publicApp.get('/public', async function(req, res, next) {
 		}
 		res.status(200).send({ err: 0, courses });
 	} catch (err) {
-		debug('Error listing courses');
+		req.debug(debug,'Error listing courses');
 		e = error.serverError(err);
 		next(e);
 	}
@@ -74,7 +74,7 @@ privateApp.post('/students/remove', async function(req, res, next) {
 				res.status(200).send({ err: 0 });
 			}
 		} catch (err) {
-			debug(err);
+			req.debug(debug,err);
 			e = error.serverError(err);
 			next(e);
 		}
@@ -98,7 +98,7 @@ privateApp.post('/image', async function(req, res, next) {
 				res.send ({err:0});
 			}
 		} catch (err) {
-			debug(err);
+			req.debug(debug,err);
 			e = error.serverError(err);
 			next(e);
 		}
@@ -162,7 +162,7 @@ adminApp.get('/all', async function(req, res, next) {
 		}
 		res.status(200).send({ err: 0, courses });
 	} catch (err) {
-		debug('Error listing courses');
+		req.debug(debug,'Error listing courses');
 		e = error.serverError(err);
 		next(e);
 	}
@@ -185,7 +185,7 @@ adminApp.post('/add', async function(req, res, next) {
 			next(e);
 		}
 	} catch (err) {
-		debug(err);
+		req.debug(debug,err);
 		e = error.serverError(err);
 		next(e);
 	}
@@ -206,7 +206,7 @@ adminApp.post('/remove', async function(req, res, next) {
 			next(e);
 		}
 	} catch (err) {
-		debug(err);
+		req.debug(debug,err);
 		e = error.serverError();
 		next(e);
 	}
@@ -222,7 +222,7 @@ adminApp.post('/update', async function(req, res, next) {
 			await db.course.editCourse(courseId, name, imageId);
 			res.status(200).send({ err: 0 });
 		} catch (err) {
-			debug(err.message);
+			req.debug(debug,err.message);
 			e = error.serverError(err.message);
 			next(e);
 		}
@@ -244,7 +244,7 @@ adminApp.get('/get/:courseId', async function(req, res, next) {
 			next(e);
 		}
 	} catch (err) {
-		debug(err);
+		req.debug(debug,err);
 		e = error.serverError(err);
 		next(e);
 	}
@@ -277,7 +277,7 @@ adminApp.post('/teachers/remove', async function(req, res, next) {
 				next(e);
 			}
 		} catch (err) {
-			debug(err);
+			req.debug(debug,err);
 			e = error.serverError(err);
 			next(e);
 		}

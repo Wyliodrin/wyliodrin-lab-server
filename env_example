@@ -21,3 +21,6 @@ WYLIODRIN_NAME=
 
 # board offline refresh
 WYLIODRIN_BOARD_OFFLINE_TIMEOUT_REFRESH=
+
+# Local file that stores logs
+LOCAL_LOGS=

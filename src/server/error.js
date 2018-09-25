@@ -1,14 +1,15 @@
 var statusCodes = require('http-status-codes');
-// var debug = require('debug')('wyliodrin-lab-server:error');
-// var statusCodes = require('http-status-codes');
+var debug = require('debug')('wyliodrin-lab-server:error');
 const Layer = require('express/lib/router/layer');
-const shortid = require ('shortid');
+const shortid = require('shortid');
 //shortid.characters ('0123456789abcdef');
 
-Object.defineProperty(Layer.prototype, 'handle',{
+debug.log = console.info.bind(console);
+
+Object.defineProperty(Layer.prototype, 'handle', {
 	enumerable: true,
-	get: function () { return this.__handle; },
-	set: function (fn) {
+	get: function() { return this.__handle; },
+	set: function(fn) {
 		if (fn.length <= 3)
 			fn = wrap(fn);
 		this.__handle = fn;
@@ -16,8 +17,17 @@ Object.defineProperty(Layer.prototype, 'handle',{
 });
 
 function wrap(fn) {
+
 	return (req, res, next) => {
-		res.requestId = shortid.generate ();
+
+		res.requestId = shortid.generate();
+		req.requestId = res.requestId;
+
+		req.logs = [];
+		req.debug = function(debugFunc, msg) {
+			req.logs.push(debugFunc.namespace + ':' + msg);
+			debugFunc(msg);
+		};
 		const routePromise = fn(req, res, next);
 		if (routePromise && routePromise.catch) {
 			routePromise.catch(err => next(err));
