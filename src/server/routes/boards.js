@@ -8,7 +8,7 @@ var error = require('../error.js');
 var privateApp = express.Router();
 var remoteApp = express.Router();
 var adminApp = express.Router();
-var socket = require ('../socket');
+var socket = require('../socket');
 
 debug.log = console.info.bind(console);
 
@@ -97,12 +97,14 @@ privateApp.get('/get/:boardId', async function(req, res, next) {
 	var e;
 	var boardId = req.params.boardId;
 	try {
+		req.debug(debug, 'Finding board');
 		var board = await db.board.findByBoardId(boardId);
 		if (board) {
 			delete board.__v;
 			delete board._id;
 			res.status(200).send({ err: 0, board });
 		} else {
+			req.debug(debug, 'Invalid boardId');
 			e = error.badRequest('Invalid boardId');
 			next(e);
 		}
@@ -134,7 +136,7 @@ privateApp.post('/command', async function(req, res, next) {
 			if (board) {
 				var course = await db.course.findByCourseId(board.courseId);
 				if (userCanCommandBoard(req.user, course, board)) {
-					socket.emit ('board', boardId, 'send', 'p', {c: command});
+					socket.emit('board', boardId, 'send', 'p', { c: command });
 					res.status(200).send({ err: 0 });
 				} else {
 					e = error.unauthorized('User cannot reboot board');
@@ -237,9 +239,9 @@ privateApp.post('/disconnect', async function(req, res, next) {
 			if (board.courseId && board.userId) {
 				if (await userCanDisconnectBoard(board, req.user)) {
 					await db.board.unsetCourseAndUser(boardId);
-					db.image.unsetupDelay (board.boardId, 20000);
-					socket.emit ('board', boardId, 'send', 'p', {c: 'reboot'});
-					socket.emit ('board', boardId, 'disconnect');
+					db.image.unsetupDelay(board.boardId, 20000);
+					socket.emit('board', boardId, 'send', 'p', { c: 'reboot' });
+					socket.emit('board', boardId, 'disconnect');
 					res.status(200).send({ err: 0 });
 				} else {
 					e = error.unauthorized('User cannot disconnect board');

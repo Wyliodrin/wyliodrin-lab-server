@@ -62,12 +62,12 @@ publicApp.post('/login', async function(req, res, next) {
 
 			res.status(200).send({ err: 0, token: token, role: user.role });
 		} else {
-			req.debug(debug, 'User or password are not correct')
+			req.debug(debug, 'User or password are not correct');
 			e = error.unauthorized('User or password are not correct');
 			next(e);
 		}
 	} else {
-		req.debug(debug, 'All fields are required')
+		req.debug(debug, 'All fields are required');
 		e = error.badRequest('All fields are required');
 		next(e);
 	}
@@ -129,7 +129,7 @@ privateApp.post('/edit', async function(req, res, next) {
 	}
 });
 
-privateApp.get('/info', async function(req, res) {
+privateApp.get('/info', async function(req, res, next) {
 	var e;
 	req.debug(debug, 'User: ' + req.user.userId + 'requested /info');
 	req.debug(debug, 'Searching for user: ' + req.user.userId);
@@ -175,7 +175,7 @@ privateApp.post('/password/edit', async function(req, res, next) {
 });
 
 
-privateApp.get('/logout', async function(req, res) {
+privateApp.get('/logout', async function(req, res, next) {
 	let e;
 	req.debug(debug, 'User: ' + req.user.userId + 'requested to log out');
 	try {
@@ -428,18 +428,41 @@ adminApp.post('/delete', async function(req, res, next) {
 	var e;
 	var userId = req.body.userId;
 	try {
-		let board = await db.findByUserId(userId);
-		if (board) {
-			await db.board.unsetupDelay(board.boardId);
-		}
-		await db.workspace.deleteByUserId(userId);
-		await db.user.deleteByUserId(userId);
-		res.status(200).send({ err: 0 });
+		req.debug(debug, 'Searching board by userId: ' + userId);
+		var board = await db.findByUserId(userId);
 	} catch (err) {
-		req.debug(debug, err);
-		e = error.serverError();
-		next(e);
+		req.debug(debug, 'Error while searching board. ' + err);
+		e = error.serverError(err);
+		return next(e);
 	}
+	if (board) {
+		try {
+			req.debug(debug, 'Calling unsetupDelay for board');
+			await db.board.unsetupDelay(board.boardId);
+		} catch (err) {
+			req.debug(debug, 'Error while calling unsetupDelay. ');
+			e = error.serverError(err);
+			return next(e);
+		}
+	}
+	try {
+		req.debug(debug, 'Removing user workspace');
+		await db.workspace.deleteByUserId(userId);
+	} catch (err) {
+		req.debug(debug, 'Error while removing user workspace.');
+		e = error.serverError(err);
+		return next(e);
+
+	}
+	try {
+		req.debug(debug, 'Error while removing user.');
+		await db.user.deleteByUserId(userId);
+	} catch (err) {
+		req.debug(debug, 'Error while removing user.');
+		e = error.serverError(err);
+		return next(e);
+	}
+	res.status(200).send({ err: 0 });
 });
 
 module.exports.publicRoutes = publicApp;

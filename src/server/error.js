@@ -1,9 +1,8 @@
 var statusCodes = require('http-status-codes');
 var debug = require('debug')('wyliodrin-lab-server:error');
-var statusCodes = require('http-status-codes');
 const Layer = require('express/lib/router/layer');
 const shortid = require('shortid');
-shortid.characters('0123456789abcdef');
+//shortid.characters ('0123456789abcdef');
 
 debug.log = console.info.bind(console);
 
@@ -22,12 +21,13 @@ function wrap(fn) {
 	return (req, res, next) => {
 
 		res.requestId = shortid.generate();
+		req.requestId = res.requestId;
 
 		req.logs = [];
 		req.debug = function(debugFunc, msg) {
 			req.logs.push(debugFunc.namespace + ':' + msg);
 			debugFunc(msg);
-		}
+		};
 		const routePromise = fn(req, res, next);
 		if (routePromise && routePromise.catch) {
 			routePromise.catch(err => next(err));

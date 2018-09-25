@@ -8,13 +8,38 @@ var debug = require('debug')('wyliodrin-lab-server:app');
 require('./database/database.js');
 var users = require('./routes/users');
 var error = require('./error.js');
-var settings = require ('./routes/settings.js');
+var settings = require('./routes/settings.js');
 var projects = require('./routes/projects');
 var admin = require('./routes/admin');
 var boards = require('./routes/boards');
 var courses = require('./routes/courses');
 var images = require('./routes/raspberrypi');
 var statusCodes = require('http-status-codes');
+var fs = require('fs-extra');
+
+var LOGS = process.env.LOCAL_LOGS || __dirname + '.logs.json';
+
+async function saveLogs(req, err) {
+	var log = {
+		requestId: req.requestId,
+		logs: req.logs,
+		url: req.url,
+		params: req.params,
+		query: req.query,
+		error: err,
+		date: Date()
+	};
+	if (req.body && req.body.password) {
+		delete req.body.password;
+		log.body = req.body;
+	}
+
+	try {
+		await fs.appendFile(LOGS, JSON.stringify(log));
+	} catch (err) {
+		console.error('Error while writing logs to file', err);
+	}
+}
 
 debug.log = console.info.bind(console);
 var app = express();
@@ -26,7 +51,7 @@ var apiv1 = express.Router();
 apiv1.use(bodyParser.urlencoded({ extended: false }));
 apiv1.use(bodyParser.json());
 
-apiv1.use ('/settings', settings);
+apiv1.use('/settings', settings);
 
 apiv1.use('/users', users.publicRoutes);
 apiv1.use('/courses', courses.publicRoutes);
@@ -55,9 +80,9 @@ apiv1.use(function(req, res) {
 app.use('/docs', express.static(path.join(__dirname, '/../docs')));
 app.use('/api/v1', apiv1);
 
-app.get ('/:boardId([0-9a-e]+)/', function (req, res) {
+app.get('/:boardId([0-9a-e]+)/', function(req, res) {
 	// TODO move to boards and verify if board exists
-	res.redirect ('/lab.html?boardId='+req.params.boardId);
+	res.redirect('/lab.html?boardId=' + req.params.boardId);
 });
 
 app.use(express.static(path.join(__dirname, '../ui')));
@@ -69,10 +94,12 @@ app.get('/', function(req, res) {
 /** */
 app.use(function(err, req, res, next) {
 	next;
-	console.log (err);
+	req.debug(debug, 'ASTA E EROAREA FRATILOR' + err);
 	if (err.status === statusCodes.INTERNAL_SERVER_ERROR) {
-		error.sendError(res, error.serverError('Something went wrong with your request. ('+err.data.err+')'));
-		debug(err);
+		console.log('ASTA E EROAREA', err.data);
+		saveLogs(req, err.data);
+		error.sendError(res, error.serverError('Something went wrong with your request. (' + err.data.err + ')'));
+		req.debug(debug, err);
 	} else {
 		error.sendError(res, err);
 	}
