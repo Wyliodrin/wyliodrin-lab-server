@@ -80,7 +80,7 @@ async function createUserHome(userId) {
 		debug('Error making user project folder', err);
 		throw new Error('File System Error', err);
 	}
-	throw new Error('Test error. HI MOM!');
+	// throw new Error('Test error. HI MOM!');
 }
 
 function isValidName(name) {

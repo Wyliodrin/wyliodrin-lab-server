@@ -9,8 +9,8 @@
 					<p>{{board.ip}}</p>
 				</span>
 				<span v-show="board.status === 'online' && status === 'connected'">
-					<button v-show="!isRunning" @click="projectRun"><img src="img/device-running.png"></button>
-					<button v-show="isRunning" @click="projectStop"><img src="img/device-stopped.png"></button>
+					<button v-show="!board.project" @click="projectRun"><img src="img/device-running.png"></button>
+					<button v-show="board.project" @click="projectStop"><img src="img/device-stopped.png"></button>
 					<button @click="shellRun" data-toggle="modal" data-target="#shell"><img src="img/shell.png"></button>
 				</span>
 
@@ -176,7 +176,7 @@
 				<Workspace></Workspace>
 			</div>
 			<div class="h-20 w-100 editor-console">
-				<Shell :boardId="board.boardId" :projectId="projectName" :runId="runId" @run="projectStatus"></Shell>
+				<Shell :boardId="board.boardId" :projectId="projectName" :runId="runId"></Shell>
 			</div>
 		</div>
 	</div>
@@ -203,7 +203,6 @@ module.exports = {
 		return {
 			shell: false,
 			run: false,
-			isRunning: false,
 			runId: null,
 			boardStatus: {
 				bootup: 'Booting',
@@ -263,10 +262,6 @@ module.exports = {
 					}}
 				);
 			}
-		},
-		projectStatus (runStatus)
-		{
-			this.isRunning = runStatus;
 		},
 		projectStop ()
 		{

@@ -26,7 +26,7 @@ async function saveLogs(req, err) {
 		url: req.url,
 		params: req.params,
 		query: req.query,
-		error: err,
+		error: err.toString (),
 		date: Date()
 	};
 	if (req.body && req.body.password) {
