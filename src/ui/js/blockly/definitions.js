@@ -126,7 +126,7 @@ Blockly.Blocks['pinmode'] = {
 	  this.setOutput(true, "LED");
 	  this.setColour(0);
    this.setTooltip("");
-   this.setHelpUrl("");
+   this.setHelpUrl("https://gpiozero.readthedocs.io/en/stable/api_output.html#led");
 	}
   };
   
@@ -138,7 +138,7 @@ Blockly.Blocks['pinmode'] = {
 	  this.setOutput(true, "PWM_LED");
 	  this.setColour(0);
    this.setTooltip("");
-   this.setHelpUrl("");
+   this.setHelpUrl("https://gpiozero.readthedocs.io/en/stable/api_output.html#pwmled");
 	}
   };
   
@@ -150,7 +150,7 @@ Blockly.Blocks['pinmode'] = {
 	  this.setOutput(true, "button");
 	  this.setColour(0);
    this.setTooltip("");
-   this.setHelpUrl("");
+   this.setHelpUrl("https://gpiozero.readthedocs.io/en/stable/api_input.html#button");
 	}
   };
   
@@ -164,10 +164,39 @@ Blockly.Blocks['pinmode'] = {
 	  this.setOutput(true, "Boolean");
 	  this.setColour(105);
    this.setTooltip("");
-   this.setHelpUrl("");
+   this.setHelpUrl("https://gpiozero.readthedocs.io/en/stable/api_input.html#gpiozero.Button.is_pressed");
 	}
   };
   
+  
+    Blockly.Blocks['button_wait_for_release'] = {
+  init: function() {
+    this.appendValueInput("button")
+        .setCheck("button")
+        .appendField("Wait until button");
+    this.appendDummyInput()
+        .appendField("is released.");
+    this.setPreviousStatement(true, null);
+    this.setNextStatement(true, null);
+    this.setColour(230);
+ this.setTooltip("");
+ this.setHelpUrl("https://gpiozero.readthedocs.io/en/stable/api_input.html#gpiozero.Button.wait_for_release");
+  }
+};
+
+	Blockly.Blocks['button_held_time'] = {
+  init: function() {
+    this.appendValueInput("button")
+        .setCheck("button")
+        .appendField("how many seconds button");
+    this.appendDummyInput()
+        .appendField("has been held for.");
+    this.setOutput(true, "math_number");
+    this.setColour(230);
+ this.setTooltip("");
+ this.setHelpUrl("https://gpiozero.readthedocs.io/en/stable/api_input.html#gpiozero.Button.held_time");
+  }
+};
   Blockly.Blocks['led_blink'] = {
 	init: function() {
 	  this.appendValueInput("led")

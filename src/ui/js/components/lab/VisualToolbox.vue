@@ -149,7 +149,7 @@
 			<sep />
 			<!-- <category name="Pin Input" colour="100"></category> -->
 			
-				<category name="Button" colour="100">
+				<category name="Button" colour="0">
 
 					<block type="variables_set">
 						<field name="VAR">button</field>
@@ -181,20 +181,23 @@
 							</block>	
 						</value>
 					</block>
+
+					<block type = "button_wait_for_release"></block>
+					<block type = "button_held_time"></block>
 				</category>
-				<category name="Light" colour="100">
+				<category name="Light" colour="40">
 				</category>
-				<category name="Temperature" colour="100">
+				<category name="Temperature" colour="80">
 				</category>
-				<category name="Humidity" colour="100">
+				<category name="Humidity" colour="120">
 				</category>
-				<category name="Power Meter" colour="100">
+				<category name="Power Meter" colour="160">
 				</category>
 			
 			
 			<!-- <category name="Pin Output" colour="100"></category> -->
 			
-				<category name="LED" colour="100">
+				<category name="LED" colour="200">
 					<block type="variables_set">
 						<field name="VAR">ledName</field>
 						<value name="VALUE">
@@ -267,7 +270,7 @@
 					
 				</category>
 
-				<category name="Traffic Light" colour="100">
+				<category name="Traffic Light" colour="240">
 
 					<block type="variables_set">
 						<field name="VAR">trafficLight</field>
@@ -303,11 +306,18 @@
 						</value>
 					</block>
 				</category>
-				<category name="LCD" colour="100">
+				<category name="LCD" colour="280">
+					<block type="lcd_write">
+						<value name="str">
+							<block type="text">
+								<field name="TEXT"></field>
+							</block>
+						</value>
+					</block>
 				</category>
 			
 			
-			<category name="Advanced" colour="100">
+			<category name="Advanced" colour="320">
 				<block type="analogread"> 
 					<value name="pin">
 						<block type="pin"/>
@@ -363,11 +373,6 @@
 
 			</category>
 
-			<category name="LCD" colour="100">
-				<block type="lcd_write"> 
-				</block>
-
-			</category>
 
 		</xml>
 	</code>
