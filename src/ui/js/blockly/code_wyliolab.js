@@ -15,6 +15,7 @@ Blockly.Python.importtime = function() {
     }
 };
 
+
 Blockly.Python['analogread'] = function(block) {
     Blockly.Python.setUp();
     var value_pin = Blockly.Python.valueToCode(block, 'pin', Blockly.Python.ORDER_ATOMIC);
@@ -104,6 +105,14 @@ Blockly.Python['button'] = function(block) {
     return [code, Blockly.Python.ORDER_NONE];
 };
 
+Blockly.Python['button_when_held'] = function(block) {
+    var value_pin_number = Blockly.Python.valueToCode(block, 'pin_number', Blockly.Python.ORDER_ATOMIC);
+    var value_function = Blockly.Python.valueToCode(block, 'function', Blockly.Python.ORDER_ATOMIC);
+    // TODO: Assemble Python into code variable.
+    var code = value_pin_number.toString() + '.when_held = ' + value_function + ' ';
+    return code;
+};
+
 Blockly.Python['button_is_pressed'] = function(block) {
     Blockly.Python.setUp();
     var value_button = Blockly.Python.valueToCode(block, 'button', Blockly.Python.ORDER_ATOMIC);
@@ -189,6 +198,22 @@ Blockly.Python['led_turn_off'] = function(block) {
     return code;
 };
 
+Blockly.Python['led_toggle'] = function(block) {
+    Blockly.Python.setUp();
+    var value_name = Blockly.Python.valueToCode(block, 'NAME', Blockly.Python.ORDER_FUNCTION_CALL);
+    // TODO: Assemble Python into code variable.
+    var code = value_name.toString() + '.toggle()\n';
+    return code;
+};
+
+Blockly.Python['led_is_lit'] = function(block) {
+  var value_led = Blockly.Python.valueToCode(block, 'led', Blockly.Python.ORDER_ATOMIC);
+  // TODO: Assemble Python into code variable.
+  var code = value_led.toString() + 'is_lit';
+  // TODO: Change ORDER_NONE to the correct strength.
+  return [code, Blockly.Python.ORDER_NONE];
+};
+
 Blockly.Python['traffic_light_on'] = function(block) {
     Blockly.Python.setUp();
     var dropdown_light = block.getFieldValue('light');
@@ -248,24 +273,68 @@ Blockly.Python['light_sensor'] = function(block) {
 };
 
 Blockly.Python['light_wait_for_dark'] = function(block) {
-  var value_pin_number = Blockly.Python.valueToCode(block, 'pin_number', Blockly.Python.ORDER_ATOMIC);
-  // TODO: Assemble Python into code variable.
-  var code =  value_pin_number.toString() + '.wait_for_dark()';
-  return code;
+    var value_pin_number = Blockly.Python.valueToCode(block, 'pin_number', Blockly.Python.ORDER_ATOMIC);
+    // TODO: Assemble Python into code variable.
+    var code = value_pin_number.toString() + '.wait_for_dark()';
+    return code;
 };
 
 Blockly.Python['light_wait_for_light'] = function(block) {
-  var value_pin_number = Blockly.Python.valueToCode(block, 'pin_number', Blockly.Python.ORDER_ATOMIC);
-  // TODO: Assemble Python into code variable.
-  var code =  value_pin_number.toString() + '.wait_for_light()';
-  return code;
+    var value_pin_number = Blockly.Python.valueToCode(block, 'pin_number', Blockly.Python.ORDER_ATOMIC);
+    // TODO: Assemble Python into code variable.
+    var code = value_pin_number.toString() + '.wait_for_light()';
+    return code;
 };
 
 Blockly.Python['light_detected'] = function(block) {
-  var value_pin_number = Blockly.Python.valueToCode(block, 'pin_number', Blockly.Python.ORDER_ATOMIC);
-  // TODO: Assemble Python into code variable.
-  var code = value_pin_number.toString() + '.light_detected';
-  // TODO: Change ORDER_NONE to the correct strength.
-  return [code, Blockly.Python.ORDER_NONE];
+    var value_pin_number = Blockly.Python.valueToCode(block, 'pin_number', Blockly.Python.ORDER_ATOMIC);
+    // TODO: Assemble Python into code variable.
+    var code = value_pin_number.toString() + '.light_detected';
+    // TODO: Change ORDER_NONE to the correct strength.
+    return [code, Blockly.Python.ORDER_NONE];
+};
+
+Blockly.Python['buzzer'] = function(block) {
+    var value_pin = Blockly.Python.valueToCode(block, 'pin', Blockly.Python.ORDER_ATOMIC);
+    // TODO: Assemble Python into code variable.
+    var code = 'Buzzer(' + value_pin.toString() + ')';
+    // TODO: Change ORDER_NONE to the correct strength.
+    return [code, Blockly.Python.ORDER_NONE];
+};
+
+Blockly.Python['buzzer_beep'] = function(block) {
+    var value_pin = Blockly.Python.valueToCode(block, 'pin', Blockly.Python.ORDER_ATOMIC);
+    // TODO: Assemble Python into code variable.
+    var code = value_pin.toString() + '.beep()';
+    return code;
+};
+
+Blockly.Python['buzzer_on'] = function(block) {
+    var value_pin = Blockly.Python.valueToCode(block, 'pin', Blockly.Python.ORDER_ATOMIC);
+    // TODO: Assemble Python into code variable.
+    var code = value_pin.toString() + '.on()';
+    return code;
+};
+
+Blockly.Python['buzzer_off'] = function(block) {
+    var value_pin = Blockly.Python.valueToCode(block, 'pin', Blockly.Python.ORDER_ATOMIC);
+    // TODO: Assemble Python into code variable.
+    var code = value_pin.toString() + '.off()';
+    return code;
+};
+
+Blockly.Python['buzzer_toggle'] = function(block) {
+    var value_pin = Blockly.Python.valueToCode(block, 'pin', Blockly.Python.ORDER_ATOMIC);
+    // TODO: Assemble Python into code variable.
+    var code = value_pin.toString() + '.toggle()';
+    return code;
+};
+
+Blockly.Python['buzzer_is_active'] = function(block) {
+    var value_pin = Blockly.Python.valueToCode(block, 'pin', Blockly.Python.ORDER_ATOMIC);
+    // TODO: Assemble Python into code variable.
+    var code = value_pin.toString() + '.is_active';
+    // TODO: Change ORDER_NONE to the correct strength.
+    return [code, Blockly.Python.ORDER_NONE];
 };
 };

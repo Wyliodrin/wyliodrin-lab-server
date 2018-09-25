@@ -1,3 +1,4 @@
+
 <template>
 	<code v-pre>
 		<xml id="toolbox" style="display: none">
@@ -196,6 +197,20 @@
 							</block>	
 						</value>
 					</block>
+
+<!-- 					<block type = "button_when_held">
+						<value name="pin_number">
+							<block type="variables_get">
+								<field name="VAR">button</field>
+							</block>	
+						</value>
+						<value name="function">
+							<block type="text">
+								<field name="TEXT">function name</field>
+							</block>	
+						</value>						
+					</block> -->
+
 				</category>
 				<category name="Light" colour="40">
 					<block type="variables_set">
@@ -241,6 +256,7 @@
 			
 			
 			<!-- <category name="Pin Output" colour="100"></category> -->
+			<sep />
 			
 				<category name="LED" colour="200">
 					<block type="variables_set">
@@ -271,6 +287,14 @@
 							</block>
 						</value>
 					</block>
+
+<!-- 					<block type="led_toggle"> 
+						<value name="NAME">
+							<block type="variables_get">
+								<field name="VAR">ledName</field>
+							</block>
+						</value>
+					</block> -->
 
 					<block type="led_blink"> 
 						<value name="led">
@@ -311,8 +335,6 @@
 							</block>
 						</value>
 					</block>
-
-					
 				</category>
 
 				<category name="Traffic Light" colour="240">
@@ -355,14 +377,76 @@
 					<block type="lcd_write">
 						<value name="str">
 							<block type="text">
-								<field name="TEXT"></field>
+								<field name="TEXT">Hello World!</field>
 							</block>
 						</value>
 					</block>
 				</category>
 			
+			<category name="Buzzer" colour = "320">
+
+					<block type="variables_set">
+						<field name="VAR">buzzerName</field>
+						<value name="VALUE">
+							<block type="buzzer">
+								<value name="pin">
+									<block type="pin">
+										<field name="pin">R4</field>
+									</block>
+								</value>
+							</block>
+						</value>
+					</block>	
+
+					<block type="buzzer_beep">
+						<value name="pin">
+							<block type="variables_get">
+								<field name="VAR">buzzerName</field>
+							</block>
+						</value>	
+					</block>
+
+					<block type="buzzer_on">
+						<value name="pin">
+							<block type="variables_get">
+								<field name="VAR">buzzerName</field>
+							</block>
+						</value>						
+					</block>
+
+					<block type="buzzer_off">
+						<value name="pin">
+							<block type="variables_get">
+								<field name="VAR">buzzerName</field>
+							</block>
+						</value>						
+					</block>
+
+					<block type="buzzer_toggle">
+						<value name="pin">
+							<block type="variables_get">
+								<field name="VAR">buzzerName</field>
+							</block>
+						</value>						
+					</block>		
+
+					<block type="buzzer_is_active">
+						<value name="pin">
+							<block type="variables_get">
+								<field name="VAR">buzzerName</field>
+							</block>
+						</value>						
+					</block>	
+
+			</category>
+
+			<category name="Motors" colour = "40">
+
+			</category>	
 			
-			<category name="Advanced" colour="320">
+			<sep />
+				
+			<category name="Advanced" colour="80">
 				<block type="analogread"> 
 					<value name="pin">
 						<block type="pin"/>
