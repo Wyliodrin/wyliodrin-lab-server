@@ -36,6 +36,10 @@ async function imageData (boardId, status)
 		let course = await db.course.findByCourseId (board.courseId);
 		if (course) data.id = course.imageId;
 	}
+	else
+	{
+		data.id = db.image.defaultImageId();
+	}
 	return data;
 }
 
@@ -107,9 +111,16 @@ var server = tftp.createServer ({
 					// console.log (filename);
 					data = await fs.readFile (path.join (pathBoot, filename));
 				}
-				res.setSize (data.length);
-				res.write (data);
-				res.end ();
+				if (data || data === '')
+				{
+					res.setSize (data.length);
+					res.write (data);
+					res.end ();
+				}
+				else
+				{
+					req.abort (tftp.ENOENT);
+				}
 			}
 			catch (e)
 			{
