@@ -3,7 +3,7 @@ var statusCodes = require('http-status-codes');
 // var statusCodes = require('http-status-codes');
 const Layer = require('express/lib/router/layer');
 const shortid = require ('shortid');
-shortid.characters ('0123456789abcdef');
+//shortid.characters ('0123456789abcdef');
 
 Object.defineProperty(Layer.prototype, 'handle',{
 	enumerable: true,
