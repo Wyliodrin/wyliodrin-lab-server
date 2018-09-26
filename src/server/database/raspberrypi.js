@@ -3,7 +3,7 @@ var debug = require('debug')('wyliodrin-lab-server:raspberrypi');
 var path = require('path');
 var fs = require('fs-extra');
 var crypto = require('crypto');
-var os = require ('os');
+// var os = require ('os');
 var pty = require('pty.js');
 var _ = require('lodash');
 var ip = require('ip');
@@ -784,7 +784,7 @@ async function cmdline(courseId, imageId, boardId, userId, parameters) {
 	if (!imageId) imageId = defaultImageId();
 	if (!parameters) parameters = {};
 	if (!parameters.server) parameters.server = 'http://' + ip.address();
-	if (!parameters.servername) parameters.servername = process.env.WYLIODRIN_HOSTNAME || os.hostname ()+'.local';
+	if (!parameters.servername && process.env.WYLIODRIN_RUN_SERVER) parameters.servername = process.env.WYLIODRIN_RUN_SERVER;
 	if (!parameters.nfsServer) parameters.nfsServer = ip.address();
 	let str = 'root=/dev/nfs nfsroot=' + parameters.nfsServer + ':' + path.join(ROOT_FS, boardId) + ',vers=3 rw ip=dhcp rootwait elevator=deadline ' + (userId ? 'userId=' + userId : '') + ' server=' + parameters.server + ' ' + ' servername=' + parameters.servername + ' ' + (courseId ? 'courseId=' + courseId : '');
 	let folderBoot = path.join(BOOT, imageId);
