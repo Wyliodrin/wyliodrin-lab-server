@@ -163,7 +163,7 @@ privateApp.post('/password/edit', async function(req, res, next) {
 
 privateApp.get('/logout', async function(req, res, next) {
 	let e;
-	req.debug(debug, 'User: ' + req.user.userId + 'requested to log out');
+	req.debug(debug, 'User requested to log out');
 	try {
 		req.debug(debug, 'Unassignning course and user: ' + req.user.userId + 'from board');
 		await db.board.unassignCourseAndUser(req.user.userId);
