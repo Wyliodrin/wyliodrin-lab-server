@@ -46,7 +46,7 @@
 							</a>
 						</div> -->
 						<div class="my-proj right">
-							<a href="#" data-toggle="modal" data-target="#myProjectsModal">
+							<a href="#" data-toggle="modal" data-target="#myProjectsModal" class="menu-last-dist">
 								<img src="img/my-projects.png">
 								<span> Projects</span>
 								<div class="triangle"></div>
@@ -172,10 +172,10 @@
 			</div>
 			<div style="width: 100%">
 			</div>-->
-			<div class="h-80 w-100">
+			<div class="h-90 w-100">
 				<Workspace></Workspace>
 			</div>
-			<div class="h-20 w-100 editor-console">
+			<div class="h-10 w-100 editor-console">
 				<Shell :boardId="board.boardId" :projectId="projectName" :runId="runId"></Shell>
 			</div>
 		</div>
