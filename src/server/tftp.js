@@ -13,7 +13,15 @@ var SERVER = process.env.WYLIODRIN_LAB_SERVER || ('http://'+IP_ADDRESS+':'+PORT)
 
 function readBoardId (filename)
 {
-	return path.dirname (filename);
+	let d = path.dirname (filename);
+	let id = '';
+	let add = false;
+	for (let i = 0; i < d.length; i++)
+	{
+		if (d[i]!=='0') add = true;
+		if (add === true) id = id + d[i];
+	}
+	return id;
 }
 
 async function imageData (boardId, status)
