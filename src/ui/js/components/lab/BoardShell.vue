@@ -14,6 +14,7 @@
 					<div class="pointer"></div>
 				</div>
 				<div class="modal-body w-100 h-100">
+					<a v-if="init" href="" @click="exit">Close Shell</a>
 					<Shell v-if="init" :boardId="boardId">
 					</Shell>
 				</div>
@@ -25,6 +26,7 @@
 
 <script>
 var Shell = require ('../modules/Shell.vue');
+var Vue = require ('vue');
 module.exports = {
 	props: ['boardId', 'init'],
 	name: 'BoardShell',
@@ -38,7 +40,14 @@ module.exports = {
 		
 	},
 	methods: {
-		
+		exit ()
+		{
+			Vue.socket.emit ('b', {
+				l: 's',
+				id: this.boardId,
+				a: 'c'
+			});
+		}
 	},
 	computed: {
 
