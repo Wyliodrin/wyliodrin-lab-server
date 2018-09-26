@@ -198,18 +198,29 @@
 						</value>
 					</block>
 
-<!-- 					<block type = "button_when_held">
-						<value name="pin_number">
+					<block type = "button_when_held">
+						<value name="pin">
 							<block type="variables_get">
 								<field name="VAR">button</field>
 							</block>	
 						</value>
-						<value name="function">
-							<block type="text">
-								<field name="TEXT">function name</field>
+					</block>
+
+					<block type = "button_when_pressed">
+						<value name="pin">
+							<block type="variables_get">
+								<field name="VAR">button</field>
 							</block>	
-						</value>						
-					</block> -->
+						</value>
+					</block>
+
+					<block type = "button_when_released">
+						<value name="pin">
+							<block type="variables_get">
+								<field name="VAR">button</field>
+							</block>	
+						</value>
+					</block>
 
 				</category>
 				<category name="Light" colour="40">
@@ -246,6 +257,15 @@
 							</block>	
 						</value>
 					</block>
+
+					<block type="light_when_dark">
+						<value name="pin">
+							<block type="variables_get">
+								<field name="VAR">lightSensor</field>
+							</block>	
+						</value>
+					</block>
+
 				</category>
 				<category name="Temperature" colour="80">
 				</category>
