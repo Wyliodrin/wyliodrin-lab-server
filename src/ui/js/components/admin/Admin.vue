@@ -21,7 +21,7 @@
 								<div class="triangle"></div>
 							</router-link>
 						</div>
-						<div class="my-boards left">
+						<div class="my-boards left" v-if="isAdmin">
 							<router-link to="/users" :class="{'active':activeUsers}">
 								<img src="img/users.png">
 								<span> Users</span>
@@ -35,14 +35,14 @@
 								<div class="triangle"></div>
 							</router-link>
 						</div>
-						<div class="my-boards left">
+						<div class="my-boards left" v-if="isAdmin">
 							<router-link to="/images" :class="{'active':activeRaspberryPi}">
 								<img src="img/raspberrypi.png">
 								<span> Images</span>
 								<div class="triangle"></div>
 							</router-link>
 						</div>
-						<div class="my-boards left">
+						<div class="my-boards left" v-if="isAdmin">
 							<router-link href="#" to="/boards" class="menu-last-dist" :class="{'active':activeBoards}">
 								<img src="img/my-boards.png">
 								<span> Boards</span>
@@ -107,6 +107,14 @@ module.exports = {
 		gravatar ()
 		{
 			return 'https://www.gravatar.com/avatar/'+md5 (this.user.email)+'?d=mp';
+		},
+		isAdmin ()
+		{
+			if (this.user)
+			{
+				return this.user.role === 'admin';
+			}
+			else return false;
 		}
 	}
 };

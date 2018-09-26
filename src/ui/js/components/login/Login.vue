@@ -67,14 +67,14 @@ module.exports = {
 
 			if (login)
 			{
-				if (this.role === 'admin')
-				{
-					this.$store.dispatch ('settings/redirect', 'ADMIN');
-				}
-				else
-				{
-					this.$store.dispatch ('settings/redirect', 'LAB');
-				}
+				// if (this.role === 'admin')
+				// {
+				this.$store.dispatch ('settings/redirect', 'ADMIN');
+				// }
+				// else
+				// {
+				// 	this.$store.dispatch ('settings/redirect', 'LAB');
+				// }
 			}
 			else {
 				this.waitingForLogin = false;

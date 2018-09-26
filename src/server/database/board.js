@@ -142,7 +142,7 @@ function findByUserId(userId) {
 }
 
 function findByUserIdAndBoardId(userId, boardId) {
-	return Board.findOne({ boardId: boardId }, { userId: userId }).lean();
+	return Board.findOne({ boardId: boardId, userId: userId }).lean();
 }
 
 function assignUserToBoard(boardId, userId) {

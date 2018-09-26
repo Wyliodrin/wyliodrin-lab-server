@@ -16,14 +16,14 @@
 					<a @click="showSource" :class="{'active':source}"><img src="img/code.png"> {{filename}}</a>
 				</div>
 			</div>
-			<div v-show="source && selectedFile" class="h-80 w-80 editor-box" id="sourcePanel">
+			<div v-show="source && selectedFile" class="h-90 w-80 editor-box" id="sourcePanel">
 				<VisualToolbox></VisualToolbox>
 				<editor v-show="editor" v-model="fileSource" @init="initEditor" :lang="sourceLanguage" theme="monokai" :options="editorOptions"></editor>
 				<div id="visual" v-show="visual">
 				</div>
 			</div>
 			<div class="tree-box">
-				<div class="tree-hide-btn"><i></i></div>
+				<!--<div class="tree-hide-btn"><i></i></div>-->
 				<tree :options="treeOptions" v-model="selectedNode">
 					<span class="tree-container" slot-scope="{ node }" @mouseover="hover (node)" @mouseout="hover(null)">
 						<span class="tree-text">
@@ -363,7 +363,7 @@ module.exports = {
 				blocklyDiv.style.left = x + 'px';
 				blocklyDiv.style.top = y + 'px';
 				blocklyDiv.style.width = sourcePanel.offsetWidth + 'px';
-				blocklyDiv.style.height = (sourcePanel.offsetHeight - 63) + 'px';
+				blocklyDiv.style.height = sourcePanel.offsetHeight + 'px';
 				Blockly.svgResize(workspace);
 			};
 			window.addEventListener('resize', onresize, false);

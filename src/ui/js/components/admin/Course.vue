@@ -214,7 +214,7 @@
 								</select>
 							</div>
 							<a v-if="change" @click="changeImage">Change Image</a>
-							<a v-if="!change" @click="setupImage">Setup Image</a>
+							<a v-if="isTeacher && !change" @click="setupImage">Setup Image</a>
 							<Shell v-if="setup" :courseId="course.courseId">
 							</Shell>
 						</div>
@@ -281,6 +281,14 @@ module.exports = {
 			{
 				return [];
 			}
+		},
+		isTeacher ()
+		{
+			if (this.user && this.course)
+			{
+				return _.indexOf (this.course.teachers, this.user.userId);
+			}
+			else return false;
 		},
 		teachers ()
 		{
@@ -611,7 +619,25 @@ module.exports = {
 		},
 		setupImage ()
 		{
-			this.setup = true;
+			if (this.isTeacher)
+			{
+				this.setup = true;
+			}
+			else
+			{
+				Vue.bootbox.alert ({
+					title: 'Setup Course',
+					message: 'Please add yourself as a teracher to the coourse.',
+					className: 'regularModal',
+					buttons:
+					{
+						ok: {
+							label: 'OK',
+							className: 'wyliodrin-active'
+						},
+					},
+				});
+			}
 		}
 	},
 	destroyed ()

@@ -40,7 +40,15 @@ module.exports = {
 		async listCourses(store) {
 			try {
 				store.commit('courses', null);
-				let response = await Vue.http.get(setup.API + '/courses/all');
+				let response = null;
+				if (store.rootGetters['user/user'].role === 'admin')
+				{
+					response = await Vue.http.get(setup.API + '/courses/all');
+				}
+				else
+				{
+					response = await Vue.http.get(setup.API + '/courses/');
+				}
 				if (response.data.err === 0) {
 					console.log(response.data.courses);
 					store.commit('courses', response.data.courses);
