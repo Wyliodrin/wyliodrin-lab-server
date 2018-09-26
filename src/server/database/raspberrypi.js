@@ -533,7 +533,7 @@ async function mountRootFs(boardId, userId, courseId, imageInfo) {
 		await fs.mkdirs(folderRoot);
 		await fs.mkdirs(folderCourse);
 		await fs.mkdirs(folderRootFs);
-		if (await mountAufs(folderStack, folderRootFs, ['rw,suid'])) {
+		if (await mountAufs(folderStack, folderRootFs, ['rw', 'suid', 'index=on', 'nfs_export=on'])) {
 			// export nfs
 			return true;
 		} else {
