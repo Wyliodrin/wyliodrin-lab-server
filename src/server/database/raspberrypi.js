@@ -316,7 +316,7 @@ async function mountAufs(stack, folder, options, unmountIfMounted = false, workd
 		if (!mounted) {
 			await fs.mkdirs(folder);
 			console.log(stack);
-			let id = newImageId (stack.join(',')+folder);
+			let id = newImageId (stack.join(',')+','+folder);
 			if (!workdir)
 			{
 				workdir = path.join (WORK, id);
