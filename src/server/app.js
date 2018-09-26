@@ -17,7 +17,7 @@ var images = require('./routes/raspberrypi');
 var statusCodes = require('http-status-codes');
 var fs = require('fs-extra');
 
-var LOGS = process.env.LOCAL_LOGS || __dirname + '.logs.json';
+var LOGS = process.env.WYLIODRIN_LOCAL_LOGS || __dirname + '.logs.json';
 
 async function saveLogs(req, err) {
 	var log = {
@@ -26,7 +26,7 @@ async function saveLogs(req, err) {
 		url: req.url,
 		params: req.params,
 		query: req.query,
-		error: err.toString (),
+		error: err.err.toString(),
 		date: Date()
 	};
 	if (req.body && req.body.password) {
@@ -94,9 +94,7 @@ app.get('/', function(req, res) {
 /** */
 app.use(function(err, req, res, next) {
 	next;
-	req.debug(debug, 'ASTA E EROAREA FRATILOR' + err);
 	if (err.status === statusCodes.INTERNAL_SERVER_ERROR) {
-		console.log('ASTA E EROAREA', err.data);
 		saveLogs(req, err.data);
 		error.sendError(res, error.serverError('Something went wrong with your request. (' + err.data.err + ')'));
 		req.debug(debug, err);
