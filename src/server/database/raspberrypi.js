@@ -93,6 +93,8 @@ let SETUP_SERVER = path.join(MOUNT, 'server');
 
 let SETUP_COURSE = path.join(MOUNT, 'course');
 
+let WORK = path.join (STORAGE, 'work');
+
 let imagesList = {};
 let defaultImage = null;
 
@@ -304,7 +306,7 @@ async function isMounted(folder) {
 async function mountAufs(stack, folder, options, unmountIfMounted = false) {
 	folder = path.normalize(path.resolve(__dirname, folder));
 	let mount = false;
-	debug('mount aufs ' + stack + ' ' + folder);
+	debug('mount overlay ' + stack + ' ' + folder);
 	try {
 		let mounted = await isMounted(folder);
 		if (mounted && unmountIfMounted) {
@@ -314,13 +316,16 @@ async function mountAufs(stack, folder, options, unmountIfMounted = false) {
 		if (!mounted) {
 			await fs.mkdirs(folder);
 			console.log(stack);
-			let mnt = await spawnPrivileged('mount', ['-t', 'aufs', '-o', 'br=' + stack.join(':') + (options ? ',' + options.join(',') : ''), 'none', folder]);
-			console.log('mount ' + ['-t', 'aufs', '-o', 'br=' + stack.join(':') + (options ? ',' + options.join(',') : ''), 'none', folder].join(' '));
+			let id = newImageId (stack.join(','));
+			let workdir = path.join (WORK, id);
+			await fs.mkdirp (workdir);
+			let mnt = await spawnPrivileged('mount', ['-t', 'overlay', '-o', 'lowerdir=' + stack.slice (1).join(':') +',upperdir='+stack[0]+',workdir='+workdir+(options ? ',' + options.join(',') : ''), 'none', folder]);
+			console.log('mount' + ['-t', 'overlay', '-o', 'lowerdir=' + stack.slice (1).reverse().join(':') +',upperdir='+stack[0]+',workdir='+workdir+(options ? ',' + options.join(',') : ''), 'none', folder].join(' '));
 			// console.log (mnt.stdout.toString  ());
 			// console.log (mnt.stderr.toString  ());
 			// console.log (mnt.exitCode);
 			if (mnt.exitCode !== 0) {
-				console.error('ERROR: mount aufs ' + stack + ' to ' + folder + ' failed (' + mnt.stderr.toString() + ')');
+				console.error('ERROR: mount overlay ' + stack + ' to ' + folder + ' failed (' + mnt.stderr.toString() + ')');
 			} else {
 				mount = true;
 			}
@@ -328,7 +333,7 @@ async function mountAufs(stack, folder, options, unmountIfMounted = false) {
 			mount = true;
 		}
 	} catch (e) {
-		console.error('ERROR: mount aufs ' + stack + ' to ' + folder + ' failed (' + e.message + ')');
+		console.error('ERROR: mount overlay ' + stack + ' to ' + folder + ' failed (' + e.message + ')');
 	}
 	return mount;
 }
@@ -726,12 +731,12 @@ function unsetup(boardId) {
 			// root
 			if (await isExported(folder)) {
 				await unexportFs(folder);
-				await unmountRootFs(boardId);
 				// resolve (true);
 			} else {
 				// board.unsetupInProgress = null;
 				// reject (new Error('Board ' + boardId + ' is not setup'));
 			}
+			await unmountRootFs(boardId);
 			if (board.userId)
 			{
 				let userFolder = await pathUser (board.userId);
