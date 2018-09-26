@@ -303,7 +303,7 @@ async function isMounted(folder) {
 	else return false;
 }
 
-async function mountAufs(stack, folder, options, unmountIfMounted = false) {
+async function mountAufs(stack, folder, options, unmountIfMounted = false, workdir) {
 	folder = path.normalize(path.resolve(__dirname, folder));
 	let mount = false;
 	debug('mount overlay ' + stack + ' ' + folder);
@@ -317,8 +317,11 @@ async function mountAufs(stack, folder, options, unmountIfMounted = false) {
 			await fs.mkdirs(folder);
 			console.log(stack);
 			let id = newImageId (stack.join(','));
-			let workdir = path.join (WORK, id);
-			await fs.mkdirp (workdir);
+			if (!workdir)
+			{
+				workdir = path.join (WORK, id);
+				await fs.mkdirp (workdir);
+			}
 			let mnt = await spawnPrivileged('mount', ['-t', 'overlay', '-o', 'lowerdir=' + stack.slice (1).join(':') +',upperdir='+stack[0]+',workdir='+workdir+(options ? ',' + options.join(',') : ''), 'none', folder]);
 			console.log('mount' + ['-t', 'overlay', '-o', 'lowerdir=' + stack.slice (1).reverse().join(':') +',upperdir='+stack[0]+',workdir='+workdir+(options ? ',' + options.join(',') : ''), 'none', folder].join(' '));
 			// console.log (mnt.stdout.toString  ());
@@ -539,10 +542,14 @@ async function mountRootFs(boardId, userId, courseId, imageInfo) {
 	} else {
 		let folderRamFs = path.join(RAM_FS, boardId);
 		await mountRamFs(boardId);
-		let folderStack = [folderRamFs, ...await serverStack(imageInfo)];
+		let upperdir = path.join (folderRamFs, 'upperdir');
+		let workdir = path.join (folderRamFs, 'workdir');
+		await fs.mkdirp (upperdir);
+		await fs.mkdirp (workdir);
+		let folderStack = [upperdir, ...await serverStack(imageInfo)];
 		let folderRootFs = path.join(ROOT_FS, boardId);
 		await fs.mkdirs(folderRootFs);
-		if (await mountAufs(folderStack, folderRootFs, ['rw'])) {
+		if (await mountAufs(folderStack, folderRootFs, ['rw'], false, workdir)) {
 			// export nfs
 			return true;
 		} else {
@@ -731,12 +738,12 @@ function unsetup(boardId) {
 			// root
 			if (await isExported(folder)) {
 				await unexportFs(folder);
+				await unmountRootFs(boardId);
 				// resolve (true);
 			} else {
 				// board.unsetupInProgress = null;
 				// reject (new Error('Board ' + boardId + ' is not setup'));
 			}
-			await unmountRootFs(boardId);
 			if (board.userId)
 			{
 				let userFolder = await pathUser (board.userId);
