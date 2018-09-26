@@ -549,7 +549,7 @@ async function mountRootFs(boardId, userId, courseId, imageInfo) {
 		let folderStack = [upperdir, ...await serverStack(imageInfo)];
 		let folderRootFs = path.join(ROOT_FS, boardId);
 		await fs.mkdirs(folderRootFs);
-		if (await mountAufs(folderStack, folderRootFs, ['rw', 'nfs_export=on'], false, workdir)) {
+		if (await mountAufs(folderStack, folderRootFs, ['rw', 'index=on', 'nfs_export=on'], false, workdir)) {
 			// export nfs
 			return true;
 		} else {
