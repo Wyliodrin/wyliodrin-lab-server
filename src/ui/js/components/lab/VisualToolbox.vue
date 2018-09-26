@@ -147,6 +147,12 @@
 			<sep />
 			<category name="Variables" custom="VARIABLE" colour="330" />
 			<category name="Functions" custom="PROCEDURE" colour="290" />
+			<category name="Pins" colour ="250" >
+				<block type="pin"/>
+				<block type="pin_analog"/>
+				<block type="pin_digital"/>
+
+			</category>
 			<sep />
 			<!-- <category name="Pin Input" colour="100"></category> -->
 			
@@ -266,6 +272,14 @@
 						</value>
 					</block>
 
+					<block type="light_when_light">
+						<value name="pin">
+							<block type="variables_get">
+								<field name="VAR">lightSensor</field>
+							</block>	
+						</value>
+					</block>
+
 				</category>
 				<category name="Temperature" colour="80">
 				</category>
@@ -308,15 +322,23 @@
 						</value>
 					</block>
 
-<!-- 					<block type="led_toggle"> 
+					<block type="led_toggle"> 
 						<value name="NAME">
 							<block type="variables_get">
 								<field name="VAR">ledName</field>
 							</block>
 						</value>
-					</block> -->
+					</block>
 
 					<block type="led_blink"> 
+						<value name="led">
+							<block type="variables_get">
+								<field name="VAR">ledName</field>
+							</block>
+						</value>
+					</block>
+
+					<block type="led_is_lit"> 
 						<value name="led">
 							<block type="variables_get">
 								<field name="VAR">ledName</field>
@@ -329,9 +351,7 @@
 						<value name="VALUE">
 							<block type="pwm_led">
 								<value name="pin">
-									<block type="pin_digital">
-										<field name="pin"></field>
-									</block>
+									<block type="pin_digital"/>
 								</value>
 							</block>
 						</value>
@@ -385,6 +405,22 @@
 						</value>
 					</block>
 
+					<block type="traffic_blink"> 
+						<value name="pin">
+							<block type="variables_get">
+								<field name="VAR">trafficLight</field>
+							</block>
+						</value>
+					</block>
+
+					<block type="traffic_close"> 
+						<value name="pin">
+							<block type="variables_get">
+								<field name="VAR">trafficLight</field>
+							</block>
+						</value>
+					</block>
+
 					<block type="traffic_light_off">
 						<value name="NAME">
 							<block type="variables_get">
@@ -392,6 +428,23 @@
 							</block>
 						</value>
 					</block>
+
+					<block type="pwm_pulse">
+						<value name="pwm_led">
+							<block type="variables_get">
+								<field name="VAR">trafficLight</field>
+							</block>
+						</value>
+					</block>
+
+					<block type="led_toggle"> 
+						<value name="NAME">
+							<block type="variables_get">
+								<field name="VAR">trafficLight</field>
+							</block>
+						</value>
+					</block>
+
 				</category>
 				<category name="LCD" colour="280">
 					<block type="lcd_write">
@@ -461,6 +514,60 @@
 			</category>
 
 			<category name="Motors" colour = "40">
+				<block type="variables_set">
+						<field name="VAR">servoMotor</field>
+						<value name="VALUE">
+							<block type="servo">
+								<value name="pin">
+									<block type="pin_digital"/>	
+								</value>
+							</block>
+						</value>
+				</block>
+
+				<block type="servo_detach">
+						<value name="pin">
+							<block type="variables_get">
+								<field name="VAR">servoMotor</field>
+							</block>
+						</value>						
+				</block>
+
+				<block type="servo_max">
+						<value name="pin">
+							<block type="variables_get">
+								<field name="VAR">servoMotor</field>
+							</block>
+						</value>						
+				</block>
+
+				<block type="servo_mid">
+						<value name="pin">
+							<block type="variables_get">
+								<field name="VAR">servoMotor</field>
+							</block>
+						</value>						
+				</block>
+
+				<block type="servo_min">
+						<value name="pin">
+							<block type="variables_get">
+								<field name="VAR">servoMotor</field>
+							</block>
+						</value>						
+				</block>
+
+				<block type="servo_value">
+						<value name="pin">
+							<block type="variables_get">
+								<field name="VAR">servoMotor</field>
+							</block>
+						</value>		
+						<value name="value">
+							<block type="math_number"/>
+						</value>				
+				</block>
+
 
 			</category>	
 
@@ -499,11 +606,15 @@
 
 				<block type="pinmode">
 					<value name="NAME">
-						<block type="pin_raspi"/>
+						<block type="pin_analog"/>
 					</value>
 				</block>
 
-				
+				<block type="pinmode">
+					<value name="NAME">
+						<block type="pin_digital"/>
+					</value>
+				</block>
 
 				<block type="pause" /> 
 
