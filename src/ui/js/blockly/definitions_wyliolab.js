@@ -243,23 +243,59 @@ Blockly.Blocks['button'] = {
 };
 
 Blockly.Blocks['button_when_held'] = {
-    init: function() {
-        this.appendValueInput("pin_number")
-            .setCheck("button")
-            .appendField("When button");
-        this.appendValueInput("function")
-            .setCheck("String")
-            .appendField("is held, call function");
-        this.appendDummyInput()
-            .appendField(".");
-        this.setInputsInline(true);
-        this.setPreviousStatement(true, null);
-        this.setNextStatement(true, null);
-        this.setColour(0);
-        this.setTooltip("");
-        this.setHelpUrl("AChttps://gpiozero.readthedocs.io/en/stable/api_input.html#gpiozero.LightSensor.light_detected");
-    }
+  init: function() {
+    this.appendValueInput("pin")
+        .setCheck("button")
+        .appendField("When button");
+    this.appendDummyInput()
+        .appendField("is held, do:");
+    this.appendStatementInput("function")
+        .setCheck(null);
+    this.setInputsInline(true);
+    this.setPreviousStatement(true, null);
+    this.setNextStatement(true, null);
+    this.setColour(0);
+ this.setTooltip("");
+ this.setHelpUrl("https://gpiozero.readthedocs.io/en/stable/api_input.html#gpiozero.Button.when_held");
+  }
 };
+
+Blockly.Blocks['button_when_pressed'] = {
+  init: function() {
+    this.appendValueInput("pin")
+        .setCheck("button")
+        .appendField("When button");
+    this.appendDummyInput()
+        .appendField("is pressed, do:");
+    this.appendStatementInput("function")
+        .setCheck(null);
+    this.setInputsInline(true);
+    this.setPreviousStatement(true, null);
+    this.setNextStatement(true, null);
+    this.setColour(0);
+ this.setTooltip("");
+ this.setHelpUrl("https://gpiozero.readthedocs.io/en/stable/api_input.html#gpiozero.Button.when_pressed");
+  }
+};
+
+Blockly.Blocks['button_when_released'] = {
+  init: function() {
+    this.appendValueInput("pin")
+        .setCheck("button")
+        .appendField("When button");
+    this.appendDummyInput()
+        .appendField("is released, do:");
+    this.appendStatementInput("function")
+        .setCheck(null);
+    this.setInputsInline(true);
+    this.setPreviousStatement(true, null);
+    this.setNextStatement(true, null);
+    this.setColour(0);
+ this.setTooltip("");
+ this.setHelpUrl("https://gpiozero.readthedocs.io/en/stable/api_input.html#gpiozero.Button.when_released");
+  }
+};
+
 
 Blockly.Blocks['button_is_pressed'] = {
     init: function() {
@@ -536,6 +572,24 @@ Blockly.Blocks['light_sensor'] = {
         this.setTooltip("");
         this.setHelpUrl("https://gpiozero.readthedocs.io/en/stable/api_input.html#gpiozero.LightSensor");
     }
+};
+
+Blockly.Blocks['light_when_dark'] = {
+  init: function() {
+    this.appendValueInput("pin")
+        .setCheck("light_sensor")
+        .appendField("When light sensor");
+    this.appendDummyInput()
+        .appendField("senses dark, do:");
+    this.appendStatementInput("function")
+        .setCheck(null);
+    this.setInputsInline(true);
+    this.setPreviousStatement(true, null);
+    this.setNextStatement(true, null);
+    this.setColour(40);
+ this.setTooltip("");
+ this.setHelpUrl("https://gpiozero.readthedocs.io/en/stable/api_input.html#gpiozero.LightSensor.when_dark");
+  }
 };
 
 Blockly.Blocks['light_wait_for_dark'] = {

@@ -12,21 +12,7 @@ var privateApp = express.Router();
 var adminApp = express.Router();
 
 
-// // redis functions for login tokens
-// const getAsync = promisify(client.get).bind(client);
-// const setAsync = promisify(client.set).bind(client);
-// const delAsync = promisify(client.del).bind(client);
-// const KEY = 'wyliodrin-lab-server:';
-
-// client.on('error', function(err) {
-// 	console.log('Error' + err);
-// });
-
 debug.log = console.info.bind(console);
-
-// function createToken() {
-// 	return uuid.v4() + uuid.v4() + uuid.v4() + uuid.v4();
-// }
 
 publicApp.post('/login', async function(req, res, next) {
 	var e;
@@ -177,7 +163,7 @@ privateApp.post('/password/edit', async function(req, res, next) {
 
 privateApp.get('/logout', async function(req, res, next) {
 	let e;
-	req.debug(debug, 'User: ' + req.user.userId + 'requested to log out');
+	req.debug(debug, 'User requested to log out');
 	try {
 		req.debug(debug, 'Unassignning course and user: ' + req.user.userId + 'from board');
 		await db.board.unassignCourseAndUser(req.user.userId);
