@@ -1,7 +1,7 @@
 Blockly.Blocks['analogread'] = {
     init: function() {
         this.appendValueInput("pin")
-            .setCheck(["String", "pinNumber"])
+            .setCheck(["String", "pinNumber_analog"])
             .appendField("analogRead");
         this.setOutput(true, "Number");
         this.setColour(320);
@@ -13,7 +13,7 @@ Blockly.Blocks['analogread'] = {
 Blockly.Blocks['digitalread'] = {
     init: function() {
         this.appendValueInput("pin")
-            .setCheck(["String", "pinNumber"])
+            .setCheck(["String", "pinNumber_digital"])
             .appendField("digitalRead");
         this.setOutput(true, "Number");
         this.setColour(320);
@@ -25,7 +25,7 @@ Blockly.Blocks['digitalread'] = {
 Blockly.Blocks['analogwrite'] = {
     init: function() {
         this.appendValueInput("pin")
-            .setCheck(["String", "pinNumber"])
+            .setCheck(["String", "pinNumber_analog"])
             .setAlign(Blockly.ALIGN_RIGHT)
             .appendField("analogWrite");
         this.appendValueInput("value")
@@ -44,7 +44,7 @@ Blockly.Blocks['analogwrite'] = {
 Blockly.Blocks['digitalwrite'] = {
     init: function() {
         this.appendValueInput("pin")
-            .setCheck(["String", "pinNumber"])
+            .setCheck(["String", "pinNumber_digital"])
             .setAlign(Blockly.ALIGN_RIGHT)
             .appendField("digitalWrite");
         this.appendValueInput("value")
@@ -63,7 +63,7 @@ Blockly.Blocks['digitalwrite'] = {
 Blockly.Blocks['pinmode'] = {
     init: function() {
         this.appendValueInput("NAME")
-            .setCheck(["String", "pinNumber"])
+            .setCheck(["String", "pinNumber", "pinNumber_analog", "pinNumber_digital", "pinNumber_raspi"])
             .appendField("pinMode");
         this.appendDummyInput()
             .appendField(new Blockly.FieldDropdown([
@@ -79,20 +79,15 @@ Blockly.Blocks['pinmode'] = {
 };
 
 Blockly.Blocks['pin'] = {
-    init: function() {
-        this.appendDummyInput()
-            .appendField(new Blockly.FieldDropdown([
-                ["R4", "R4"],
-                ["R17", "R17"],
-                ["R27", "R27"],
-                ["R22", "R22"],
-                ["R10", "R10"],
-                ["R9", "R9"],
-                ["R11", "R11"],
-                ["R18", "R18"],
-                ["R23", "R23"],
-                ["R8", "R8"],
-                ["R7", "R7"],
+  init: function() {
+    this.appendDummyInput()
+        .appendField(new Blockly.FieldDropdown([
+        	    ["A0", "A0"],
+                ["A1", "A1"],
+                ["A2", "A2"],
+                ["A3", "A3"],
+                ["A4", "A4"],
+                ["A5", "A5"],
                 ["D2", "D2"],
                 ["D3", "D3"],
                 ["D4", "D4"],
@@ -105,26 +100,110 @@ Blockly.Blocks['pin'] = {
                 ["D11", "D11"],
                 ["D12", "D12"],
                 ["D13", "D13"],
-                ["A0", "A0"],
+                ["R4", "R4"],
+                ["R17", "R17"],
+                ["R27", "R27"],
+                ["R22", "R22"],
+                ["R10", "R10"],
+                ["R9", "R9"],
+                ["R11", "R11"],
+                ["R18", "R18"],
+                ["R23", "R23"],
+                ["R8", "R8"],
+                ["R7", "R7"],
+                ["R13", "R13"],
+                ["R19", "R19"],
+                ["R20", "R20"],
+                ["R21", "R21"]
+
+        	]), "pin");
+    this.setOutput(true, "pinNumber");
+    this.setColour(230);
+ this.setTooltip("");
+ this.setHelpUrl("");
+  }
+};
+
+Blockly.Blocks['pin_analog'] = {
+  init: function() {
+    this.appendDummyInput()
+        .appendField(new Blockly.FieldDropdown([
+        	    ["A0", "A0"],
                 ["A1", "A1"],
                 ["A2", "A2"],
                 ["A3", "A3"],
                 ["A4", "A4"],
-                ["A5", "A5"],
-            ]), "pin");
-        this.setOutput(true, "pinNumber");
-        this.setColour(320);
-        this.setTooltip("");
-        this.setHelpUrl("");
-    }
+                ["A5", "A5"]
+
+        	]), "pin")
+        .appendField("(analog)");
+    this.setOutput(true, "pinNumber_analog");
+    this.setColour(230);
+ this.setTooltip("");
+ this.setHelpUrl("");
+  }
+};
+
+Blockly.Blocks['pin_digital'] = {
+  init: function() {
+    this.appendDummyInput()
+        .appendField(new Blockly.FieldDropdown([
+        	    ["D2", "D2"],
+                ["D3", "D3"],
+                ["D4", "D4"],
+                ["D5", "D5"],
+                ["D6", "D6"],
+                ["D7", "D7"],
+                ["D8", "D8"],
+                ["D9", "D9"],
+                ["D10", "D10"],
+                ["D11", "D11"],
+                ["D12", "D12"],
+                ["D13", "D13"]
+
+        	]), "pin")
+        .appendField("(digital)");
+    this.setOutput(true, "pinNumber_digital");
+    this.setColour(230);
+ this.setTooltip("");
+ this.setHelpUrl("");
+  }
 };
 
 
+Blockly.Blocks['pin_raspi'] = {
+  init: function() {
+    this.appendDummyInput()
+        .appendField(new Blockly.FieldDropdown([
+        	    ["R4", "R4"],
+                ["R17", "R17"],
+                ["R27", "R27"],
+                ["R22", "R22"],
+                ["R10", "R10"],
+                ["R9", "R9"],
+                ["R11", "R11"],
+                ["R18", "R18"],
+                ["R23", "R23"],
+                ["R8", "R8"],
+                ["R7", "R7"],
+                ["R13", "R13"],
+                ["R19", "R19"],
+                ["R20", "R20"],
+                ["R21", "R21"]
+
+        	]), "pin")
+        .appendField("(raspi)");
+    this.setOutput(true, "pinNumber_raspi");
+    this.setColour(230);
+ this.setTooltip("");
+ this.setHelpUrl("");
+  }
+};
 
 Blockly.Blocks['led'] = {
     init: function() {
         this.appendValueInput("pin")
-            .setCheck(["String", "pinNumber"])
+            .setCheck(["String", "pinNumber", "pinNumber_analog", "pinNumber_digital", "pinNumber_raspi"])
             .appendField("LED");
         this.setOutput(true, "LED");
         this.setColour(200);
@@ -136,7 +215,7 @@ Blockly.Blocks['led'] = {
 Blockly.Blocks['pwm_led'] = {
     init: function() {
         this.appendValueInput("pin")
-            .setCheck(["String", "pinNumber"])
+            .setCheck(["String", "pinNumber_raspi", "pinNumber_digital"])
             .appendField("PWM LED");
         this.setOutput(true, "PWM_LED");
         this.setColour(200);
@@ -148,7 +227,7 @@ Blockly.Blocks['pwm_led'] = {
 Blockly.Blocks['button'] = {
     init: function() {
         this.appendValueInput("pin_number")
-            .setCheck(["String", "pinNumber"])
+            .setCheck(["String", "pinNumber_digital", "pinNumber_raspi"])
             .appendField("Button");
         this.setOutput(true, "button");
         this.setColour(0);
@@ -282,12 +361,12 @@ Blockly.Blocks['pause'] = {
 Blockly.Blocks['trafficlight'] = {
     init: function() {
         this.appendValueInput("red")
-            .setCheck(["String", "pinNumber"])
+            .setCheck(["String",  "pinNumber", "pinNumber_analog", "pinNumber_digital", "pinNumber_raspi"])
             .appendField("Traffic Lights");
         this.appendValueInput("yellow")
-            .setCheck(["String", "pinNumber"]);
+            .setCheck(["String",  "pinNumber", "pinNumber_analog", "pinNumber_digital", "pinNumber_raspi"]);
         this.appendValueInput("green")
-            .setCheck(["String", "pinNumber"]);
+            .setCheck(["String",  "pinNumber", "pinNumber_analog", "pinNumber_digital", "pinNumber_raspi"]);
         this.setOutput(true, "traffic");
         this.setColour(240);
         this.setTooltip("");
@@ -444,7 +523,7 @@ Blockly.Blocks['lcd_write'] = {
 Blockly.Blocks['light_sensor'] = {
     init: function() {
         this.appendValueInput("pin_number")
-            .setCheck(["String", "pinNumber"])
+            .setCheck(["String", "pinNumber_analog"])
             .appendField("Light Sensor");
         this.setOutput(true, "light_sensor");
         this.setColour(40);
@@ -500,7 +579,7 @@ Blockly.Blocks['light_detected'] = {
 Blockly.Blocks['buzzer'] = {
     init: function() {
         this.appendValueInput("pin")
-            .setCheck(["String", "pinNumber"])
+            .setCheck(["String",  "pinNumber", "pinNumber_analog", "pinNumber_digital", "pinNumber_raspi"])
             .appendField("buzzer");
         this.setOutput(true, "buzzer");
         this.setColour(320);

@@ -62,6 +62,15 @@ Blockly.Python['pinmode'] = function(block) {
     return code;
 };
 
+Blockly.Python['pin_analog'] = function(block) {
+    Blockly.Python.setUp();
+    var dropdown_pin = block.getFieldValue('pin');
+    // TODO: Assemble Python into code variable.
+    var code = dropdown_pin.toString();
+    // TODO: Change ORDER_NONE to the correct strength.
+    return [code, Blockly.Python.ORDER_NONE];
+};
+
 Blockly.Python['pin'] = function(block) {
     Blockly.Python.setUp();
     var dropdown_pin = block.getFieldValue('pin');
@@ -71,6 +80,23 @@ Blockly.Python['pin'] = function(block) {
     return [code, Blockly.Python.ORDER_NONE];
 };
 
+Blockly.Python['pin_digital'] = function(block) {
+    Blockly.Python.setUp();
+    var dropdown_pin = block.getFieldValue('pin');
+    // TODO: Assemble Python into code variable.
+    var code = dropdown_pin.toString();
+    // TODO: Change ORDER_NONE to the correct strength.
+    return [code, Blockly.Python.ORDER_NONE];
+};
+
+Blockly.Python['pin_raspi'] = function(block) {
+    Blockly.Python.setUp();
+    var dropdown_pin = block.getFieldValue('pin');
+    // TODO: Assemble Python into code variable.
+    var code = dropdown_pin.toString();
+    // TODO: Change ORDER_NONE to the correct strength.
+    return [code, Blockly.Python.ORDER_NONE];
+};
 
 
 Blockly.Python['led'] = function(block) {

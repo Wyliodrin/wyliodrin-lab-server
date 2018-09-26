@@ -157,7 +157,7 @@
 						<value name="VALUE">
 							<block type="button">
 								<value name="pin_number">
-									<block type="pin"/>
+									<block type="pin_digital"/>
 								</value>
 							</block>
 						</value>
@@ -218,7 +218,7 @@
 							<value name="VALUE">
 								<block type="light_sensor">
 									<value name="pin_number">
-										<block type="pin"/>
+										<block type="pin_analog"/>
 									</value>
 								</block>
 							</value>
@@ -309,8 +309,8 @@
 						<value name="VALUE">
 							<block type="pwm_led">
 								<value name="pin">
-									<block type="pin">
-										<field name="pin">R4</field>
+									<block type="pin_digital">
+										<field name="pin"></field>
 									</block>
 								</value>
 							</block>
@@ -443,25 +443,25 @@
 			<category name="Motors" colour = "40">
 
 			</category>	
-			
+
 			<sep />
 				
 			<category name="Advanced" colour="80">
 				<block type="analogread"> 
 					<value name="pin">
-						<block type="pin"/>
+						<block type="pin_analog"/>
 					</value>
 				</block>
 
 				<block type="digitalread">
 					<value name="pin">
-						<block type="pin"/>
+						<block type="pin_digital"/>
 					</value>
 				</block>
 
 				<block type="analogwrite">
 					<value name="pin">
-						<block type="pin"/>
+						<block type="pin_analog"/>
 					</value>
 					<value name="value">
 						<block type="math_number"/>
@@ -470,7 +470,7 @@
 
 				<block type="digitalwrite" > 
 					<value name="pin">
-						<block type="pin"/>
+						<block type="pin_digital"/>
 					</value>
 					<value name="value">
 						<block type="logic_boolean"/>
@@ -479,15 +479,9 @@
 
 				<block type="pinmode">
 					<value name="NAME">
-						<block type="pin"/>
+						<block type="pin_raspi"/>
 					</value>
 				</block>
-
-
-				
-				
-			
-				
 
 				
 
