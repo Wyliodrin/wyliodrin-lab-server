@@ -549,7 +549,7 @@ async function mountRootFs(boardId, userId, courseId, imageInfo) {
 		let folderStack = [upperdir, ...await serverStack(imageInfo)];
 		let folderRootFs = path.join(ROOT_FS, boardId);
 		await fs.mkdirs(folderRootFs);
-		if (await mountAufs(folderStack, folderRootFs, ['rw'], false, workdir)) {
+		if (await mountAufs(folderStack, folderRootFs, ['rw', 'index=all', 'verify_dir'], false, workdir)) {
 			// export nfs
 			return true;
 		} else {
@@ -708,7 +708,7 @@ async function setup(boardId, userId, courseId, imageId) {
 					let read = 'rw';
 					// if (!userId || !courseId) read = 'ro';
 					if (userId) await exportFs(await pathUser(userId, true), ['fsid=' + nextFsId(), read, 'all_squash', 'anonuid=1000', 'anongid=1000']);
-					let exp = await exportFs(folder, ['fsid=' + nextFsId(), read, 'no_root_squash','index=all', 'verify_dir']);
+					let exp = await exportFs(folder, ['fsid=' + nextFsId(), read, 'no_root_squash']);
 					if (!exp) {
 						await unmountRootFs(boardId);
 						throw new Error('Failed to export rootfs for image ' + imageId);
