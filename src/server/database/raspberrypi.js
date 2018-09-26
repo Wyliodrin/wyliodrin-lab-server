@@ -789,7 +789,7 @@ async function cmdline(courseId, imageId, boardId, userId, parameters) {
 	let str = 'root=/dev/nfs nfsroot=' + parameters.nfsServer + ':' + path.join(ROOT_FS, boardId) + ',vers=3 rw ip=dhcp rootwait elevator=deadline ' + (userId ? 'userId=' + userId : '') + ' server=' + parameters.server + ' ' + ' servername=' + parameters.servername + ' ' + (courseId ? 'courseId=' + courseId : '');
 	let folderBoot = path.join(BOOT, imageId);
 	let cmdline = (await fs.readFile(path.join(folderBoot, 'cmdline.txt'))).toString();
-	cmdline = cmdline.replace (/console=[A-Za-z0-9],115200/, '');
+	cmdline = cmdline.replace (/console=[A-Za-z0-9]+,115200/, '');
 	let pos = cmdline.indexOf('root=');
 	if (pos >= 0) {
 		cmdline = cmdline.substr(0, pos) + str;
