@@ -41,7 +41,7 @@ module.exports = {
 			try {
 				store.commit('courses', null);
 				let response = null;
-				if (store.rootState.getters['user'].role === 'admin')
+				if (store.rootState.getters['user/user'].role === 'admin')
 				{
 					response = await Vue.http.get(setup.API + '/courses/all');
 				}
