@@ -394,7 +394,7 @@ async function setupServer(imageInfo, ignoreSetup) {
 			await unmount(folderSetup);
 		}
 		try {
-			if (await mountAufs(folderStack, folderSetup, ['suid'])) {
+			if (await mountAufs(folderStack, folderSetup, ['suid','index=on', 'nfs_export=on'])) {
 				let setup = await spawnPrivileged('bash', [path.join(SCRIPT, 'setup.sh'), folderSetup]);
 				// mount /proc
 				await spawnPrivileged('mount', ['-t', 'proc', '/proc', path.join(folderSetup, 'proc')]);
@@ -442,7 +442,7 @@ async function mountSetupCourse(courseId, imageInfo) {
 	await fs.mkdirs(folderCourse);
 	let folderStack = [folderCourse, ...await serverStack(imageInfo)];
 	let folderSetupCourse = path.join(SETUP_COURSE, courseId);
-	if (await mountAufs(folderStack, folderSetupCourse, ['suid'])) {
+	if (await mountAufs(folderStack, folderSetupCourse, ['suid','index=on', 'nfs_export=on'])) {
 		// mount /proc
 		await spawnPrivileged('mount', ['-t', 'proc', '/proc', path.join(folderSetupCourse, 'proc')]);
 		mount = true;
