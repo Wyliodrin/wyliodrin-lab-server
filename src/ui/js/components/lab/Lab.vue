@@ -38,13 +38,13 @@
 								<div class="triangle"></div>
 							</a>
 						</div>-->
-						<div class="my-boards right">
+						<!-- <div class="my-boards right">
 							<a href="#" data-toggle="modal" data-target="#myRunModal" class="menu-last-dist">
 								<img src="img/run-project.png">
 								<span> Run</span>
 								<div class="triangle"></div>
 							</a>
-						</div>
+						</div> -->
 						<div class="my-proj right">
 							<a href="#" data-toggle="modal" data-target="#myProjectsModal">
 								<img src="img/my-projects.png">
