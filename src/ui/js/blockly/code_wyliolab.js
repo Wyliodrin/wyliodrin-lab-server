@@ -98,16 +98,6 @@ Blockly.Python['pin_digital'] = function(block) {
     return [code, Blockly.Python.ORDER_NONE];
 };
 
-Blockly.Python['pin_raspi'] = function(block) {
-    Blockly.Python.setUp();
-    var dropdown_pin = block.getFieldValue('pin');
-    // TODO: Assemble Python into code variable.
-    var code = dropdown_pin.toString();
-    // TODO: Change ORDER_NONE to the correct strength.
-    return [code, Blockly.Python.ORDER_NONE];
-};
-
-
 Blockly.Python['led'] = function(block) {
     Blockly.Python.setUp();
     var value_pin = Blockly.Python.valueToCode(block, 'pin', Blockly.Python.ORDER_NEW);
@@ -117,11 +107,63 @@ Blockly.Python['led'] = function(block) {
     return [code, Blockly.Python.ORDER_NEW];
 };
 
+Blockly.Python['servo'] = function(block) {
+  var value_pin = Blockly.Python.valueToCode(block, 'pin', Blockly.Python.ORDER_ATOMIC);
+  // TODO: Assemble Python into code variable.
+  var code = 'Servo(' + value_pin.toString() + ')';
+  // TODO: Change ORDER_NONE to the correct strength.
+  return [code, Blockly.Python.ORDER_NONE];
+};
+
+Blockly.Python['servo_detach'] = function(block) {
+  var value_pin = Blockly.Python.valueToCode(block, 'pin', Blockly.Python.ORDER_ATOMIC);
+  // TODO: Assemble Python into code variable.
+  var code = value_pin.toString() + '.detach() \n';
+  return code;
+};
+
+Blockly.Python['servo_max'] = function(block) {
+  var value_pin = Blockly.Python.valueToCode(block, 'pin', Blockly.Python.ORDER_ATOMIC);
+  // TODO: Assemble Python into code variable.
+  var code = value_pin.toString() + '.max() \n';
+  return code;
+};
+
+Blockly.Python['servo_mid'] = function(block) {
+  var value_pin = Blockly.Python.valueToCode(block, 'pin', Blockly.Python.ORDER_ATOMIC);
+  // TODO: Assemble Python into code variable.
+  var code = value_pin.toString() + '.mid() \n';
+  return code;
+};
+
+Blockly.Python['servo_min'] = function(block) {
+  var value_pin = Blockly.Python.valueToCode(block, 'pin', Blockly.Python.ORDER_ATOMIC);
+  // TODO: Assemble Python into code variable.
+  var code = value_pin.toString() + '.min() \n';
+  return code;
+};
+
+
+Blockly.Python['servo_value'] = function(block) {
+  var value_pin = Blockly.Python.valueToCode(block, 'pin', Blockly.Python.ORDER_ATOMIC);
+  var number_name = block.getFieldValue('value');
+  // TODO: Assemble Python into code variable.
+  var code = value_pin.toString() + '.value = ' + number_name.toString() + '\n';
+  return code;
+};
+// Blockly.Python['angular_servo'] = function(block) {
+//   var value_pin = Blockly.Python.valueToCode(block, 'pin', Blockly.Python.ORDER_ATOMIC);
+//   // TODO: Assemble Python into code variable.
+//   var code = 'Servo(' + value_pin.toString() + ')';
+//   // TODO: Change ORDER_NONE to the correct strength.
+//   return [code, Blockly.Python.ORDER_NONE];
+// };
+
 Blockly.Python['pwm_led'] = function(block) {
     Blockly.Python.setUp();
     var value_led = Blockly.Python.valueToCode(block, 'led', Blockly.Python.ORDER_NEW);
     // TODO: Assemble Python into code variable.
-    var code = 'PWMLED(' + value_led.toString() + ')';
+    var code = 'PWMLED(' + value_led.toString() + ')\n';
     // TODO: Change ORDER_NONE to the correct strength.
     return [code, Blockly.Python.ORDER_NEW];
 };
@@ -287,6 +329,22 @@ Blockly.Python['traffic_light_on'] = function(block) {
     return code;
 };
 
+
+Blockly.Python['traffic_blink'] = function(block) {
+  var value_pin = Blockly.Python.valueToCode(block, 'pin', Blockly.Python.ORDER_ATOMIC);
+  // TODO: Assemble Python into code variable.
+  var code = value_pin.toString() + '.blink()';
+  return code;
+};
+
+Blockly.Python['traffic_close'] = function(block) {
+  var value_pin = Blockly.Python.valueToCode(block, 'pin', Blockly.Python.ORDER_ATOMIC);
+  // TODO: Assemble Python into code variable.
+  var code = value_pin.toString() + '.close()';
+  return code;
+};
+
+
 Blockly.Python['pwm_pulse'] = function(block) {
     Blockly.Python.setUp();
     var value_pwm_led = Blockly.Python.valueToCode(block, 'pwm_led', Blockly.Python.ORDER_FUNCTION_CALL);
@@ -344,6 +402,17 @@ Blockly.Python['light_when_dark'] = function(block) {
     // TODO: Assemble Python into code variable.
     var code =  'def ' + functionName + '():\n' + statements_function.toString()
     		+ value_pin + '.when_dark = ' + functionName + '\n';
+    return code;
+};
+
+Blockly.Python['light_when_light'] = function(block) {
+    Blockly.Python.setUp();
+    var value_pin = Blockly.Python.valueToCode(block, 'pin', Blockly.Python.ORDER_ATOMIC);
+    var statements_function = Blockly.Python.statementToCode(block, 'function');
+    var functionName = Blockly.Python.uniqueName('function');
+    // TODO: Assemble Python into code variable.
+    var code =  'def ' + functionName + '():\n' + statements_function.toString()
+    		+ value_pin + '.when_light = ' + functionName + '\n';
     return code;
 };
 
