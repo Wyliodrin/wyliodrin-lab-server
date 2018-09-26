@@ -233,11 +233,11 @@ Blockly.Python['led_toggle'] = function(block) {
 };
 
 Blockly.Python['led_is_lit'] = function(block) {
-  var value_led = Blockly.Python.valueToCode(block, 'led', Blockly.Python.ORDER_ATOMIC);
-  // TODO: Assemble Python into code variable.
-  var code = value_led.toString() + 'is_lit';
-  // TODO: Change ORDER_NONE to the correct strength.
-  return [code, Blockly.Python.ORDER_NONE];
+    var value_led = Blockly.Python.valueToCode(block, 'led', Blockly.Python.ORDER_ATOMIC);
+    // TODO: Assemble Python into code variable.
+    var code = value_led.toString() + 'is_lit';
+    // TODO: Change ORDER_NONE to the correct strength.
+    return [code, Blockly.Python.ORDER_NONE];
 };
 
 Blockly.Python['traffic_light_on'] = function(block) {
