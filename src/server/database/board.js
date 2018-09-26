@@ -6,6 +6,7 @@ var moment = require ('moment');
 debug.log = console.info.bind(console);
 var socket = require ('../socket');
 var db = require ('./database');
+var request = require ('request');
 
 var boardSchema = mongoose.Schema({
 	boardId: {
@@ -45,6 +46,11 @@ var boardSchema = mongoose.Schema({
 		type: Boolean,
 		required: true,
 		default: false
+	},
+	ready: {
+		type: Boolean,
+		required: true,
+		default: false
 	}
 }, {
 	toObject: {
@@ -80,6 +86,30 @@ function createBoard(boardId, userId, courseId, ip) {
 	return board.save();
 }
 
+function runBoard (boardId)
+{
+	try
+	{
+		request.post ({
+			uri: process.env.WYLIODRIN_RUN_SERVER+'/run',
+			json: {
+				boardId: boardId,
+				server: process.env.WYLIODRIN_SERVER_URL
+			}
+		}, function (err)
+		{
+			if (err) 
+			{
+				console.error ('Error while signing up board to run server ('+err.message+')');
+			}		
+		});
+	}
+	catch (err)
+	{
+		console.error ('Error while signing up board to run server ('+err.message+')');
+	}
+}
+
 async function boardStatus(boardId, status, ip, project) {
 	let update = {
 		status
@@ -88,6 +118,10 @@ async function boardStatus(boardId, status, ip, project) {
 	{
 		update.ip = ip;
 		update.project = project;
+	}
+	if (status === 'bootup')
+	{
+		runBoard (boardId);
 	}
 	let board = await Board.findOneAndUpdate({ boardId }, { $set: update, lastInfo: Date.now() }, { upsert: true, setDefaultsOnInsert: true, new: true }).lean();
 	if (board && board.userId) socket.emit ('user:board', boardId, 'send', 'board', board);
@@ -112,23 +146,23 @@ function findByUserIdAndBoardId(userId, boardId) {
 }
 
 function assignUserToBoard(boardId, userId) {
-	return Board.findOneAndUpdate({ boardId: boardId }, { userId: userId }).lean();
+	return Board.findOneAndUpdate({ boardId: boardId }, { userId: userId, ready: false }).lean();
 }
 
 function assignCourseToBoard(boardId, courseId) {
-	return Board.findOneAndUpdate({ boardId: boardId }, { courseId: courseId }).lean();
+	return Board.findOneAndUpdate({ boardId: boardId }, { courseId: courseId, ready: false }).lean();
 }
 
 function assignCourseAndUser(boardId, userId, courseId) {
-	return Board.findOneAndUpdate({ boardId: boardId, userId: null }, { $set: { userId: userId, courseId: courseId, lastInfo: Date.now() } }, { upsert: true, new: true }).lean();
+	return Board.findOneAndUpdate({ boardId: boardId, userId: null }, { $set: { userId: userId, courseId: courseId, lastInfo: Date.now(), ready: false } }, { upsert: true, new: true }).lean();
 }
 
 function unassignCourseAndUser(userId) {
-	return Board.findOneAndUpdate({ userId: userId }, { $unset: { courseId: '', userId: '' }, lastInfo: Date.now() }).lean();
+	return Board.findOneAndUpdate({ userId: userId }, { $unset: { courseId: '', userId: '', ready: false }, lastInfo: Date.now() }).lean();
 }
 
 function unsetCourseAndUser(boardId) {
-	return Board.findOneAndUpdate({ boardId: boardId }, { $unset: { courseId: '', userId: '' }, lastInfo: Date.now() }).lean();
+	return Board.findOneAndUpdate({ boardId: boardId }, { $unset: { courseId: '', userId: '', ready: false }, lastInfo: Date.now() }).lean();
 }
 
 // function issueCommand(boardId, command) {
@@ -200,6 +234,10 @@ socket.on ('board:received', async function (boardId, label, data)
 						socket.emit ('board', boardId, 'send', 'p' ,{ c: 'reboot' });
 					}
 				} else {
+					if (board.ready === false)
+					{
+						board = await setReady (boardId, true);
+					}
 					// socket.emit ('board', boardId, 'send', 'p',{ c: board.command });
 				}
 			} else {
@@ -211,6 +249,13 @@ socket.on ('board:received', async function (boardId, label, data)
 
 	}
 });
+
+async function setReady (boardId, ready)
+{
+	let board = await Board.update ({boardId}, {$set: {ready}}, {new: true});
+	if (board && board.userId) socket.emit ('user:board', boardId, 'send', 'board', board);
+	return board;
+}
 
 async function refreshOffline ()
 {

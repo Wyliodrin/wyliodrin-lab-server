@@ -208,7 +208,8 @@ function initSocket(route, server) {
 				} else if (authenticated === true) {
 					if (data.l === 'b') {
 						//user shell
-						if (await db.board.findByUserIdAndBoardId(userId, data.id)) {
+						let board = await db.board.findByUserIdAndBoardId(userId, data.id);
+						if (board && board.ready) {
 							boardSockets.emit ('board:'+data.id, 'forward', message);
 						} else {
 							// send(socket, 'b', { err: 'noboard' });

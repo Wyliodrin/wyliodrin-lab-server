@@ -7,12 +7,17 @@ var readlineSync = require('readline-sync');
 
 require('yargs')
 	.command(['list'],'', {}, listUsers)
+	.command(['createAdmin'],'', {}, createAdmin)
 	.command(['password <user>'],'', {}, changePassword)
 	.command(['username <user>'], '', {}, changeUsername)
 	.demandCommand(1)
 	.strict()
 	.argv;
 
+async function createAdmin() {
+	await db.user.create ('admin', 'admin', 'Admin', 'Admin', 'admin@email.com', 'admin');
+	process.exit (-1);
+}
 
 async function listUsers() {
 	let users = await db.user.listUsers();
