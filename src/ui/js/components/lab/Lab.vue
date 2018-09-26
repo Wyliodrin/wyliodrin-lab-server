@@ -2,7 +2,7 @@
 	<div>
 		<nav class="navbar navbar-expand-lg navbar-inverse navbar-static-top p-0 w-100" id="slide-nav">
 			<a class="navbar-brand pt-0 pb-0 pl-4" href="/"><img src="img/logo.png"></a>
-			<div v-if="board && status === 'connected'" class="board-connected">
+			<div v-if="board && board.ready && status === 'connected'" class="board-connected">
 				<img :class="board.status" v-tooltip :title="boardStatus[board.status]" data-placement="bottom" src="img/pics/raspberry-pi.png">
 				<span>
 					<h4>{{board.boardId}}</h4>

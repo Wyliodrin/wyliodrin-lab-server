@@ -118,6 +118,7 @@ privateApp.get('/user', async function(req, res, next) {
 	var e;
 	var userId = req.user.userId;
 	try {
+		req.debug(debug, 'Finding board ')
 		var board = await db.board.findByUserId(userId);
 		res.status(200).send({ err: 0, board });
 	} catch (err) {

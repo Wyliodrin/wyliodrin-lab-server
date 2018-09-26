@@ -24,3 +24,9 @@ WYLIODRIN_BOARD_OFFLINE_TIMEOUT_REFRESH=
 
 # Local file that stores logs
 WYLIODRIN_LOCAL_LOGS=
+
+# Run server
+WYLIODRIN_RUN_SERVER=http://localhost:8000
+
+# Server url
+WYLIODRIN_SERVER_URL=http://localhost:3000

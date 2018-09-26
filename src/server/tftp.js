@@ -7,13 +7,21 @@ var fs = require ('fs-extra');
 var db = require ('./database/database');
 
 var IP_ADDRESS = process.env.WYLIODRIN_LAB_SERVER_IP || ip.address ();
-var PORT = process.env.NODE_PORT || 3000;
+var PORT = process.env.PORT || 3000;
 
 var SERVER = process.env.WYLIODRIN_LAB_SERVER || ('http://'+IP_ADDRESS+':'+PORT);
 
 function readBoardId (filename)
 {
-	return path.dirname (filename);
+	let d = path.dirname (filename);
+	let id = '';
+	let add = false;
+	for (let i = 0; i < d.length; i++)
+	{
+		if (d[i]!=='0') add = true;
+		if (add === true) id = id + d[i];
+	}
+	return id;
 }
 
 async function imageData (boardId, status)
