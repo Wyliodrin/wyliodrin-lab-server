@@ -989,7 +989,7 @@ function existsImageId(imageId) {
 	else return false;
 }
 
-function unsetupDelay (boardId, timeout = 8000)
+function unsetupDelay (boardId, timeout = 60*1000)
 {
 	// console.log ('nsetup');
 	let board = getBoardSetup (boardId);
