@@ -50,7 +50,7 @@ module.exports = {
 					response = await Vue.http.get(setup.API + '/courses/');
 				}
 				if (response.data.err === 0) {
-					console.log(response.data.courses);
+					// console.log(response.data.courses);
 					store.commit('courses', response.data.courses);
 					return true;
 				}

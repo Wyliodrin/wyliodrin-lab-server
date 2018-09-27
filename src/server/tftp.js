@@ -75,14 +75,14 @@ var server = tftp.createServer ({
 					// {
 					// 	await db.image.unsetup (boardId);
 					// }
-					console.log ('setting up image for '+boardId);
+					console.log ('Setting up image for board '+boardId);
 					let data = await imageData (boardId, 'bootup');
-					console.log (data);
+					// console.log (data);
 					await db.image.setup (boardId, data.userId, data.courseId, data.id);
 					// TODO set default image if image not found
 				}
 				// console.log (pathBoot);
-				console.log ('boardId: '+boardId+' filename: '+filename);
+				console.log ('Request file for board '+boardId+' filename: '+filename);
 				// console.log (req.stats);
 				let data = null;
 				if (filename === 'cmdline.txt')
@@ -91,7 +91,7 @@ var server = tftp.createServer ({
 					{
 						let params = await imageData (boardId);
 						data = await db.image.cmdline (params.courseId, params.id, boardId, params.userId, { server: SERVER });
-						console.log ('cmdline '+data);
+						console.log ('Set board '+boardId+' cmdline '+data);
 					}
 					catch (e)
 					{
@@ -106,7 +106,7 @@ var server = tftp.createServer ({
 					{
 						let params = await imageData (boardId);
 						data = await db.image.config (params.courseId, params.id, boardId, params.userId);
-						console.log ('config '+data);
+						// console.log ('config '+data);
 					}
 					catch (e)
 					{
@@ -132,11 +132,15 @@ var server = tftp.createServer ({
 			}
 			catch (e)
 			{
-				console.log (e);
+				// console.log (e);
 				if (e.message.indexOf ('ENOENT')<0)
 				{
 					console.log (filename+' '+e.message);
 					await db.board.boardStatus (boardId, 'noimage');
+				}
+				else
+				{
+					console.error (e);
 				}
 				req.abort (tftp.ENOENT);
 			}

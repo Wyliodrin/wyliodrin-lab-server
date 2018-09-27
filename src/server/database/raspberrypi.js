@@ -93,6 +93,8 @@ let SETUP_SERVER = path.join(MOUNT, 'server');
 
 let SETUP_COURSE = path.join(MOUNT, 'course');
 
+let WORK = path.join (STORAGE, 'work');
+
 let imagesList = {};
 let defaultImage = null;
 
@@ -191,6 +193,12 @@ async function mountPartition(imageInfo, partition, folder, unmountIfMounted = f
 		console.error('ERROR: partition ' + partition + 'does not exist');
 	}
 	return mount;
+}
+
+function workdirId(str) {
+	let shasum = crypto.createHash('sha1');
+	shasum.update(str);
+	return shasum.digest('hex');
 }
 
 function newImageId(str) {
@@ -301,10 +309,10 @@ async function isMounted(folder) {
 	else return false;
 }
 
-async function mountAufs(stack, folder, options, unmountIfMounted = false) {
+async function mountAufs(stack, folder, options, unmountIfMounted = false, workdir) {
 	folder = path.normalize(path.resolve(__dirname, folder));
 	let mount = false;
-	debug('mount aufs ' + stack + ' ' + folder);
+	debug('mount overlay ' + stack + ' ' + folder);
 	try {
 		let mounted = await isMounted(folder);
 		if (mounted && unmountIfMounted) {
@@ -313,14 +321,20 @@ async function mountAufs(stack, folder, options, unmountIfMounted = false) {
 		}
 		if (!mounted) {
 			await fs.mkdirs(folder);
-			console.log(stack);
-			let mnt = await spawnPrivileged('mount', ['-t', 'aufs', '-o', 'br=' + stack.join(':') + (options ? ',' + options.join(',') : ''), 'none', folder]);
-			console.log('mount ' + ['-t', 'aufs', '-o', 'br=' + stack.join(':') + (options ? ',' + options.join(',') : ''), 'none', folder].join(' '));
+			// console.log(stack);
+			let id = workdirId (stack.join(',')+','+folder);
+			if (!workdir)
+			{
+				workdir = path.join (WORK, id);
+				await fs.mkdirp (workdir);
+			}
+			let mnt = await spawnPrivileged('mount', ['-t', 'overlay', '-o', 'lowerdir=' + stack.slice (1).join(':') +',upperdir='+stack[0]+',workdir='+workdir+(options ? ',' + options.join(',') : ''), 'overlay', folder]);
+			// console.log('mount' + ['-t', 'overlay', '-o', 'lowerdir=' + stack.slice (1).reverse().join(':') +',upperdir='+stack[0]+',workdir='+workdir+(options ? ',' + options.join(',') : ''), 'overlay', folder].join(' '));
 			// console.log (mnt.stdout.toString  ());
 			// console.log (mnt.stderr.toString  ());
 			// console.log (mnt.exitCode);
 			if (mnt.exitCode !== 0) {
-				console.error('ERROR: mount aufs ' + stack + ' to ' + folder + ' failed (' + mnt.stderr.toString() + ')');
+				console.error('ERROR: mount overlay ' + stack + ' to ' + folder + ' failed (' + mnt.stderr.toString() + ')');
 			} else {
 				mount = true;
 			}
@@ -328,7 +342,7 @@ async function mountAufs(stack, folder, options, unmountIfMounted = false) {
 			mount = true;
 		}
 	} catch (e) {
-		console.error('ERROR: mount aufs ' + stack + ' to ' + folder + ' failed (' + e.message + ')');
+		console.error('ERROR: mount overlay ' + stack + ' to ' + folder + ' failed (' + e.message + ')');
 	}
 	return mount;
 }
@@ -357,12 +371,12 @@ async function serverStack(imageInfo) {
 }
 
 function setupFile(imageInfo) {
-	console.log(path.join(path.dirname(imageInfo.filename), '.' + imageInfo.id + '.setup'));
+	// console.log(path.join(path.dirname(imageInfo.filename), '.' + imageInfo.id + '.setup'));
 	return path.join(path.dirname(imageInfo.filename), '.' + imageInfo.id + '.setup');
 }
 
 function hasServerSetup(imageInfo) {
-	console.log(setupFile(imageInfo));
+	// console.log(setupFile(imageInfo));
 	return fs.pathExists(setupFile(imageInfo));
 }
 
@@ -386,13 +400,13 @@ async function setupServer(imageInfo, ignoreSetup) {
 			await unmount(folderSetup);
 		}
 		try {
-			if (await mountAufs(folderStack, folderSetup, ['suid'])) {
+			if (await mountAufs(folderStack, folderSetup, ['suid','index=on', 'nfs_export=on'])) {
 				let setup = await spawnPrivileged('bash', [path.join(SCRIPT, 'setup.sh'), folderSetup]);
 				// mount /proc
 				await spawnPrivileged('mount', ['-t', 'proc', '/proc', path.join(folderSetup, 'proc')]);
 				if (setup.exitCode === 0) {
 					// process.exit (0);
-					console.log(process.env);
+					// console.log(process.env);
 					let install = spawnPrivileged('chroot', ['--userspec', 'pi:pi', folderSetup, '/bin/bash', 'install.sh'], {
 						env: _.assign({}, process.env, {
 							HOME: '/home/pi',
@@ -417,7 +431,7 @@ async function setupServer(imageInfo, ignoreSetup) {
 			}
 
 		} catch (e) {
-			console.log(e);
+			// console.log(e);
 			console.error('ERROR: setup server for ' + imageInfo.id + ' failed (' + e.message + ')');
 			imageInfo.status = 'error';
 		}
@@ -434,7 +448,7 @@ async function mountSetupCourse(courseId, imageInfo) {
 	await fs.mkdirs(folderCourse);
 	let folderStack = [folderCourse, ...await serverStack(imageInfo)];
 	let folderSetupCourse = path.join(SETUP_COURSE, courseId);
-	if (await mountAufs(folderStack, folderSetupCourse, ['suid'])) {
+	if (await mountAufs(folderStack, folderSetupCourse, ['suid','index=on', 'nfs_export=on'])) {
 		// mount /proc
 		await spawnPrivileged('mount', ['-t', 'proc', '/proc', path.join(folderSetupCourse, 'proc')]);
 		mount = true;
@@ -474,7 +488,7 @@ async function setupCourse(courseId, imageInfo, userId, cmd = 'bash', cols = 80,
 			params.splice(0, 0, command);
 			command = 'sudo';
 		}
-		console.log (command+' '+params.join (' '));
+		// console.log (command+' '+params.join (' '));
 		let run = pty.spawn(command, params, {
 			rows,
 			cols,
@@ -525,7 +539,7 @@ async function mountRootFs(boardId, userId, courseId, imageInfo) {
 		await fs.mkdirs(folderRoot);
 		await fs.mkdirs(folderCourse);
 		await fs.mkdirs(folderRootFs);
-		if (await mountAufs(folderStack, folderRootFs, ['rw,suid'])) {
+		if (await mountAufs(folderStack, folderRootFs, ['rw', 'suid', 'index=on', 'nfs_export=on'])) {
 			// export nfs
 			return true;
 		} else {
@@ -534,10 +548,14 @@ async function mountRootFs(boardId, userId, courseId, imageInfo) {
 	} else {
 		let folderRamFs = path.join(RAM_FS, boardId);
 		await mountRamFs(boardId);
-		let folderStack = [folderRamFs, ...await serverStack(imageInfo)];
+		let upperdir = path.join (folderRamFs, 'upperdir');
+		let workdir = path.join (folderRamFs, 'workdir');
+		await fs.mkdirp (upperdir);
+		await fs.mkdirp (workdir);
+		let folderStack = [upperdir, ...await serverStack(imageInfo)];
 		let folderRootFs = path.join(ROOT_FS, boardId);
 		await fs.mkdirs(folderRootFs);
-		if (await mountAufs(folderStack, folderRootFs, ['rw'])) {
+		if (await mountAufs(folderStack, folderRootFs, ['rw', 'index=on', 'nfs_export=on'], false, workdir)) {
 			// export nfs
 			return true;
 		} else {
@@ -635,10 +653,10 @@ async function readImages() {
 			}
 		}
 		defaultImage = await loadDefaultImage();
-		console.log(defaultImage);
-		console.log(posDefaultImg);
+		// console.log(defaultImage);
+		// console.log(posDefaultImg);
 		if (!defaultImage && posDefaultImg) await saveDefaultImage(posDefaultImg.id);
-		console.log(defaultImage);
+		// console.log(defaultImage);
 
 	} catch (e) {
 		console.error('ERROR: read images (' + e.message + ')');
@@ -683,7 +701,7 @@ async function setup(boardId, userId, courseId, imageId) {
 		if (board.setup && board.userId === userId && board.courseId === courseId && board.imageId === imageId)
 		{
 			clearTimeout (board.unsetupRequest);
-			console.log ('Board is already setup');
+			console.log ('Board '+boardId+' is already setup');
 		}
 		else
 		{
@@ -718,7 +736,7 @@ function unsetup(boardId) {
 	let board = getBoardSetup (boardId);
 	if (!board.unsetupInProgress)
 	{
-		console.log (board);
+		console.log ('Unsetup board '+boardId);
 		clearTimeout (board.unsetupRequest);
 		board.unsetupInProgress = new Promise (async function (resolve)
 		{
@@ -746,7 +764,7 @@ function unsetup(boardId) {
 	}
 	else
 	{
-		console.log ('board unsetup in progress');
+		console.log ('Board '+boardId+' unsetup in progress');
 		return board.unsetupInProgress;
 	}
 }
@@ -807,7 +825,7 @@ async function config(courseId, imageId, boardId, userId, parameters) {
 }
 
 function defaultImageId() {
-	console.log(defaultImage);
+	// console.log(defaultImage);
 	if (!defaultImage) {
 		console.error('ERROR: there is no default image');
 		return null;
@@ -971,18 +989,18 @@ function existsImageId(imageId) {
 	else return false;
 }
 
-function unsetupDelay (boardId, timeout = 8000)
+function unsetupDelay (boardId, timeout = 60*1000)
 {
-	console.log ('unsetup');
+	// console.log ('nsetup');
 	let board = getBoardSetup (boardId);
 	if (board.setup)
 	{
 		clearTimeout (board.unsetupRequest);
-		console.log ('unsetup scheduled');
+		console.log ('Unsetup for board '+boardId+' scheduled for '+(timeout/1000)+' seconds');
 
 		board.unsetupRequest = setTimeout (async function ()
 		{
-			console.log ('unsetup schedule start');
+			// console.log ('unsetup schedule start');
 			await unsetup (boardId);
 		}, timeout);
 	}
@@ -1001,7 +1019,7 @@ socket.on ('user:s', async function (userId, data)
 {
 	//shell for courses
 	if (await db.course.findByCourseIdAndTeacher(data.id, userId)) {
-		console.log('course shell');
+		// console.log('course shell');
 		let courseId = data.id;
 		//userId (user prof) allowed to modify course data.id
 		if (data.a === 'o') {
@@ -1030,7 +1048,7 @@ socket.on ('user:s', async function (userId, data)
 			}
 		} else if (data.a === 'k') {
 			//key
-			console.log ('keys');
+			// console.log ('keys');
 			let userShells = openCourses[userId];
 			if (userShells !== undefined) {
 				let currentCourse = openCourses[userId][courseId];
@@ -1042,7 +1060,7 @@ socket.on ('user:s', async function (userId, data)
 					socket.emit ('user', userId, 'send', 's', { a: 'e', id: courseId, err: 'noshell' });
 				}
 			} else {
-				console.log ('noshell');
+				// console.log ('noshell');
 				socket.emit ('user', userId, 'send', 's', { a: 'e', id: courseId, err: 'noshell' });
 			}
 		} else if (data.a === 'r') {

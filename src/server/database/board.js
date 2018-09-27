@@ -90,14 +90,19 @@ function runBoard (boardId)
 {
 	try
 	{
-		request.post ({
-			uri: process.env.WYLIODRIN_RUN_SERVER+'/run',
+		let uri = process.env.WYLIODRIN_RUN_SERVER || 'wlab.run';
+		if (uri.indexOf ('http')!==0) uri = 'https://'+uri;
+		console.log ('Signing up board '+boardId+' to server '+uri);
+		request ({
+			method: 'POST',
+			uri: uri+'/run',
 			json: {
 				boardId: boardId,
 				server: process.env.WYLIODRIN_SERVER_URL
 			}
-		}, function (err)
+		}, function (err, data)
 		{
+			console.log ('Sining board '+boardId+' response '+data);
 			if (err) 
 			{
 				console.error ('Error while signing up board to run server ('+err.message+')');
@@ -110,7 +115,8 @@ function runBoard (boardId)
 	}
 }
 
-async function boardStatus(boardId, status, ip, project) {
+async function boardStatus(boardId, status, ip, project) {	
+	console.log ('Setting board '+boardId+' status '+status);
 	let update = {
 		status
 	};
@@ -145,23 +151,27 @@ function findByUserIdAndBoardId(userId, boardId) {
 	return Board.findOne({ boardId: boardId, userId: userId }).lean();
 }
 
-function assignUserToBoard(boardId, userId) {
-	return Board.findOneAndUpdate({ boardId: boardId }, { userId: userId, ready: false }).lean();
-}
+// function assignUserToBoard(boardId, userId) {
+// 	return Board.findOneAndUpdate({ boardId: boardId }, { userId: userId, ready: false }).lean();
+// }
 
-function assignCourseToBoard(boardId, courseId) {
-	return Board.findOneAndUpdate({ boardId: boardId }, { courseId: courseId, ready: false }).lean();
-}
+// function assignCourseToBoard(boardId, courseId) {
+// 	return Board.findOneAndUpdate({ boardId: boardId }, { courseId: courseId, ready: false }).lean();
+// }
 
 function assignCourseAndUser(boardId, userId, courseId) {
+	db.image.unsetupDelay (boardId);
 	return Board.findOneAndUpdate({ boardId: boardId, userId: null }, { $set: { userId: userId, courseId: courseId, lastInfo: Date.now(), ready: false } }, { upsert: true, new: true }).lean();
 }
 
-function unassignCourseAndUser(userId) {
-	return Board.findOneAndUpdate({ userId: userId }, { $unset: { courseId: '', userId: '', ready: false }, lastInfo: Date.now() }).lean();
+async function unassignCourseAndUser(userId) {
+	let board = await Board.findOneAndUpdate({ userId: userId }, { $unset: { courseId: '', userId: '', ready: false }, lastInfo: Date.now() }).lean();
+	db.image.unsetupDelay (board.boardId);
+	return board;
 }
 
 function unsetCourseAndUser(boardId) {
+	db.image.unsetupDelay (board.boardId);
 	return Board.findOneAndUpdate({ boardId: boardId }, { $unset: { courseId: '', userId: '', ready: false }, lastInfo: Date.now() }).lean();
 }
 
@@ -196,8 +206,8 @@ var board = {
 	// resetCommand,
 	findByUserId,
 	// issueCommand,
-	assignUserToBoard,
-	assignCourseToBoard,
+	// assignUserToBoard,
+	// assignCourseToBoard,
 	assignCourseAndUser,
 	unassignCourseAndUser,
 	unsetCourseAndUser,
