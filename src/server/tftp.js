@@ -106,7 +106,7 @@ var server = tftp.createServer ({
 					{
 						let params = await imageData (boardId);
 						data = await db.image.config (params.courseId, params.id, boardId, params.userId);
-						console.log ('config '+data);
+						// console.log ('config '+data);
 					}
 					catch (e)
 					{
@@ -132,11 +132,15 @@ var server = tftp.createServer ({
 			}
 			catch (e)
 			{
-				console.log (e);
+				// console.log (e);
 				if (e.message.indexOf ('ENOENT')<0)
 				{
 					console.log (filename+' '+e.message);
 					await db.board.boardStatus (boardId, 'noimage');
+				}
+				else
+				{
+					console.error (e);
 				}
 				req.abort (tftp.ENOENT);
 			}
