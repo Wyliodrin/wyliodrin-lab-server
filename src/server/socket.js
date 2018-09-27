@@ -73,6 +73,7 @@ function initSocket(route, server) {
 
 	socketBoards.on('connection', function(socket) {
 
+		console.log ('Board socket connection');
 		let authenticated = false;
 		let token = false;
 
@@ -105,6 +106,7 @@ function initSocket(route, server) {
 					if (await db.board.boardStatus(data.token, 'online', socket._socket.remoteAddress)) {
 						//board found in database
 						authenticated = true;
+						console.log ('Board socket for board '+token+' authenticated');
 						token = data.token;
 						// if (boardList[token] !== undefined) {
 						// 	console.log('Websocket overwriting ond websocket for board ' + token);
@@ -146,6 +148,7 @@ function initSocket(route, server) {
 
 		socket.on('close', async function() {
 			await db.board.boardStatus(token, 'offline', null);
+			console.log ('Board socket for board '+token+' closed');
 			// if (boardList[token] === undefined) {
 			// 	console.log('Websocket closing and not in database for board ' + token);
 			// }
@@ -164,7 +167,7 @@ function initSocket(route, server) {
 
 	socketUsers.on('connection', function(socket) {
 
-		console.log('connection');
+		console.log('User socket connection');
 		let authenticated = false;
 		let token = null;
 		let userId = null;
@@ -192,7 +195,7 @@ function initSocket(route, server) {
 		socket.on('message', async function(message) {
 			let err = false;
 			try {
-				console.log(message);
+				// console.log(message);
 				let data = msgpack.decode(new Buffer(message, 'base64'));
 				token = data.token;
 				if (authenticated === false) {
@@ -200,6 +203,7 @@ function initSocket(route, server) {
 					if (userId !== null) {
 						//user found in database
 						authenticated = true;
+						console.log ('User socket for user '+userId+' authenticated');
 						userSockets.on('user:'+userId, pushToSocket);
 						send(socket, 'a', { err: 0 });
 					} else {
@@ -242,6 +246,7 @@ function initSocket(route, server) {
 		});
 
 		socket.on('close', function() {
+			console.log ('Usersocket for user '+userId+' closed');
 			userSockets.removeListener('user:'+userId, pushToSocket);
 		});
 
