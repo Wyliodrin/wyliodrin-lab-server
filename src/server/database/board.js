@@ -92,6 +92,7 @@ function runBoard (boardId)
 	{
 		let uri = process.env.WYLIODRIN_RUN_SERVER || 'wlab.run';
 		if (uri.indexOf ('http')!==0) uri = 'https://'+uri;
+		console.log ('Siging up board '+boardId+' to server '+uri);
 		request.post ({
 			uri: uri+'/run',
 			json: {
