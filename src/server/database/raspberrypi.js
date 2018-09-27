@@ -996,7 +996,7 @@ function unsetupDelay (boardId, timeout = 60*1000)
 	if (board.setup)
 	{
 		clearTimeout (board.unsetupRequest);
-		console.log ('Unsetup for board '+boardId+' scheduled');
+		console.log ('Unsetup for board '+boardId+' scheduled for '+(timeout/1000)+' seconds');
 
 		board.unsetupRequest = setTimeout (async function ()
 		{
