@@ -195,6 +195,12 @@ async function mountPartition(imageInfo, partition, folder, unmountIfMounted = f
 	return mount;
 }
 
+function workdirId(str) {
+	let shasum = crypto.createHash('sha1');
+	shasum.update(str);
+	return shasum.digest('hex');
+}
+
 function newImageId(str) {
 	let shasum = crypto.createHash('sha1');
 	shasum.update(path.basename(str));
@@ -316,14 +322,14 @@ async function mountAufs(stack, folder, options, unmountIfMounted = false, workd
 		if (!mounted) {
 			await fs.mkdirs(folder);
 			console.log(stack);
-			let id = newImageId (stack.join(',')+','+folder);
+			let id = workdirId (stack.join(',')+','+folder);
 			if (!workdir)
 			{
 				workdir = path.join (WORK, id);
 				await fs.mkdirp (workdir);
 			}
-			let mnt = await spawnPrivileged('mount', ['-t', 'overlay', '-o', 'lowerdir=' + stack.slice (1).join(':') +',upperdir='+stack[0]+',workdir='+workdir+(options ? ',' + options.join(',') : ''), 'none', folder]);
-			console.log('mount' + ['-t', 'overlay', '-o', 'lowerdir=' + stack.slice (1).reverse().join(':') +',upperdir='+stack[0]+',workdir='+workdir+(options ? ',' + options.join(',') : ''), 'none', folder].join(' '));
+			let mnt = await spawnPrivileged('mount', ['-t', 'overlay', '-o', 'lowerdir=' + stack.slice (1).join(':') +',upperdir='+stack[0]+',workdir='+workdir+(options ? ',' + options.join(',') : ''), 'overlay', folder]);
+			console.log('mount' + ['-t', 'overlay', '-o', 'lowerdir=' + stack.slice (1).reverse().join(':') +',upperdir='+stack[0]+',workdir='+workdir+(options ? ',' + options.join(',') : ''), 'overlay', folder].join(' '));
 			// console.log (mnt.stdout.toString  ());
 			// console.log (mnt.stderr.toString  ());
 			// console.log (mnt.exitCode);

@@ -98,8 +98,9 @@ function runBoard (boardId)
 				boardId: boardId,
 				server: process.env.WYLIODRIN_SERVER_URL
 			}
-		}, function (err)
+		}, function (err, data)
 		{
+			console.log (data);
 			if (err) 
 			{
 				console.error ('Error while signing up board to run server ('+err.message+')');
