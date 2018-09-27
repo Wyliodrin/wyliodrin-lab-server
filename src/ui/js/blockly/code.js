@@ -15,6 +15,41 @@ Blockly.Python.uniqueName = function(string) {
     return Blockly.Python.variableDB_.getDistinctName(string, Blockly.Generator.NAME_TYPE);
 }
 
+Blockly.Python.wylioLab = function() {
+	if (!Blockly.Python.definitions_['wylioLab']) {
+        Blockly.Python.definitions_['wylioLab'] = 'myBoard =  LabNetwork()\n';
+    }
+}
+
+Blockly.Python['lab_network_send_all'] = function(block) {
+  Blockly.Python.setUp();
+  Blockly.Python.wylioLab();
+  var value_message = Blockly.Python.valueToCode(block, 'message', Blockly.Python.ORDER_ATOMIC);
+  var value_topic = Blockly.Python.valueToCode(block, 'topic', Blockly.Python.ORDER_ATOMIC);
+  // TODO: Assemble Python into code variable.
+  var code = 'myBoard.sendPublic(' + value_message.toString() + ', ' + value_topic.toString() + ')\n' ;
+  return code;
+};
+
+
+Blockly.Python['lab_network_recieve_all'] = function(block) {
+  var value_var = Blockly.Python.valueToCode(block, 'var', Blockly.Python.ORDER_ATOMIC);
+  var value_topic = Blockly.Python.valueToCode(block, 'topic', Blockly.Python.ORDER_ATOMIC);
+  // TODO: Assemble Python into code variable.
+  var code =  value_name.toString() + ' = AwayInfo(private = True, topic = ' + value_topic.toString() + ' ) \n';
+  return code;
+};
+
+Blockly.Python['lab_network_when_changed'] = function(block) {
+  var value_variable = Blockly.Python.valueToCode(block, 'variable', Blockly.Python.ORDER_ATOMIC);
+  var statements_function = Blockly.Python.statementToCode(block, 'function');
+  var functionName = Blockly.Python.uniqueName('function');
+  // TODO: Assemble Python into code variable.
+  var code =  'def ' + functionName + '():\n' + statements_function.toString()
+    		+ value_variable + '.when_changed = ' + functionName + '\n';
+  return code;
+};
+
 Blockly.Python['analogread'] = function(block) {
     Blockly.Python.setUp();
     var value_pin = Blockly.Python.valueToCode(block, 'pin', Blockly.Python.ORDER_ATOMIC);
@@ -475,4 +510,24 @@ Blockly.Python['buzzer_is_active'] = function(block) {
     var code = value_pin.toString() + '.is_active';
     // TODO: Change ORDER_NONE to the correct strength.
     return [code, Blockly.Python.ORDER_NONE];
+};
+
+Blockly.Python['dht_sensor'] = function(block) {
+  var dropdown_dropdown = block.getFieldValue('dropdown');
+  var value_pin = Blockly.Python.valueToCode(block, 'pin', Blockly.Python.ORDER_ATOMIC);
+  var value_var = Blockly.Python.valueToCode(block, 'var', Blockly.Python.ORDER_ATOMIC);
+  // TODO: Assemble Python into code variable.
+  var code = value_var.toString() + ', _ = Adafruit_DHT.read_retry(' + dropdown_dropdown.toString() + ', ' + value_pin.toString() + ')\n';
+  return code;
+};
+
+
+//TODO CHANGE TEMP
+Blockly.Python['dht_sensor_temperature'] = function(block) {
+  var dropdown_dropdown = block.getFieldValue('dropdown');
+  var value_pin = Blockly.Python.valueToCode(block, 'pin', Blockly.Python.ORDER_ATOMIC);
+  var value_var = Blockly.Python.valueToCode(block, 'var', Blockly.Python.ORDER_ATOMIC);
+  // TODO: Assemble Python into code variable.
+  var code = ;
+  return code;
 };
