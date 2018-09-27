@@ -148,6 +148,7 @@ function initSocket(route, server) {
 
 		socket.on('close', async function() {
 			await db.board.boardStatus(token, 'offline', null);
+			db.image.unsetupDelay (token, 10*60*1000);
 			console.log ('Board socket for board '+token+' closed');
 			// if (boardList[token] === undefined) {
 			// 	console.log('Websocket closing and not in database for board ' + token);

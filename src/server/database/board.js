@@ -115,7 +115,7 @@ function runBoard (boardId)
 	}
 }
 
-async function boardStatus(boardId, status, ip, project) {
+async function boardStatus(boardId, status, ip, project) {	
 	console.log ('Setting board '+boardId+' status '+status);
 	let update = {
 		status
@@ -151,23 +151,27 @@ function findByUserIdAndBoardId(userId, boardId) {
 	return Board.findOne({ boardId: boardId, userId: userId }).lean();
 }
 
-function assignUserToBoard(boardId, userId) {
-	return Board.findOneAndUpdate({ boardId: boardId }, { userId: userId, ready: false }).lean();
-}
+// function assignUserToBoard(boardId, userId) {
+// 	return Board.findOneAndUpdate({ boardId: boardId }, { userId: userId, ready: false }).lean();
+// }
 
-function assignCourseToBoard(boardId, courseId) {
-	return Board.findOneAndUpdate({ boardId: boardId }, { courseId: courseId, ready: false }).lean();
-}
+// function assignCourseToBoard(boardId, courseId) {
+// 	return Board.findOneAndUpdate({ boardId: boardId }, { courseId: courseId, ready: false }).lean();
+// }
 
 function assignCourseAndUser(boardId, userId, courseId) {
+	db.image.unsetupDelay (boardId);
 	return Board.findOneAndUpdate({ boardId: boardId, userId: null }, { $set: { userId: userId, courseId: courseId, lastInfo: Date.now(), ready: false } }, { upsert: true, new: true }).lean();
 }
 
-function unassignCourseAndUser(userId) {
-	return Board.findOneAndUpdate({ userId: userId }, { $unset: { courseId: '', userId: '', ready: false }, lastInfo: Date.now() }).lean();
+async function unassignCourseAndUser(userId) {
+	let board = await Board.findOneAndUpdate({ userId: userId }, { $unset: { courseId: '', userId: '', ready: false }, lastInfo: Date.now() }).lean();
+	db.image.unsetupDelay (board.boardId);
+	return board;
 }
 
 function unsetCourseAndUser(boardId) {
+	db.image.unsetupDelay (board.boardId);
 	return Board.findOneAndUpdate({ boardId: boardId }, { $unset: { courseId: '', userId: '', ready: false }, lastInfo: Date.now() }).lean();
 }
 
@@ -202,8 +206,8 @@ var board = {
 	// resetCommand,
 	findByUserId,
 	// issueCommand,
-	assignUserToBoard,
-	assignCourseToBoard,
+	// assignUserToBoard,
+	// assignCourseToBoard,
 	assignCourseAndUser,
 	unassignCourseAndUser,
 	unsetCourseAndUser,
