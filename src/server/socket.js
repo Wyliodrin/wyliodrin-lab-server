@@ -106,7 +106,7 @@ function initSocket(route, server) {
 					if (await db.board.boardStatus(data.token, 'online', socket._socket.remoteAddress)) {
 						//board found in database
 						authenticated = true;
-						console.log ('Board socket for board '+token+' authenticated');
+						console.log ('Board socket for board '+data.token+' authenticated');
 						token = data.token;
 						// if (boardList[token] !== undefined) {
 						// 	console.log('Websocket overwriting ond websocket for board ' + token);

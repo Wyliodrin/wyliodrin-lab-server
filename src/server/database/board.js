@@ -102,7 +102,7 @@ function runBoard (boardId)
 			}
 		}, function (err, data)
 		{
-			console.log (data);
+			console.log ('Sining board '+boardId+' response '+data);
 			if (err) 
 			{
 				console.error ('Error while signing up board to run server ('+err.message+')');
