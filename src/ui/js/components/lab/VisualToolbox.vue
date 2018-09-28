@@ -143,8 +143,15 @@
 						</block>
 					</value>
 				</block>
+
+				<block type="text">
+					<field name="TEXT">text</field>
+				</block>
+
 			</category>
+
 			<sep />
+			
 			<category name="Variables" custom="VARIABLE" colour="330" />
 			<category name="Functions" custom="PROCEDURE" colour="290" />
 			<category name="Pins" colour ="250" >
@@ -282,8 +289,32 @@
 
 				</category>
 				<category name="Temperature" colour="80">
+					<block type="dht_sensor_temperature">
+						<value name="var">
+							<block type="variables_get">
+								<field name="VAR">temperature</field>
+							</block>	
+						</value>
+						<value name="pin">
+								<block type="pin_digital">
+									<field name="pin">R4</field>
+								</block>
+						</value>
+					</block>
 				</category>
 				<category name="Humidity" colour="120">
+					<block type="dht_sensor">
+						<value name="var">
+							<block type="variables_get">
+								<field name="VAR">humidity</field>
+							</block>	
+						</value>
+						<value name="pin">
+								<block type="pin_digital">
+									<field name="pin">R4</field>
+								</block>
+						</value>
+					</block>
 				</category>
 				<category name="Power Meter" colour="160">
 				</category>
@@ -618,14 +649,47 @@
 
 				<block type="pause" /> 
 
-				
+				</category>
 
-				
-				<!-- <block type="start_labnetwork" /> -->
+				<category name="Lab Network" colour="120">
+					<block type="lab_network_send_all">
+						<value name="message">
+							<block type="text">
+								<field name="TEXT">message</field>
+							</block>
+						</value>
+						<value name="topic">
+							<block type="text">
+								<field name="TEXT">topic</field>
+							</block>
+						</value>
+					</block>
+
+					<block type="lab_network_recieve_all">
+						<value name="var">
+							<block type="variables_get">
+								<field name="VAR">variable</field>
+							</block>
+						</value>
+						<value name="topic">
+							<block type="text">
+								<field name="TEXT">topic</field>
+							</block>
+						</value>
+					</block>
+
+					<block type="lab_network_when_changed">
+						<value name="variable">
+							<block type="variables_get">
+								<field name="VAR">variable</field>
+							</block>
+						</value>
+					</block>
+					<!-- <block type="start_labnetwork" /> -->
+				</category>
 
 
-
-			</category>
+			
 
 
 		</xml>

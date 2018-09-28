@@ -3,6 +3,67 @@
 module.exports = function (blockly) {
 	var Blockly = blockly.Blockly;
 	var goog = blockly.goog;
+Blockly.Blocks['lab_network_send_all'] = {
+  init: function() {
+    this.appendValueInput("message")
+        .setCheck(["Number", "String"])
+        .appendField("Send to all lab members message");
+    this.appendValueInput("topic")
+        .setCheck("String")
+        .appendField("on topic");
+    this.appendDummyInput()
+        .appendField(".");
+    this.setPreviousStatement(true, null);
+    this.setNextStatement(true, null);
+    this.setColour(230);
+ this.setTooltip("");
+ this.setHelpUrl("https://github.com/Wyliodrin/wyliozero");
+  }
+};
+
+Blockly.Blocks['lab_network_recieve_all'] = {
+  init: function() {
+    this.appendValueInput("var")
+        .setCheck(null)
+        .appendField("Make variable");
+    this.appendValueInput("topic")
+        .setCheck("String")
+        .appendField("listen to messages on topic");
+    this.appendDummyInput()
+        .appendField("from all lab.");
+    this.setPreviousStatement(true, null);
+    this.setNextStatement(true, null);
+    this.setColour(230);
+ this.setTooltip("");
+ this.setHelpUrl("");
+  }
+};
+
+Blockly.Blocks['lab_network_when_changed'] = {
+  init: function() {
+    this.appendValueInput("variable")
+        .setCheck(null)
+        .appendField("When variable's");
+    this.appendDummyInput()
+        .appendField("value changes, do:");
+    this.appendStatementInput("function")
+        .setCheck(null);
+    this.setPreviousStatement(true, null);
+    this.setNextStatement(true, null);
+    this.setColour(230);
+ this.setTooltip("");
+ this.setHelpUrl("");
+  }
+};
+
+Blockly.Python['lab_network_when_changed'] = function(block) {
+  var value_variable = Blockly.Python.valueToCode(block, 'variable', Blockly.Python.ORDER_ATOMIC);
+  var statements_function = Blockly.Python.statementToCode(block, 'function');
+  // TODO: Assemble Python into code variable.
+  var code = '...\n';
+  return code;
+};
+
 Blockly.Blocks['analogread'] = {
     init: function() {
         this.appendValueInput("pin")
@@ -860,5 +921,45 @@ Blockly.Blocks['buzzer_is_active'] = {
         this.setTooltip("");
         this.setHelpUrl("https://gpiozero.readthedocs.io/en/stable/api_output.html#gpiozero.Buzzer.toggle");
     }
+};
+
+Blockly.Blocks['dht_sensor'] = {
+  init: function() {
+    this.appendDummyInput()
+        .appendField("Save humidity value from sensor")
+        .appendField(new Blockly.FieldDropdown([["DHT11","Adafruit_DHT.DHT11"], ["DHT22","Adafruit_DHT.DHT22"], ["AM2302","Adafruit_DHT.AM2302"]]), "dropdown");
+    this.appendValueInput("pin")
+        .setCheck(["String", "pinNumber_digital"])
+        .appendField("on pin");
+    this.appendValueInput("var")
+        .setCheck(null)
+        .appendField("in variable");
+    this.setInputsInline(true);
+    this.setPreviousStatement(true, null);
+    this.setNextStatement(true, null);
+    this.setColour(120);
+ this.setTooltip("");
+ this.setHelpUrl("https://github.com/adafruit/Adafruit_Python_DHT/");
+  }
+};
+
+Blockly.Blocks['dht_sensor_temperature'] = {
+  init: function() {
+    this.appendDummyInput()
+        .appendField("Save temperature value from sensor")
+        .appendField(new Blockly.FieldDropdown([["DHT11","Adafruit_DHT.DHT11"], ["DHT22","Adafruit_DHT.DHT22"], ["AM2302","Adafruit_DHT.AM2302"]]), "dropdown");
+    this.appendValueInput("pin")
+        .setCheck(["String", "pinNumber_digital"])
+        .appendField("on pin");
+    this.appendValueInput("var")
+        .setCheck(null)
+        .appendField("in variable");
+    this.setInputsInline(true);
+    this.setPreviousStatement(true, null);
+    this.setNextStatement(true, null);
+    this.setColour(80);
+ this.setTooltip("");
+ this.setHelpUrl("https://github.com/adafruit/Adafruit_Python_DHT/");
+  }
 };
 };
