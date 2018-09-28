@@ -166,7 +166,7 @@ function assignCourseAndUser(boardId, userId, courseId) {
 
 async function unassignCourseAndUser(userId) {
 	let board = await Board.findOneAndUpdate({ userId: userId }, { $unset: { courseId: '', userId: '', ready: false }, lastInfo: Date.now() }).lean();
-	db.image.unsetupDelay (board.boardId);
+	if (board) db.image.unsetupDelay (board.boardId);
 	return board;
 }
 
