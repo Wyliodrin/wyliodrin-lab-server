@@ -60,7 +60,7 @@ echo "Install Python and Pyhton Pip"
 if ! python --version &> /dev/null;
 then
 	sudo apt-get update
-	sudo apt-get install -y python
+	sudo apt-get install -y python3 python3-rpi.gpio
 else
 	echo "python is already installed"
 fi
@@ -68,7 +68,7 @@ fi
 if ! which pip &> /dev/null;
 then
 	sudo apt-get update
-	sudo apt-get install -y python-pip
+	sudo apt-get install -y python3-pip
 else
 	echo "pip is already installed"
 fi
@@ -81,7 +81,7 @@ sudo npm install -g wyliolab --unsafe-perm
 
 # install wyliozero
 echo "Install wyliozero"
-sudo pip install PyMata gpiozero pyserial paho-mqtt Adafruit_CharLCD Adafruit_DHT wyliozero
+sudo pip3 install pymata_aio gpiozero paho-mqtt Adafruit_CharLCD Adafruit_DHT wyliozero
 
 # Writing fstab
 echo "Setting mount /proc"
