@@ -526,12 +526,14 @@ Blockly.Python['dht_sensor'] = function(block) {
   return code;
 };
 
+
+//TODO CHANGE TEMP
 Blockly.Python['dht_sensor_temperature'] = function(block) {
   var dropdown_dropdown = block.getFieldValue('dropdown');
   var value_pin = Blockly.Python.valueToCode(block, 'pin', Blockly.Python.ORDER_ATOMIC);
   var value_var = Blockly.Python.valueToCode(block, 'var', Blockly.Python.ORDER_ATOMIC);
   // TODO: Assemble Python into code variable.
-  var code = '_ , ' + value_var.toString() + '= Adafruit_DHT.read_retry(' + dropdown_dropdown.toString() + ', ' + value_pin.toString() + ')\n';
+  var code = '';
   return code;
 };
 };
