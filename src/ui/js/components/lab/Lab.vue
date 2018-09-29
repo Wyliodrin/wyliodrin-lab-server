@@ -204,11 +204,6 @@ module.exports = {
 			shell: false,
 			run: false,
 			runId: null,
-			boardStatus: {
-				bootup: 'Booting',
-				online: 'Online',
-				offline: 'Offline',
-			}
 		};
 	},
 	components: {
@@ -313,6 +308,16 @@ module.exports = {
 		{
 			if (this.project) return this.project.name;
 			else return 'project';
+		},
+		boardStatus ()
+		{
+			let titles = {
+				bootup: 'Booting',
+				online: 'Online',
+				offline: 'Offline',
+			};
+			if (this.board) return titles[board.status];
+			else return '';
 		}
 	},
 	created () {
