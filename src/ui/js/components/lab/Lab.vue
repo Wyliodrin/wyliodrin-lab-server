@@ -316,7 +316,7 @@ module.exports = {
 				online: 'Online',
 				offline: 'Offline',
 			};
-			if (this.board) return titles[board.status];
+			if (this.board) return titles[this.board.status];
 			else return '';
 		}
 	},
