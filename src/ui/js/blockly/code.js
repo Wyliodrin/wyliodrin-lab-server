@@ -248,8 +248,8 @@ Blockly.Python['button_when_held'] = function(block) {
     var statements_function = Blockly.Python.statementToCode(block, 'function');
     var functionName = Blockly.Python.uniqueName('function');
     // TODO: Assemble Python into code variable.
-    var code =  'def ' + functionName + '():\n' + statements_function.toString()
-    		+ value_pin + '.when_held = ' + functionName + '\n';
+    var code =  '\ndef ' + functionName + '():\n\t' + statements_function.toString()
+    		+ value_pin + '.when_held = ' + functionName + '\n\n';
     return code;
 };
 
@@ -259,8 +259,8 @@ Blockly.Python['button_when_pressed'] = function(block) {
     var statements_function = Blockly.Python.statementToCode(block, 'function');
     var functionName = Blockly.Python.uniqueName('function');
     // TODO: Assemble Python into code variable.
-    var code =  'def ' + functionName + '():\n' + statements_function.toString()
-    		+ value_pin + '.when_pressed = ' + functionName + '\n';
+    var code =  '\ndef ' + functionName + '():\n\t' + statements_function.toString()
+    		+ value_pin + '.when_pressed = ' + functionName + '\n\n';
     return code;
 };
 
@@ -270,7 +270,7 @@ Blockly.Python['button_when_released'] = function(block) {
     var statements_function = Blockly.Python.statementToCode(block, 'function');
     var functionName = Blockly.Python.uniqueName('function');
     // TODO: Assemble Python into code variable.
-    var code =  'def ' + functionName + '():\n' + statements_function.toString()
+    var code =  '\ndef ' + functionName + '():\n\t' + statements_function.toString()
     		+ value_pin + '.when_released = ' + functionName + '\n';
     return code;
 };
@@ -430,8 +430,8 @@ Blockly.Python['light_when_dark'] = function(block) {
     var statements_function = Blockly.Python.statementToCode(block, 'function');
     var functionName = Blockly.Python.uniqueName('function');
     // TODO: Assemble Python into code variable.
-    var code =  'def ' + functionName + '():\n' + statements_function.toString()
-    		+ value_pin + '.when_dark = ' + functionName + '\n';
+    var code =  '\ndef ' + functionName + '():\n\t' + statements_function.toString()
+    		+ value_pin + '.when_dark = ' + functionName + '\n\n';
     return code;
 };
 
@@ -441,8 +441,8 @@ Blockly.Python['light_when_light'] = function(block) {
     var statements_function = Blockly.Python.statementToCode(block, 'function');
     var functionName = Blockly.Python.uniqueName('function');
     // TODO: Assemble Python into code variable.
-    var code =  'def ' + functionName + '():\n' + statements_function.toString()
-    		+ value_pin + '.when_light = ' + functionName + '\n';
+    var code =  '\ndef ' + functionName + '():\n\t' + statements_function.toString()
+    		+ value_pin + '.when_light = ' + functionName + '\n\n';
     return code;
 };
 
@@ -528,6 +528,6 @@ Blockly.Python['dht_sensor_temperature'] = function(block) {
   var value_pin = Blockly.Python.valueToCode(block, 'pin', Blockly.Python.ORDER_ATOMIC);
   var value_var = Blockly.Python.valueToCode(block, 'var', Blockly.Python.ORDER_ATOMIC);
   // TODO: Assemble Python into code variable.
-  var code = '';
+  var code = ' _, ' + value_var.toString() + ' = Adafruit_DHT.read_retry(' + dropdown_dropdown.toString() + ', ' + value_pin.toString() + ')\n';
   return code;
 };

@@ -207,7 +207,7 @@ Blockly.Python['button'] = function(block) {
     Blockly.Python.setUp();
     var value_pin_number = Blockly.Python.valueToCode(block, 'pin_number', Blockly.Python.ORDER_ATOMIC);
     // TODO: Assemble Python into code variable.
-    var code = 'Button(' + value_pin_number.toString() + ', pull_up = False)';
+    var code = 'Button(' + value_pin_number.toString() + ', pull_up = False) \n';
     // TODO: Change ORDER_NONE to the correct strength.
     return [code, Blockly.Python.ORDER_NONE];
 };
@@ -234,7 +234,7 @@ Blockly.Python['button_is_pressed'] = function(block) {
 Blockly.Python['button_wait_for_release'] = function(block) {
     var value_button = Blockly.Python.valueToCode(block, 'button', Blockly.Python.ORDER_ATOMIC);
     // TODO: Assemble Python into code variable.
-    var code = value_button.toString() + '.wait_for_release()';
+    var code = value_button.toString() + '.wait_for_release() \n';
     return code;
 };
 
@@ -243,7 +243,7 @@ Blockly.Python['led_blink'] = function(block) {
     Blockly.Python.setUp();
     var value_led = Blockly.Python.valueToCode(block, 'led', Blockly.Python.ORDER_ATOMIC);
     // TODO: Assemble Python into code variable.
-    var code = value_led.toString() + '.blink()\n';
+    var code = value_led.toString() + '.blink() \n';
     return code;
 };
 
@@ -253,8 +253,8 @@ Blockly.Python['button_when_held'] = function(block) {
     var statements_function = Blockly.Python.statementToCode(block, 'function');
     var functionName = Blockly.Python.uniqueName('function');
     // TODO: Assemble Python into code variable.
-    var code =  'def ' + functionName + '():\n' + statements_function.toString()
-    		+ value_pin + '.when_held = ' + functionName + '\n';
+    var code =  '\ndef ' + functionName + '():\n\t' + statements_function.toString()
+    		+ value_pin + '.when_held = ' + functionName + '\n\n';
     return code;
 };
 
@@ -264,8 +264,8 @@ Blockly.Python['button_when_pressed'] = function(block) {
     var statements_function = Blockly.Python.statementToCode(block, 'function');
     var functionName = Blockly.Python.uniqueName('function');
     // TODO: Assemble Python into code variable.
-    var code =  'def ' + functionName + '():\n' + statements_function.toString()
-    		+ value_pin + '.when_pressed = ' + functionName + '\n';
+    var code =  '\ndef ' + functionName + '():\n\t' + statements_function.toString()
+    		+ value_pin + '.when_pressed = ' + functionName + '\n\n';
     return code;
 };
 
@@ -275,7 +275,7 @@ Blockly.Python['button_when_released'] = function(block) {
     var statements_function = Blockly.Python.statementToCode(block, 'function');
     var functionName = Blockly.Python.uniqueName('function');
     // TODO: Assemble Python into code variable.
-    var code =  'def ' + functionName + '():\n' + statements_function.toString()
+    var code =  '\ndef ' + functionName + '():\n\t' + statements_function.toString()
     		+ value_pin + '.when_released = ' + functionName + '\n';
     return code;
 };
@@ -293,7 +293,7 @@ Blockly.Python['button_wait_for_press'] = function(block) {
     Blockly.Python.setUp();
     var value_button = Blockly.Python.valueToCode(block, 'button', Blockly.Python.ORDER_ATOMIC);
     // TODO: Assemble Python into code variable.
-    var code = value_button.toString() + '.wait_for_press()';
+    var code = value_button.toString() + '.wait_for_press() \n';
     return code;
 };
 
@@ -308,7 +308,7 @@ Blockly.Python['button_held_time'] = function(block) {
 Blockly.Python['pause'] = function(block) {
     Blockly.Python.setUp();
     // TODO: Assemble Python into code variable.
-    var code = 'pause()';
+    var code = 'pause() \n';
     return code;
 };
 
@@ -360,7 +360,7 @@ Blockly.Python['traffic_light_on'] = function(block) {
     var dropdown_light = block.getFieldValue('light');
     var value_name = Blockly.Python.valueToCode(block, 'NAME', Blockly.Python.ORDER_ATOMIC);
     // TODO: Assemble Python into code variable.
-    var code = value_name.toString() + '.' + dropdown_light.toString() + '.on() ';
+    var code = value_name.toString() + '.' + dropdown_light.toString() + '.on() \n';
     return code;
 };
 
@@ -368,14 +368,14 @@ Blockly.Python['traffic_light_on'] = function(block) {
 Blockly.Python['traffic_blink'] = function(block) {
   var value_pin = Blockly.Python.valueToCode(block, 'pin', Blockly.Python.ORDER_ATOMIC);
   // TODO: Assemble Python into code variable.
-  var code = value_pin.toString() + '.blink()';
+  var code = value_pin.toString() + '.blink() \n';
   return code;
 };
 
 Blockly.Python['traffic_close'] = function(block) {
   var value_pin = Blockly.Python.valueToCode(block, 'pin', Blockly.Python.ORDER_ATOMIC);
   // TODO: Assemble Python into code variable.
-  var code = value_pin.toString() + '.close()';
+  var code = value_pin.toString() + '.close() \n';
   return code;
 };
 
@@ -384,7 +384,7 @@ Blockly.Python['pwm_pulse'] = function(block) {
     Blockly.Python.setUp();
     var value_pwm_led = Blockly.Python.valueToCode(block, 'pwm_led', Blockly.Python.ORDER_FUNCTION_CALL);
     // TODO: Assemble Python into code variable.
-    var code = value_pwm_led.toString() + '.pulse()';
+    var code = value_pwm_led.toString() + '.pulse() \n';
     return code;
 };
 
@@ -393,7 +393,7 @@ Blockly.Python['traffic_light_off'] = function(block) {
     var dropdown_light = block.getFieldValue('light');
     var value_name = Blockly.Python.valueToCode(block, 'NAME', Blockly.Python.ORDER_ATOMIC);
     // TODO: Assemble Python into code variable.
-    var code = value_name.toString() + '.' + dropdown_light.toString() + '.off() ';
+    var code = value_name.toString() + '.' + dropdown_light.toString() + '.off() \n';
     return code;
 };
 
@@ -435,8 +435,8 @@ Blockly.Python['light_when_dark'] = function(block) {
     var statements_function = Blockly.Python.statementToCode(block, 'function');
     var functionName = Blockly.Python.uniqueName('function');
     // TODO: Assemble Python into code variable.
-    var code =  'def ' + functionName + '():\n' + statements_function.toString()
-    		+ value_pin + '.when_dark = ' + functionName + '\n';
+    var code =  '\ndef ' + functionName + '():\n\t' + statements_function.toString()
+    		+ value_pin + '.when_dark = ' + functionName + '\n\n';
     return code;
 };
 
@@ -446,22 +446,22 @@ Blockly.Python['light_when_light'] = function(block) {
     var statements_function = Blockly.Python.statementToCode(block, 'function');
     var functionName = Blockly.Python.uniqueName('function');
     // TODO: Assemble Python into code variable.
-    var code =  'def ' + functionName + '():\n' + statements_function.toString()
-    		+ value_pin + '.when_light = ' + functionName + '\n';
+    var code =  '\ndef ' + functionName + '():\n\t' + statements_function.toString()
+    		+ value_pin + '.when_light = ' + functionName + '\n\n';
     return code;
 };
 
 Blockly.Python['light_wait_for_dark'] = function(block) {
     var value_pin_number = Blockly.Python.valueToCode(block, 'pin_number', Blockly.Python.ORDER_ATOMIC);
     // TODO: Assemble Python into code variable.
-    var code = value_pin_number.toString() + '.wait_for_dark()';
+    var code = value_pin_number.toString() + '.wait_for_dark() \n';
     return code;
 };
 
 Blockly.Python['light_wait_for_light'] = function(block) {
     var value_pin_number = Blockly.Python.valueToCode(block, 'pin_number', Blockly.Python.ORDER_ATOMIC);
     // TODO: Assemble Python into code variable.
-    var code = value_pin_number.toString() + '.wait_for_light()';
+    var code = value_pin_number.toString() + '.wait_for_light() \n';
     return code;
 };
 
@@ -484,28 +484,28 @@ Blockly.Python['buzzer'] = function(block) {
 Blockly.Python['buzzer_beep'] = function(block) {
     var value_pin = Blockly.Python.valueToCode(block, 'pin', Blockly.Python.ORDER_ATOMIC);
     // TODO: Assemble Python into code variable.
-    var code = value_pin.toString() + '.beep()';
+    var code = value_pin.toString() + '.beep() \n';
     return code;
 };
 
 Blockly.Python['buzzer_on'] = function(block) {
     var value_pin = Blockly.Python.valueToCode(block, 'pin', Blockly.Python.ORDER_ATOMIC);
     // TODO: Assemble Python into code variable.
-    var code = value_pin.toString() + '.on()';
+    var code = value_pin.toString() + '.on() \n';
     return code;
 };
 
 Blockly.Python['buzzer_off'] = function(block) {
     var value_pin = Blockly.Python.valueToCode(block, 'pin', Blockly.Python.ORDER_ATOMIC);
     // TODO: Assemble Python into code variable.
-    var code = value_pin.toString() + '.off()';
+    var code = value_pin.toString() + '.off() \n';
     return code;
 };
 
 Blockly.Python['buzzer_toggle'] = function(block) {
     var value_pin = Blockly.Python.valueToCode(block, 'pin', Blockly.Python.ORDER_ATOMIC);
     // TODO: Assemble Python into code variable.
-    var code = value_pin.toString() + '.toggle()';
+    var code = value_pin.toString() + '.toggle() \n';
     return code;
 };
 
@@ -533,7 +533,7 @@ Blockly.Python['dht_sensor_temperature'] = function(block) {
   var value_pin = Blockly.Python.valueToCode(block, 'pin', Blockly.Python.ORDER_ATOMIC);
   var value_var = Blockly.Python.valueToCode(block, 'var', Blockly.Python.ORDER_ATOMIC);
   // TODO: Assemble Python into code variable.
-  var code = '';
+  var code = ' _, ' + value_var.toString() + ' = Adafruit_DHT.read_retry(' + dropdown_dropdown.toString() + ', ' + value_pin.toString() + ')\n';
   return code;
 };
 };
