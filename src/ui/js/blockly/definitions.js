@@ -920,40 +920,40 @@ Blockly.Blocks['buzzer_is_active'] = {
 
 Blockly.Blocks['dht_sensor'] = {
   init: function() {
-    this.appendDummyInput()
-        .appendField("Save humidity value from sensor")
-        .appendField(new Blockly.FieldDropdown([["DHT11","Adafruit_DHT.DHT11"], ["DHT22","Adafruit_DHT.DHT22"], ["AM2302","Adafruit_DHT.AM2302"]]), "dropdown");
     this.appendValueInput("pin")
-        .setCheck(["String", "pinNumber_digital"])
-        .appendField("on pin");
-    this.appendValueInput("var")
-        .setCheck(null)
-        .appendField("in variable");
-    this.setInputsInline(true);
-    this.setPreviousStatement(true, null);
-    this.setNextStatement(true, null);
-    this.setColour(120);
+        .setCheck(["String", "pinNumber_analog"])
+        .appendField("DHT sensor on pin");
+    this.setOutput(true, "dht_sensor");
+    this.setColour(100);
  this.setTooltip("");
- this.setHelpUrl("https://github.com/adafruit/Adafruit_Python_DHT/");
+ this.setHelpUrl("https://github.com/adafruit/Adafruit_Python_DHT/tree/master/Adafruit_DHT");
   }
 };
 
-Blockly.Blocks['dht_sensor_temperature'] = {
+Blockly.Blocks['dht_temperature'] = {
   init: function() {
+    this.appendValueInput("dht")
+        .setCheck("dht_sensor")
+        .appendField("temperature read from sensor");
     this.appendDummyInput()
-        .appendField("Save temperature value from sensor")
-        .appendField(new Blockly.FieldDropdown([["DHT11","Adafruit_DHT.DHT11"], ["DHT22","Adafruit_DHT.DHT22"], ["AM2302","Adafruit_DHT.AM2302"]]), "dropdown");
-    this.appendValueInput("pin")
-        .setCheck(["String", "pinNumber_digital"])
-        .appendField("on pin");
-    this.appendValueInput("var")
-        .setCheck(null)
-        .appendField("in variable");
-    this.setInputsInline(true);
-    this.setPreviousStatement(true, null);
-    this.setNextStatement(true, null);
-    this.setColour(80);
+        .appendField(".");
+    this.setOutput(true, "Boolean");
+    this.setColour(120);
  this.setTooltip("");
- this.setHelpUrl("https://github.com/adafruit/Adafruit_Python_DHT/");
+ this.setHelpUrl("");
+  }
+};
+
+Blockly.Blocks['dht_humidity'] = {
+  init: function() {
+    this.appendValueInput("dht")
+        .setCheck("dht_sensor")
+        .appendField("humidity read from sensor");
+    this.appendDummyInput()
+        .appendField(".");
+    this.setOutput(true, "Boolean");
+    this.setColour(120);
+ this.setTooltip("");
+ this.setHelpUrl("");
   }
 };

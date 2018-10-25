@@ -289,33 +289,49 @@
 
 				</category>
 				<category name="Temperature" colour="80">
-					<block type="dht_sensor_temperature">
-						<value name="var">
-							<block type="variables_get">
-								<field name="VAR">temperature</field>
-							</block>	
-						</value>
-						<value name="pin">
-								<block type="pin_digital">
-									<field name="pin">R4</field>
-								</block>
+					<block type="variables_set">
+						<field name="VAR">DHTsensor</field>
+						<value name="VALUE">
+							<block type="dht_sensor">
+								<value name="pin">
+									<block type="pin_analog"/>
+								</value>
+							</block>
 						</value>
 					</block>
+
+					<block type = "dht_temperature">
+						<value name = "dht">
+							<block type="variables_get">
+								<field name="VAR">DHTsensor</field>
+							</block>
+						</value>						
+					</block>
+
 				</category>
 				<category name="Humidity" colour="120">
-					<block type="dht_sensor">
-						<value name="var">
-							<block type="variables_get">
-								<field name="VAR">humidity</field>
-							</block>	
-						</value>
-						<value name="pin">
-								<block type="pin_digital">
-									<field name="pin">R4</field>
-								</block>
+					<block type="variables_set">
+						<field name="VAR">DHTsensor</field>
+						<value name="VALUE">
+							<block type="dht_sensor">
+								<value name="pin">
+									<block type="pin_analog"/>
+								</value>
+							</block>
 						</value>
 					</block>
+
+					
+					<block type = "dht_humidity">
+						<value name = "dht">
+							<block type="variables_get">
+								<field name="VAR">DHTsensor</field>
+							</block>
+						</value>
+					</block>
+
 				</category>
+
 				<category name="Power Meter" colour="160">
 				</category>
 			

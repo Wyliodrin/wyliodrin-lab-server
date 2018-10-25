@@ -517,23 +517,48 @@ Blockly.Python['buzzer_is_active'] = function(block) {
     return [code, Blockly.Python.ORDER_NONE];
 };
 
+// Blockly.Python['dht_sensor'] = function(block) {
+//   var dropdown_dropdown = block.getFieldValue('dropdown');
+//   var value_pin = Blockly.Python.valueToCode(block, 'pin', Blockly.Python.ORDER_ATOMIC);
+//   var value_var = Blockly.Python.valueToCode(block, 'var', Blockly.Python.ORDER_ATOMIC);
+//   // TODO: Assemble Python into code variable.
+//   var code = value_var.toString() + ', _ = Adafruit_DHT.read_retry(' + dropdown_dropdown.toString() + ', ' + value_pin.toString() + ')\n';
+//   return code;
+// };
+
+
+// //TODO CHANGE TEMP
+// Blockly.Python['dht_sensor_temperature'] = function(block) {
+//   var dropdown_dropdown = block.getFieldValue('dropdown');
+//   var value_pin = Blockly.Python.valueToCode(block, 'pin', Blockly.Python.ORDER_ATOMIC);
+//   var value_var = Blockly.Python.valueToCode(block, 'var', Blockly.Python.ORDER_ATOMIC);
+//   // TODO: Assemble Python into code variable.
+//   var code = ' _, ' + value_var.toString() + ' = Adafruit_DHT.read_retry(' + dropdown_dropdown.toString() + ', ' + value_pin.toString() + ')\n';
+//   return code;
+// };
+
+
 Blockly.Python['dht_sensor'] = function(block) {
-  var dropdown_dropdown = block.getFieldValue('dropdown');
   var value_pin = Blockly.Python.valueToCode(block, 'pin', Blockly.Python.ORDER_ATOMIC);
-  var value_var = Blockly.Python.valueToCode(block, 'var', Blockly.Python.ORDER_ATOMIC);
   // TODO: Assemble Python into code variable.
-  var code = value_var.toString() + ', _ = Adafruit_DHT.read_retry(' + dropdown_dropdown.toString() + ', ' + value_pin.toString() + ')\n';
-  return code;
+  var code = 'w.DHTsensor(' + value_pin.toString() + ')\n';
+  // TODO: Change ORDER_NONE to the correct strength.
+  return [code, Blockly.Python.ORDER_NONE];
 };
 
-
-//TODO CHANGE TEMP
-Blockly.Python['dht_sensor_temperature'] = function(block) {
-  var dropdown_dropdown = block.getFieldValue('dropdown');
-  var value_pin = Blockly.Python.valueToCode(block, 'pin', Blockly.Python.ORDER_ATOMIC);
-  var value_var = Blockly.Python.valueToCode(block, 'var', Blockly.Python.ORDER_ATOMIC);
+Blockly.Python['dht_temperature'] = function(block) {
+  var value_dht = Blockly.Python.valueToCode(block, 'dht', Blockly.Python.ORDER_ATOMIC);
   // TODO: Assemble Python into code variable.
-  var code = ' _, ' + value_var.toString() + ' = Adafruit_DHT.read_retry(' + dropdown_dropdown.toString() + ', ' + value_pin.toString() + ')\n';
-  return code;
+  var code = value_dht.toString() + '.temperatureRead()\n';
+  // TODO: Change ORDER_NONE to the correct strength.
+  return [code, Blockly.Python.ORDER_NONE];
+};
+
+Blockly.Python['dht_humidity'] = function(block) {
+  var value_dht = Blockly.Python.valueToCode(block, 'dht', Blockly.Python.ORDER_ATOMIC);
+  // TODO: Assemble Python into code variable.
+  var code = value_dht.toString() + '.humidityRead()\n';
+  // TODO: Change ORDER_NONE to the correct strength.
+  return [code, Blockly.Python.ORDER_NONE];
 };
 };
