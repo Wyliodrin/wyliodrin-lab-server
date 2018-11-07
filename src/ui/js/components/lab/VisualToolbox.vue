@@ -676,20 +676,59 @@
 						</value>
 						<value name="topic">
 							<block type="text">
-								<field name="TEXT">topic</field>
+								<field name="TEXT">default</field>
+							</block>
+						</value>
+					</block>
+					<block type="lab_network_get_one">
+						
+						<value name="board">
+							<block type="text">
+								<field name="TEXT">board</field>
+							</block>
+						</value>
+						<value name="varname">
+							<block type="variables_get">
+								<field name="VAR">variable</field>
+							</block>
+						</value>
+				
+						<value name="topic">
+							<block type="text">
+								<field name="TEXT">default</field>
 							</block>
 						</value>
 					</block>
 
-					<block type="lab_network_recieve_all">
-						<value name="var">
+					<block type="lab_network_send_one">
+						
+						<value name="board">
+							<block type="text">
+								<field name="TEXT">board</field>
+							</block>
+						</value>
+
+						<value name="message">
+							<block type="text">
+								<field name="TEXT">message</field>
+							</block>
+						</value>
+						<value name="topic">
+							<block type="text">
+								<field name="TEXT">default</field>
+							</block>
+						</value>
+					</block>
+
+					<block type="lab_network_get_all">
+						<value name="varname">
 							<block type="variables_get">
 								<field name="VAR">variable</field>
 							</block>
 						</value>
 						<value name="topic">
 							<block type="text">
-								<field name="TEXT">topic</field>
+								<field name="TEXT">default</field>
 							</block>
 						</value>
 					</block>

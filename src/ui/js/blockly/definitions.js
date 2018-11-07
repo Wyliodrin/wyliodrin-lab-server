@@ -2,7 +2,7 @@ Blockly.Blocks['lab_network_send_all'] = {
   init: function() {
     this.appendValueInput("message")
         .setCheck(["Number", "String"])
-        .appendField("Send to all lab members message");
+        .appendField("Send TO ALL lab members message");
     this.appendValueInput("topic")
         .setCheck("String")
         .appendField("on topic");
@@ -16,36 +16,97 @@ Blockly.Blocks['lab_network_send_all'] = {
   }
 };
 
-Blockly.Blocks['lab_network_recieve_all'] = {
+Blockly.Blocks['lab_network_send_one'] = {
   init: function() {
-    this.appendValueInput("var")
-        .setCheck(null)
+  	this.appendValueInput("board")
+  		.appendField("SEND TO BOARD ");
+    this.appendValueInput("message")
+        .setCheck(["Number", "String"])
+        .appendField("message");
+    this.appendValueInput("topic")
+        .setCheck("String")
+        .appendField("on topic");
+    this.appendDummyInput()
+        .appendField(".");
+    this.setPreviousStatement(true, null);
+    this.setNextStatement(true, null);
+    this.setColour(180);
+ this.setTooltip("");
+ this.setHelpUrl("https://github.com/Wyliodrin/wyliozero");
+  }
+};
+
+Blockly.Blocks['lab_network_get_all'] = {
+  init: function() {
+  	
+    this.appendValueInput("varname")
+        .setCheck(["Number", "String"])
         .appendField("Make variable");
     this.appendValueInput("topic")
         .setCheck("String")
-        .appendField("listen to messages on topic");
+        .appendField("listen to messages SENT TO ME on topic");
     this.appendDummyInput()
-        .appendField("from all lab.");
+        .appendField(".");
+    this.setPreviousStatement(true, null);
+    this.setNextStatement(true, null);
+    this.setColour(180);
+ this.setTooltip("");
+ this.setHelpUrl("https://github.com/Wyliodrin/wyliozero");
+  }
+};
+
+Blockly.Blocks['lab_network_get_one'] = {
+  init: function() {
+  	
+    this.appendValueInput("varname")
+        .setCheck(["Number", "String"])
+        .appendField("Make variable");
+    this.appendValueInput("board")
+        .setCheck(["Number", "String"])
+        .appendField("listen to ALL messages sent by board");
+    this.appendValueInput("topic")
+        .setCheck("String")
+        .appendField("on topic");
+    this.appendDummyInput()
+        .appendField(".");
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
     this.setColour(230);
  this.setTooltip("");
- this.setHelpUrl("");
+ this.setHelpUrl("https://github.com/Wyliodrin/wyliozero");
   }
 };
+
+// Blockly.Blocks['lab_network_recieve_all'] = {
+//   init: function() {
+//     this.appendValueInput("var")
+//         .setCheck(null)
+//         .appendField("Make variable");
+//     this.appendValueInput("topic")
+//         .setCheck("String")
+//         .appendField("listen to messages on topic");
+//     this.appendDummyInput()
+//         .appendField("from all lab.");
+//     this.setPreviousStatement(true, null);
+//     this.setNextStatement(true, null);
+//     this.setColour(230);
+//  this.setTooltip("");
+//  this.setHelpUrl("");
+//   }
+// };
 
 Blockly.Blocks['lab_network_when_changed'] = {
   init: function() {
     this.appendValueInput("variable")
         .setCheck(null)
-        .appendField("When variable's");
+        .appendField("When message recieved by");
     this.appendDummyInput()
-        .appendField("value changes, do:");
+        .appendField("changes, do:");
     this.appendStatementInput("function")
         .setCheck(null);
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
-    this.setColour(230);
+    this.setColour(200);
  this.setTooltip("");
  this.setHelpUrl("");
   }
