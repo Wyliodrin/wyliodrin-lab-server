@@ -102,9 +102,12 @@ Blockly.Blocks['lab_network_get_one'] = {
 
 Blockly.Blocks['lab_network_when_changed'] = {
   init: function() {
+  	this.appendValueInput("msg")
+        .setCheck(null)
+        .appendField("When");
     this.appendValueInput("variable")
         .setCheck(null)
-        .appendField("When message recieved by");
+        .appendField(" received by");
     this.appendDummyInput()
         .appendField("changes, do:");
     this.appendStatementInput("function")

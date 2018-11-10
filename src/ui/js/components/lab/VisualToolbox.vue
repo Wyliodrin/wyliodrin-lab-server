@@ -739,6 +739,11 @@
 								<field name="VAR">variable</field>
 							</block>
 						</value>
+						<value name="msg">
+							<block type="variables_get">
+								<field name="VAR">message</field>
+							</block>
+						</value>
 					</block>
 					<!-- <block type="start_labnetwork" /> -->
 				</category>

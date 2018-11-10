@@ -1,7 +1,7 @@
 
 Blockly.Python.setUp = function() {
     if (!Blockly.Python.definitions_['setUp']) {
-        Blockly.Python.definitions_['setUp'] = 'from wyliozero import * \n';
+        Blockly.Python.definitions_['setUp'] = 'from wyliozero import * \nimport os \nos.environ["BROKER_ADDRESS"] = "192.168.1.50"\n';
     }
 };
 
@@ -77,11 +77,13 @@ Blockly.Python['lab_network_get_one'] = function(block) {
 
 
 Blockly.Python['lab_network_when_changed'] = function(block) {
+  Blockly.Python.setUp();
   var value_variable = Blockly.Python.valueToCode(block, 'variable', Blockly.Python.ORDER_ATOMIC);
+  var value_msg = Blockly.Python.valueToCode(block, 'msg', Blockly.Python.ORDER_ATOMIC);
   var statements_function = Blockly.Python.statementToCode(block, 'function');
   var functionName = Blockly.Python.uniqueName('function');
   // TODO: Assemble Python into code variable.
-  var code =  'def ' + functionName + '():\n\t' + statements_function.toString()
+  var code =  'def ' + functionName + '(' + value_msg.toString() + '):\n\t' + statements_function.toString()
     		+ value_variable + '.when_changed = ' + functionName + '\n';
   return code;
 };
