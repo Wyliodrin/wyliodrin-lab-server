@@ -66,7 +66,7 @@ Blockly.Python['link'] = function(block) {
     Blockly.Python.setUp();
     var value_var = Blockly.Python.valueToCode(block, 'var', Blockly.Python.ORDER_ATOMIC);
     // TODO: Assemble Python into code variable.
-    var code = value_var.toString() + '.values()';
+    var code = value_var.toString() + '.values';
     // TODO: Change ORDER_NONE to the correct strength.
     return [code, Blockly.Python.ORDER_NONE];
 };
