@@ -27,6 +27,13 @@ app.set('port', port);
 
 var server = http.createServer(app);
 socket.initSocket ('', server);
+
+/**
+ * Make mqtt server.
+ */
+require('./mqtt.js');
+
+
 /**
  * Listen on provided port, on all network interfaces.
  */
