@@ -3,19 +3,87 @@
 module.exports = function (blockly) {
 	var Blockly = blockly.Blockly;
 	var goog = blockly.goog;
+
+Blockly.Blocks['got_values'] = {
+    init: function() {
+        this.appendValueInput("var")
+            .setCheck(null)
+            .appendField(" variable");
+        this.appendDummyInput()
+            .appendField("has available message.");
+        this.setOutput(true, "Boolean");
+        this.setColour(120);
+        this.setTooltip("");
+        this.setHelpUrl("https://gpiozero.readthedocs.io/en/stable/api_input.html#gpiozero.Button.is_pressed");
+    }
+};
+
+Blockly.Blocks['got_broadcast'] = {
+    init: function() {
+        this.appendValueInput("var")
+            .setCheck(null)
+            .appendField(" variable");
+        this.appendDummyInput()
+            .appendField("has broadcast message.");
+        this.setOutput(true, "Boolean");
+        this.setColour(120);
+        this.setTooltip("");
+        this.setHelpUrl("https://gpiozero.readthedocs.io/en/stable/api_input.html#gpiozero.Button.is_pressed");
+    }
+};
+
+Blockly.Blocks['get_value'] = {
+    init: function() {
+        this.appendValueInput("var")
+            .setCheck(null)
+            .appendField("message stored in");
+        this.appendDummyInput()
+            .appendField(".");
+        this.setOutput(true);
+        this.setColour(120);
+        this.setTooltip("");
+        this.setHelpUrl("https://gpiozero.readthedocs.io/en/stable/api_input.html#gpiozero.Button.is_pressed");
+    }
+};
+
+Blockly.Blocks['get_broadcast'] = {
+    init: function() {
+        this.appendValueInput("var")
+            .setCheck(null)
+            .appendField("broadcast stored in");
+        this.appendDummyInput()
+            .appendField(".");
+        this.setOutput(true);
+        this.setColour(120);
+        this.setTooltip("");
+        this.setHelpUrl("https://gpiozero.readthedocs.io/en/stable/api_input.html#gpiozero.Button.is_pressed");
+    }
+};
+
+Blockly.Blocks['link'] = {
+    init: function() {
+        this.appendValueInput("var")
+            .setCheck(null)
+            .appendField("link to message in");
+        this.appendDummyInput()
+            .appendField(".");
+        this.setOutput(true);
+        this.setColour(120);
+        this.setTooltip("");
+        this.setHelpUrl("https://gpiozero.readthedocs.io/en/stable/api_input.html#gpiozero.Button.is_pressed");
+    }
+};
+
 Blockly.Blocks['lab_network_send_all'] = {
   init: function() {
     this.appendValueInput("message")
         .setCheck(["Number", "String"])
-        .appendField("Send TO ALL lab members message");
-    this.appendValueInput("topic")
-        .setCheck("String")
-        .appendField("on topic");
+        .appendField("Broadcast message");
     this.appendDummyInput()
         .appendField(".");
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
-    this.setColour(230);
+    this.setColour(120);
  this.setTooltip("");
  this.setHelpUrl("https://github.com/Wyliodrin/wyliozero");
   }
@@ -23,11 +91,12 @@ Blockly.Blocks['lab_network_send_all'] = {
 
 Blockly.Blocks['lab_network_send_one'] = {
   init: function() {
-  	this.appendValueInput("board")
-  		.appendField("SEND TO BOARD ");
+  	
     this.appendValueInput("message")
         .setCheck(["Number", "String"])
-        .appendField("message");
+        .appendField("Send message");
+    this.appendValueInput("board")
+  		.appendField("to board");
     this.appendValueInput("topic")
         .setCheck("String")
         .appendField("on topic");
@@ -35,7 +104,7 @@ Blockly.Blocks['lab_network_send_one'] = {
         .appendField(".");
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
-    this.setColour(180);
+    this.setColour(120);
  this.setTooltip("");
  this.setHelpUrl("https://github.com/Wyliodrin/wyliozero");
   }
@@ -49,38 +118,38 @@ Blockly.Blocks['lab_network_get_all'] = {
         .appendField("Make variable");
     this.appendValueInput("topic")
         .setCheck("String")
-        .appendField("listen to messages SENT TO ME on topic");
+        .appendField("listen to messages sent to me on topic");
     this.appendDummyInput()
         .appendField(".");
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
-    this.setColour(180);
+    this.setColour(120);
  this.setTooltip("");
  this.setHelpUrl("https://github.com/Wyliodrin/wyliozero");
   }
 };
 
-Blockly.Blocks['lab_network_get_one'] = {
-  init: function() {
+// Blockly.Blocks['lab_network_get_one'] = {
+//   init: function() {
   	
-    this.appendValueInput("varname")
-        .setCheck(["Number", "String"])
-        .appendField("Make variable");
-    this.appendValueInput("board")
-        .setCheck(["Number", "String"])
-        .appendField("listen to ALL messages sent by board");
-    this.appendValueInput("topic")
-        .setCheck("String")
-        .appendField("on topic");
-    this.appendDummyInput()
-        .appendField(".");
-    this.setPreviousStatement(true, null);
-    this.setNextStatement(true, null);
-    this.setColour(230);
- this.setTooltip("");
- this.setHelpUrl("https://github.com/Wyliodrin/wyliozero");
-  }
-};
+//     this.appendValueInput("varname")
+//         .setCheck(["Number", "String"])
+//         .appendField("Make variable");
+//     this.appendValueInput("board")
+//         .setCheck(["Number", "String"])
+//         .appendField("listen to ALL messages sent by board");
+//     this.appendValueInput("topic")
+//         .setCheck("String")
+//         .appendField("on topic");
+//     this.appendDummyInput()
+//         .appendField(".");
+//     this.setPreviousStatement(true, null);
+//     this.setNextStatement(true, null);
+//     this.setColour(230);
+//  this.setTooltip("");
+//  this.setHelpUrl("https://github.com/Wyliodrin/wyliozero");
+//   }
+// };
 
 // Blockly.Blocks['lab_network_recieve_all'] = {
 //   init: function() {
@@ -120,13 +189,7 @@ Blockly.Blocks['lab_network_when_changed'] = {
   }
 };
 
-Blockly.Python['lab_network_when_changed'] = function(block) {
-  var value_variable = Blockly.Python.valueToCode(block, 'variable', Blockly.Python.ORDER_ATOMIC);
-  var statements_function = Blockly.Python.statementToCode(block, 'function');
-  // TODO: Assemble Python into code variable.
-  var code = '...\n';
-  return code;
-};
+
 
 Blockly.Blocks['analogread'] = {
     init: function() {

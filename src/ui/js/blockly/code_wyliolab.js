@@ -26,14 +26,59 @@ Blockly.Python.wylioLab = function() {
     }
 }
 
+Blockly.Python['got_values'] = function(block) {
+    Blockly.Python.setUp();
+    var value_var = Blockly.Python.valueToCode(block, 'var', Blockly.Python.ORDER_ATOMIC);
+    // TODO: Assemble Python into code variable.
+    var code = value_var.toString() + '.isAvailable()';
+    // TODO: Change ORDER_NONE to the correct strength.
+    return [code, Blockly.Python.ORDER_NONE];
+};
+
+Blockly.Python['got_broadcast'] = function(block) {
+    Blockly.Python.setUp();
+    var value_var = Blockly.Python.valueToCode(block, 'var', Blockly.Python.ORDER_ATOMIC);
+    // TODO: Assemble Python into code variable.
+    var code = value_var.toString() + '.isBroadcastAvailable()';
+    // TODO: Change ORDER_NONE to the correct strength.
+    return [code, Blockly.Python.ORDER_NONE];
+};
+
+Blockly.Python['get_value'] = function(block) {
+    Blockly.Python.setUp();
+    var value_var = Blockly.Python.valueToCode(block, 'var', Blockly.Python.ORDER_ATOMIC);
+    // TODO: Assemble Python into code variable.
+    var code = value_var.toString() + '.getAvailable()';
+    // TODO: Change ORDER_NONE to the correct strength.
+    return [code, Blockly.Python.ORDER_NONE];
+};
+
+Blockly.Python['get_broadcast'] = function(block) {
+    Blockly.Python.setUp();
+    var value_var = Blockly.Python.valueToCode(block, 'var', Blockly.Python.ORDER_ATOMIC);
+    // TODO: Assemble Python into code variable.
+    var code = value_var.toString() + '.getBroadcastAvailable()';
+    // TODO: Change ORDER_NONE to the correct strength.
+    return [code, Blockly.Python.ORDER_NONE];
+};
+
+Blockly.Python['link'] = function(block) {
+    Blockly.Python.setUp();
+    var value_var = Blockly.Python.valueToCode(block, 'var', Blockly.Python.ORDER_ATOMIC);
+    // TODO: Assemble Python into code variable.
+    var code = value_var.toString() + '.values()';
+    // TODO: Change ORDER_NONE to the correct strength.
+    return [code, Blockly.Python.ORDER_NONE];
+};
+
 
 Blockly.Python['lab_network_send_all'] = function(block) {
   Blockly.Python.setUp();
   Blockly.Python.wylioLab();
   var value_message = Blockly.Python.valueToCode(block, 'message', Blockly.Python.ORDER_ATOMIC);
-  var value_topic = Blockly.Python.valueToCode(block, 'topic', Blockly.Python.ORDER_ATOMIC);
+  //var value_topic = Blockly.Python.valueToCode(block, 'topic', Blockly.Python.ORDER_ATOMIC);
   // TODO: Assemble Python into code variable.
-  var code = 'myBoard.sendPublic(' + value_message.toString() + ', ' + value_topic.toString() + ')\n' ;
+  var code = 'myBoard.broadcastMessage(' + value_message.toString() + ')\n' ;
   return code;
 };
 
@@ -44,7 +89,7 @@ Blockly.Python['lab_network_send_one'] = function(block) {
   var value_topic = Blockly.Python.valueToCode(block, 'topic', Blockly.Python.ORDER_ATOMIC);
   var value_board = Blockly.Python.valueToCode(block, 'board', Blockly.Python.ORDER_ATOMIC);
   // TODO: Assemble Python into code variable.
-  var code = 'myBoard.sendPrivate(' + value_board.toString() + ', ' + value_message.toString() + ', ' + value_topic.toString() + ')\n' ;
+  var code = 'myBoard.sendMessage(' +  value_message.toString() + ', ' + value_board.toString() + ', ' + value_topic.toString() + ')\n' ;
   return code;
 };
 
@@ -54,20 +99,21 @@ Blockly.Python['lab_network_get_all'] = function(block) {
   var value_topic = Blockly.Python.valueToCode(block, 'topic', Blockly.Python.ORDER_ATOMIC);
   // TODO: Assemble Python into code variable.
   var varName = Blockly.Python.valueToCode(block, 'varname', Blockly.Python.ORDER_ATOMIC);
-  var code = varName.toString() + ' = AwayInfo(private = True, topic = ' + value_topic.toString() + ' ) \n';
+  var code = varName.toString() + ' = AwayInfo( topic = ' + value_topic.toString() + ' ) \n';
   return code;
 };
 
-Blockly.Python['lab_network_get_one'] = function(block) {
-  Blockly.Python.setUp();
-  Blockly.Python.wylioLab();
-  var value_topic = Blockly.Python.valueToCode(block, 'topic', Blockly.Python.ORDER_ATOMIC);
-  var value_board = Blockly.Python.valueToCode(block, 'board', Blockly.Python.ORDER_ATOMIC);
-  // TODO: Assemble Python into code variable.
-  var varName = Blockly.Python.valueToCode(block, 'varname', Blockly.Python.ORDER_ATOMIC);
-  var code = varName.toString() + ' = AwayInfo(public = True, who =' + value_board.toString()+' topic = ' + value_topic.toString() + ' ) \n';
-  return code;
-};
+// Blockly.Python['lab_network_get_one'] = function(block) {
+//   Blockly.Python.setUp();
+//   Blockly.Python.wylioLab();
+//   var value_topic = Blockly.Python.valueToCode(block, 'topic', Blockly.Python.ORDER_ATOMIC);
+//   var value_board = Blockly.Python.valueToCode(block, 'board', Blockly.Python.ORDER_ATOMIC);
+//   // TODO: Assemble Python into code variable.
+//   var varName = Blockly.Python.valueToCode(block, 'varname', Blockly.Python.ORDER_ATOMIC);
+//   var code = varName.toString() + ' = AwayInfo(public = True, who =' + value_board.toString()+' topic = ' + value_topic.toString() + ' ) \n';
+//   return code;
+// };
+
 
 //(self, broadcast = False, public = False, private = False, who = None, topic = 'default' )
 // Blockly.Python['lab_network_recieve_all'] = function(block) {
@@ -89,9 +135,10 @@ Blockly.Python['lab_network_when_changed'] = function(block) {
   var functionName = Blockly.Python.uniqueName('function');
   // TODO: Assemble Python into code variable.
   var code =  'def ' + functionName + '(' + value_msg.toString() + '):\n\t' + statements_function.toString()
-    		+ value_variable + '.when_changed = ' + functionName + '\n';
+    		+ value_variable + '.when_updated = ' + functionName + '\n';
   return code;
 };
+
 
 Blockly.Python['analogread'] = function(block) {
     Blockly.Python.setUp();
