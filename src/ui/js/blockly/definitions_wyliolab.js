@@ -4,6 +4,36 @@ module.exports = function (blockly) {
 	var Blockly = blockly.Blockly;
 	var goog = blockly.goog;
 
+Blockly.Blocks['get_message'] = {
+  init: function() {
+  	this.appendValueInput("board")
+        .setCheck(null)
+        .appendField("message sent by board");
+    this.appendValueInput("topic")
+        .setCheck(null)
+        .appendField("on topic");
+    this.setInputsInline(true);
+    this.setOutput(true, null);
+    this.setColour(120);
+ this.setTooltip("");
+ this.setHelpUrl("");
+  }
+};
+
+Blockly.Blocks['get_message_from_all'] = {
+  init: function() {
+  	this.appendValueInput("topic")
+        .setCheck(null)
+        .appendField("message sent on topic");
+    this.setInputsInline(true);
+    this.setOutput(true, null);
+    this.setColour(120);
+ this.setTooltip("");
+ this.setHelpUrl("");
+  }
+};
+
+
 Blockly.Blocks['got_values'] = {
     init: function() {
         this.appendValueInput("var")
@@ -48,11 +78,9 @@ Blockly.Blocks['get_value'] = {
 
 Blockly.Blocks['get_broadcast'] = {
     init: function() {
-        this.appendValueInput("var")
-            .setCheck(null)
-            .appendField("broadcast stored in");
+        
         this.appendDummyInput()
-            .appendField(".");
+            .appendField("message broadcasted.");
         this.setOutput(true);
         this.setColour(120);
         this.setTooltip("");

@@ -26,6 +26,43 @@ Blockly.Python.wylioLab = function() {
     }
 }
 
+ Blockly.Python.initMessage = function(name, topic, board) {
+ 	
+ 	Blockly.Python.definitions_[name] = name.toString() + ' = AwayInfo( topic = ' + topic.toString() + ', board = ' + board.toString() + ')\n'; 
+ };
+
+Blockly.Python.initBroadcast = function(){
+	if (!Blockly.Python.definitions_['broadcast']) {
+        Blockly.Python.definitions_['broadcast'] = 'broadcast = AwayInfo()\n';
+    }
+}
+
+Blockly.Python['get_message'] = function(block) {
+  Blockly.Python.setUp();
+  var name = Blockly.Python.uniqueName('message');
+  var value_topic = Blockly.Python.valueToCode(block, 'topic', Blockly.Python.ORDER_ATOMIC);
+  var value_board = Blockly.Python.valueToCode(block, 'board', Blockly.Python.ORDER_ATOMIC);
+  Blockly.Python.initMessage(name, value_topic, value_board);
+
+  // TODO: Assemble Python into code variable.
+  var code = name + '.getAvailable()\n';
+  // TODO: Change ORDER_NONE to the correct strength.
+  return [code, Blockly.Python.ORDER_NONE];
+};
+
+Blockly.Python['get_message_from_all'] = function(block) {
+  Blockly.Python.setUp();
+  var name = Blockly.Python.uniqueName('message');
+  var value_topic = Blockly.Python.valueToCode(block, 'topic', Blockly.Python.ORDER_ATOMIC);
+  var value_board = 'None';
+  Blockly.Python.initMessage(name, value_topic, value_board);
+  
+// TODO: Assemble Python into code variable.
+  var code = name + '.getAvailable()\n';
+  // TODO: Change ORDER_NONE to the correct strength.
+  return [code, Blockly.Python.ORDER_NONE];
+};
+
 Blockly.Python['got_values'] = function(block) {
     Blockly.Python.setUp();
     var value_var = Blockly.Python.valueToCode(block, 'var', Blockly.Python.ORDER_ATOMIC);
@@ -53,11 +90,14 @@ Blockly.Python['get_value'] = function(block) {
     return [code, Blockly.Python.ORDER_NONE];
 };
 
+
+
 Blockly.Python['get_broadcast'] = function(block) {
     Blockly.Python.setUp();
+    Blockly.Python.initBroadcast();
     var value_var = Blockly.Python.valueToCode(block, 'var', Blockly.Python.ORDER_ATOMIC);
     // TODO: Assemble Python into code variable.
-    var code = value_var.toString() + '.getBroadcastAvailable()';
+    var code = 'broadcast.getBroadcastAvailable()';
     // TODO: Change ORDER_NONE to the correct strength.
     return [code, Blockly.Python.ORDER_NONE];
 };

@@ -716,7 +716,7 @@
 						</value>
 					</block>
 
-					<block type="lab_network_get_all">
+					<!-- <block type="lab_network_get_all">
 						<value name="varname">
 							<block type="variables_get">
 								<field name="VAR">variable</field>
@@ -727,7 +727,7 @@
 								<field name="TEXT">default</field>
 							</block>
 						</value>
-					</block>
+					</block> -->
 
 					<!-- <block type="lab_network_when_changed">
 						<value name="variable">
@@ -741,7 +741,27 @@
 							</block>
 						</value>
 					</block> -->
-					<block type = "got_values">
+					<block type = "get_message">
+						<value name="topic">
+							<block type="text">
+								<field name="TEXT">default</field>
+							</block>
+						</value>
+						<value name="board">
+							<block type="text">
+								<field name="TEXT">boardId</field>
+							</block>
+						</value>
+					</block>
+					<block type = "get_message_from_all">
+						<value name="topic">
+							<block type="text">
+								<field name="TEXT">default</field>
+							</block>
+						</value>
+						
+					</block>
+			<!-- 		<block type = "got_values">
 						<value name="var">
 							<block type="variables_get">
 								<field name="VAR">variable</field>
@@ -763,23 +783,19 @@
 								<field name="VAR">variable</field>
 							</block>
 						</value>
-					</block>
+					</block> -->
 
 					<block type = "get_broadcast">
-						<value name="var">
-							<block type="variables_get">
-								<field name="VAR">variable</field>
-							</block>
-						</value>
+						
 					</block>
 
-					<block type = "link">
+				<!-- 	<block type = "link">
 						<value name="var">
 							<block type="variables_get">
 								<field name="VAR">variable</field>
 							</block>
 						</value>
-					</block>
+					</block> -->
 					<!-- <block type="start_labnetwork" /> -->
 				</category>
 
