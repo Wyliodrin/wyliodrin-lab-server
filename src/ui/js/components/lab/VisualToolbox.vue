@@ -668,14 +668,14 @@
 				</category>
 
 				<category name="Lab Network" colour="120">
-					<block type="lab_network_send_all">
+				<!-- 	<block type="lab_network_send_all">
 						<value name="message">
 							<block type="text">
 								<field name="TEXT">message</field>
 							</block>
 						</value>
 						
-					</block>
+					</block> -->
 					<!-- <block type="lab_network_get_one">
 						
 						<value name="board">
@@ -784,10 +784,10 @@
 							</block>
 						</value>
 					</block> -->
-
+<!-- 
 					<block type = "get_broadcast">
 						
-					</block>
+					</block> -->
 
 				<!-- 	<block type = "link">
 						<value name="var">
