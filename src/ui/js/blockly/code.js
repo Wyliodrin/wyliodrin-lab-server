@@ -34,6 +34,7 @@ Blockly.Python.initBroadcast = function(){
 
 Blockly.Python['get_message'] = function(block) {
   Blockly.Python.setUp();
+  Blockly.Python.wylioLab();
   var name = Blockly.Python.uniqueName('message');
   var value_topic = Blockly.Python.valueToCode(block, 'topic', Blockly.Python.ORDER_ATOMIC);
   var value_board = Blockly.Python.valueToCode(block, 'board', Blockly.Python.ORDER_ATOMIC);
@@ -47,6 +48,7 @@ Blockly.Python['get_message'] = function(block) {
 
 Blockly.Python['get_message_from_all'] = function(block) {
   Blockly.Python.setUp();
+  Blockly.Python.wylioLab();
   var name = Blockly.Python.uniqueName('message');
   var value_topic = Blockly.Python.valueToCode(block, 'topic', Blockly.Python.ORDER_ATOMIC);
   var value_board = 'None';
